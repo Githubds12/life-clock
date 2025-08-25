@@ -456,7 +456,8 @@ livingBeingInput.addEventListener("change", () => {
   }
 
   // --- Sand (bottom, single correct version) ---
- function drawBottomSand(progress) {
+ // --- Sand (bottom, with a growing pile) ---
+function drawBottomSand(progress) {
   if (progress <= 0) return neckY;
 
   const maxHeight = rimBottom - neckY - 10;
@@ -468,13 +469,14 @@ livingBeingInput.addEventListener("change", () => {
   const baseY = rimBottom;
   const topY = baseY - fillHeight;
 
+  // Sand gradient
   const sandShade = ctx.createLinearGradient(W / 2, topY, W / 2, baseY);
   sandShade.addColorStop(0, sandGradA);
   sandShade.addColorStop(1, sandGradB);
   ctx.fillStyle = sandShade;
 
+  // Draw filled area
   ctx.beginPath();
-  // draw filled rectangle area (like liquid fill)
   ctx.moveTo(rimLeft, baseY);
   ctx.lineTo(rimRight, baseY);
   ctx.lineTo(rimRight, topY);
@@ -482,18 +484,20 @@ livingBeingInput.addEventListener("change", () => {
   ctx.closePath();
   ctx.fill();
 
-  // add a slight curved top to suggest sand pile
+  // --- Draw sand pile mound ---
   ctx.beginPath();
-  const curveDepth = 10; // how curved the top surface looks
-  ctx.moveTo(rimLeft, topY);
-  ctx.quadraticCurveTo(W / 2, topY - curveDepth, rimRight, topY);
-  ctx.lineTo(rimLeft, topY);
+  const pileWidth = lerp(20, rimRight - rimLeft, progress); // pile widens as progress grows
+  const curveDepth = lerp(25, 5, progress); // steep at first, flatter later
+
+  ctx.moveTo(W / 2 - pileWidth / 2, topY);
+  ctx.quadraticCurveTo(W / 2, topY - curveDepth, W / 2 + pileWidth / 2, topY);
   ctx.closePath();
   ctx.fill();
 
   ctx.restore();
   return topY;
 }
+
 
 
 
@@ -625,4 +629,56 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
   
+function updateStats() {
+  const dobInput = document.getElementById("dob").value;
+  const lifespan = parseFloat(document.getElementById("lifespan").value);
+  const ageSlider = document.getElementById("age");
+
+  let ageYears = parseFloat(ageSlider.value);
+
+  if (dobInput) {
+    const dob = new Date(dobInput);
+    const now = new Date();
+    const diffMs = now - dob;
+
+    // Calculate exact age
+    const diffSeconds = diffMs / 1000;
+    const years = diffSeconds / (365.25 * 24 * 60 * 60);
+    ageYears = years;
+
+    // Show exact age (years, months, days)
+    const days = Math.floor(diffSeconds / (24 * 60 * 60));
+    const exactYears = Math.floor(days / 365.25);
+    const remainingDays = Math.floor(days % 365.25);
+    const months = Math.floor(remainingDays / 30.44);
+    const leftoverDays = Math.floor(remainingDays % 30.44);
+
+    document.getElementById("exactAge").textContent =
+      `${exactYears} years, ${months} months, ${leftoverDays} days`;
+  }
+
+  // Years lived (integer)
+  document.getElementById("yearsLived").textContent = Math.floor(ageYears);
+
+  // Years left
+  const yearsLeft = lifespan - ageYears;
+  document.getElementById("yearsLeft").textContent =
+    yearsLeft > 0 ? yearsLeft.toFixed(2) : "0";
+
+  // Progress
+  const progress = Math.min((ageYears / lifespan) * 100, 100);
+  document.getElementById("progressText").textContent =
+    progress.toFixed(2) + "%";
+  document.getElementById("meterFill").style.width = progress + "%";
+}
+
+// Hook updates
+document.getElementById("dob").addEventListener("input", updateStats);
+document.getElementById("lifespan").addEventListener("input", updateStats);
+document.getElementById("age").addEventListener("input", updateStats);
+
+// Initial run
+updateStats();
+
+
 })();
