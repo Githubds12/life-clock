@@ -11,35 +11,20 @@
   const progressText = document.getElementById("progressText");
   const meterFill = document.getElementById("meterFill");
 
-  const sandGradA = "#fde047";
-  const sandGradB = "#f59e0b";
-  const frameStroke =
-    getComputedStyle(document.documentElement).getPropertyValue("--frame") ||
-    "#cbd5e1";
+  const sandGradA = "#d4a74f";
+  const sandGradB = "#b67d2a";
 
   const MS_PER_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, t) => a + (b - a) * t;
 
   const W = canvas.width, H = canvas.height;
-  const rimTop = 180, neckY = H * 0.5, rimBottom = H - 180;
-  const rimLeft = W * 0.21, rimRight = W * 0.79;
-  const neckHalf = 12;
+  const rimTop = 160, neckY = H * 0.5, rimBottom = H - 160;
+  const rimLeft = W * 0.25, rimRight = W * 0.75;
+  const neckHalf = 10;
   const ctrlTopY = H * 0.28, ctrlBottomY = H * 0.72;
 
-  // Particle stream
-  const particles = [];
-  const particleCount = 220;
-  for (let i = 0; i < particleCount; i++) {
-    particles.push({
-      x: W / 2 + (Math.random() - 0.5) * neckHalf * 2,
-      y: rimTop + Math.random() * (neckY - rimTop),
-      vy: 1.5 + Math.random() * 2,
-      radius: 1 + Math.random() * 0.6,
-    });
-  }
-
-  // Helpers
+  // Quadratic helpers
   function quadAt(p0, p1, p2, t) {
     return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2;
   }
@@ -57,180 +42,173 @@
       ? solveTForY(y, rimTop, ctrlTopY, neckY)
       : solveTForY(y, neckY, ctrlBottomY, rimBottom);
     return y <= neckY
-      ? quadAt(rimLeft, W * 0.32, W / 2 - neckHalf, t)
-      : quadAt(W / 2 - neckHalf, W * 0.32, rimLeft, t);
+      ? quadAt(rimLeft, W * 0.35, W / 2 - neckHalf, t)
+      : quadAt(W / 2 - neckHalf, W * 0.35, rimLeft, t);
   }
   function rightWallX(y) {
     const t = y <= neckY
       ? solveTForY(y, rimTop, ctrlTopY, neckY)
       : solveTForY(y, neckY, ctrlBottomY, rimBottom);
     return y <= neckY
-      ? quadAt(rimRight, W * 0.68, W / 2 + neckHalf, t)
-      : quadAt(W / 2 + neckHalf, W * 0.68, rimRight, t);
+      ? quadAt(rimRight, W * 0.65, W / 2 + neckHalf, t)
+      : quadAt(W / 2 + neckHalf, W * 0.65, rimRight, t);
   }
 
-  // Frame & glass with 3D depth
+  // Glass frame
   function drawFrame() {
     ctx.save();
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 4;
     ctx.lineCap = "round";
 
     const glassGrad = ctx.createLinearGradient(0, rimTop, W, rimBottom);
-    glassGrad.addColorStop(0, "rgba(255,255,255,0.25)");
+    glassGrad.addColorStop(0, "rgba(255,255,255,0.2)");
     glassGrad.addColorStop(0.5, "rgba(255,255,255,0.05)");
-    glassGrad.addColorStop(1, "rgba(255,255,255,0.25)");
+    glassGrad.addColorStop(1, "rgba(255,255,255,0.2)");
 
+    // Left side
     ctx.beginPath();
     ctx.moveTo(rimLeft, rimTop);
-    ctx.quadraticCurveTo(W * 0.32, ctrlTopY, W / 2 - neckHalf, neckY);
-    ctx.quadraticCurveTo(W * 0.32, ctrlBottomY, rimLeft, rimBottom);
+    ctx.quadraticCurveTo(W * 0.35, ctrlTopY, W / 2 - neckHalf, neckY);
+    ctx.quadraticCurveTo(W * 0.35, ctrlBottomY, rimLeft, rimBottom);
     ctx.strokeStyle = glassGrad;
     ctx.stroke();
 
+    // Right side
     ctx.beginPath();
     ctx.moveTo(rimRight, rimTop);
-    ctx.quadraticCurveTo(W * 0.68, ctrlTopY, W / 2 + neckHalf, neckY);
-    ctx.quadraticCurveTo(W * 0.68, ctrlBottomY, rimRight, rimBottom);
+    ctx.quadraticCurveTo(W * 0.65, ctrlTopY, W / 2 + neckHalf, neckY);
+    ctx.quadraticCurveTo(W * 0.65, ctrlBottomY, rimRight, rimBottom);
     ctx.strokeStyle = glassGrad;
     ctx.stroke();
-    ctx.restore();
 
-    // Metallic rim
-    const frameGrad = ctx.createLinearGradient(0, rimTop, 0, rimBottom);
-    frameGrad.addColorStop(0, "#e5e7eb");
-    frameGrad.addColorStop(0.5, "#9ca3af");
-    frameGrad.addColorStop(1, "#4b5563");
-
-    ctx.save();
-    ctx.lineWidth = 14;
-    ctx.strokeStyle = frameGrad;
-    ctx.beginPath();
-    ctx.moveTo(rimLeft - 15, rimTop - 20);
-    ctx.lineTo(rimRight + 15, rimTop - 20);
-    ctx.moveTo(rimLeft - 15, rimBottom + 20);
-    ctx.lineTo(rimRight + 15, rimBottom + 20);
-    ctx.stroke();
-    ctx.restore();
-
-    // 3D cone gradient for bulbs
-    const coneGrad = ctx.createRadialGradient(W/2, neckY, 20, W/2, neckY, W/1.2);
-    coneGrad.addColorStop(0, "rgba(255,255,255,0.08)");
-    coneGrad.addColorStop(1, "rgba(0,0,0,0.4)");
-    ctx.save();
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillStyle = coneGrad;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-
-    // Drop shadow under hourglass
+    // Shadow under hourglass
     const shadowGrad = ctx.createRadialGradient(W/2, rimBottom+40, 10, W/2, rimBottom+40, 180);
-    shadowGrad.addColorStop(0, "rgba(0,0,0,0.5)");
+    shadowGrad.addColorStop(0, "rgba(0,0,0,0.4)");
     shadowGrad.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = shadowGrad;
     ctx.beginPath();
-    ctx.ellipse(W/2, rimBottom+40, 140, 30, 0, 0, Math.PI*2);
+    ctx.ellipse(W/2, rimBottom+40, 120, 25, 0, 0, Math.PI*2);
     ctx.fill();
+    ctx.restore();
   }
 
-
-    // Bulb clipping
+  // Bulb clipping
   function clipTopBulb() {
     ctx.beginPath();
     ctx.moveTo(rimLeft, rimTop);
-    ctx.quadraticCurveTo(W * 0.32, ctrlTopY, W / 2 - neckHalf, neckY);
+    ctx.quadraticCurveTo(W * 0.35, ctrlTopY, W / 2 - neckHalf, neckY);
     ctx.lineTo(W / 2 + neckHalf, neckY);
-    ctx.quadraticCurveTo(W * 0.68, ctrlTopY, rimRight, rimTop);
+    ctx.quadraticCurveTo(W * 0.65, ctrlTopY, rimRight, rimTop);
     ctx.closePath();
     ctx.clip();
   }
   function clipBottomBulb() {
     ctx.beginPath();
     ctx.moveTo(rimLeft, rimBottom);
-    ctx.quadraticCurveTo(W * 0.32, ctrlBottomY, W / 2 - neckHalf, neckY);
+    ctx.quadraticCurveTo(W * 0.35, ctrlBottomY, W / 2 - neckHalf, neckY);
     ctx.lineTo(W / 2 + neckHalf, neckY);
-    ctx.quadraticCurveTo(W * 0.68, ctrlBottomY, rimRight, rimBottom);
+    ctx.quadraticCurveTo(W * 0.65, ctrlBottomY, rimRight, rimBottom);
     ctx.closePath();
     ctx.clip();
   }
 
-  // Top sand
+    // Top sand
   function drawTopSand(progress) {
-    const filled = progress;
-    const levelY = lerp(neckY, rimTop, filled);
+    const remaining = 1 - progress;
+    if (remaining <= 0) return;
+
+    const levelY = lerp(neckY, rimTop, remaining);
+
     ctx.save();
     clipTopBulb();
 
-    const left = leftWallX(levelY), right = rightWallX(levelY);
+    const left = leftWallX(levelY);
+    const right = rightWallX(levelY);
     const midX = (left + right) / 2;
-    const topShade = ctx.createRadialGradient(midX, levelY, 20, midX, levelY, 200);
-    topShade.addColorStop(0, "rgba(255, 255, 200, 0.8)");
-    topShade.addColorStop(1, sandGradB);
-    ctx.fillStyle = topShade;
+
+    const sandShade = ctx.createLinearGradient(midX, levelY, midX, rimTop);
+    sandShade.addColorStop(0, sandGradA);
+    sandShade.addColorStop(1, sandGradB);
+    ctx.fillStyle = sandShade;
 
     ctx.beginPath();
     ctx.moveTo(left, levelY);
-    ctx.quadraticCurveTo(midX, levelY + 25, right, levelY);
-    ctx.lineTo(rightWallX(rimTop), rimTop);
-    ctx.lineTo(leftWallX(rimTop), rimTop);
+    ctx.lineTo(right, levelY);
+    ctx.lineTo(W/2 + 2, neckY);
+    ctx.lineTo(W/2 - 2, neckY);
     ctx.closePath();
     ctx.fill();
+
     ctx.restore();
     return levelY;
   }
 
-  // Bottom sand
+  // Bottom sand (cone pile)
   function drawBottomSand(progress) {
-    const remaining = 1 - progress;
-    const levelY = lerp(neckY, rimBottom, remaining);
+    const pileHeight = progress * (rimBottom - neckY - 30);
+    if (pileHeight <= 0) return neckY;
+
     ctx.save();
     clipBottomBulb();
 
-    const left = leftWallX(levelY), right = rightWallX(levelY);
-    const midX = (left + right) / 2;
-    const bottomShade = ctx.createRadialGradient(midX, levelY, 30, midX, levelY, 250);
-    bottomShade.addColorStop(0, "rgba(255, 230, 150, 0.9)");
-    bottomShade.addColorStop(1, sandGradB);
-    ctx.fillStyle = bottomShade;
+    const pileTipY = rimBottom - pileHeight;
+    const baseY = rimBottom;
+
+    const leftBase = leftWallX(baseY);
+    const rightBase = rightWallX(baseY);
+
+    const sandShade = ctx.createLinearGradient(W/2, pileTipY, W/2, baseY);
+    sandShade.addColorStop(0, sandGradA);
+    sandShade.addColorStop(1, sandGradB);
+    ctx.fillStyle = sandShade;
 
     ctx.beginPath();
-    ctx.moveTo(left, levelY);
-    ctx.quadraticCurveTo(midX, levelY - 25, right, levelY);
-    ctx.lineTo(rightWallX(rimBottom), rimBottom);
-    ctx.lineTo(leftWallX(rimBottom), rimBottom);
+    ctx.moveTo(leftBase, baseY);
+    ctx.lineTo(W/2, pileTipY);
+    ctx.lineTo(rightBase, baseY);
     ctx.closePath();
     ctx.fill();
+
     ctx.restore();
-    return levelY;
+    return pileTipY;
   }
 
-  // Falling sand
-  function drawNeckParticles(topLevelY, bottomLevelY) {
+  // Falling stream + particles
+  const particles = [];
+  function drawStream(topLevelY, bottomLevelY) {
     ctx.save();
-    for (const p of particles) {
-      ctx.beginPath();
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 2);
-      g.addColorStop(0, "#fffde7");
-      g.addColorStop(1, sandGradB);
-      ctx.fillStyle = g;
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      p.y += p.vy;
-      if (p.y > bottomLevelY - 5) {
-        p.y = topLevelY + 3;
-        p.x = W / 2 + (Math.random() - 0.5) * neckHalf * 1.5;
-      }
-    }
+    ctx.strokeStyle = sandGradA;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(W/2, topLevelY + 2);
+    ctx.lineTo(W/2, bottomLevelY);
+    ctx.stroke();
     ctx.restore();
 
-    const glow = ctx.createLinearGradient(W / 2, topLevelY, W / 2, bottomLevelY);
-    glow.addColorStop(0, "rgba(255,255,200,0.6)");
-    glow.addColorStop(1, "rgba(255,200,100,0.1)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(W / 2 - 2, topLevelY, 4, bottomLevelY - topLevelY);
+    // Emit particles
+    if (Math.random() < 0.5) {
+      particles.push({
+        x: W/2 + (Math.random()-0.5)*6,
+        y: topLevelY + 5,
+        vy: 2 + Math.random()*2,
+        life: 30
+      });
+    }
+
+    // Update & draw particles
+    for (let i = particles.length-1; i>=0; i--) {
+      const p = particles[i];
+      p.y += p.vy;
+      p.life--;
+      ctx.fillStyle = sandGradA;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+      ctx.fill();
+      if (p.life <= 0 || p.y > bottomLevelY) particles.splice(i,1);
+    }
   }
 
-  // Progress & age logic
+  // Progress & stats
   function computeProgress() {
     const lifespan = Math.max(1, Number(lifespanInput.value) || 100);
     let ageYears;
@@ -245,19 +223,7 @@
     ageYears = Math.max(0, ageYears);
     const pct = clamp(ageYears / lifespan, 0, 1);
 
-    const now = new Date();
-    if (dobInput.value) {
-      const dob = new Date(dobInput.value + "T00:00:00");
-      const totalDays = (now - dob) / (24 * 60 * 60 * 1000);
-      const years = Math.floor(totalDays / 365.2425);
-      const remDays = totalDays - years * 365.2425;
-      const months = Math.floor(remDays / 30.436875);
-      const days = Math.floor(remDays - months * 30.436875);
-      exactAge.textContent = `${years}y ${months}m ${days}d`;
-    } else {
-      exactAge.textContent = `Age: ${ageYears.toFixed(1)} years`;
-    }
-
+    // Update text
     yearsLived.textContent = ageYears.toFixed(2) + " years";
     yearsLeft.textContent = Math.max(0, lifespan - ageYears).toFixed(2) + " years";
     progressText.textContent = (pct * 100).toFixed(2) + `% of ${lifespan} years`;
@@ -266,13 +232,13 @@
     return pct;
   }
 
-  // Main draw loop
+  // Main loop
   function draw() {
     ctx.clearRect(0, 0, W, H);
     const p = computeProgress();
     const bottomLevelY = drawBottomSand(p);
     const topLevelY = drawTopSand(p);
-    drawNeckParticles(topLevelY, bottomLevelY);
+    drawStream(topLevelY, bottomLevelY);
     drawFrame();
     requestAnimationFrame(draw);
   }
@@ -280,9 +246,7 @@
   // Events
   dobInput.addEventListener("change", computeProgress);
   lifespanInput.addEventListener("input", computeProgress);
-  ageSlider.addEventListener("input", () => {
-    if (!dobInput.value) computeProgress();
-  });
+  ageSlider.addEventListener("input", () => { if (!dobInput.value) computeProgress(); });
   useDOBBtn.addEventListener("click", computeProgress);
 
   computeProgress();
