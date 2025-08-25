@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Human Life Sand Clock</title>
+  <title>Life Sand Clock</title>
   <link rel="stylesheet" href="style.css">
 
   <!-- Favicon (Hourglass) -->
@@ -36,7 +36,7 @@ href="data:image/svg+xml;utf8,
       <div>
         <h1>
           <img src="ishalogo.png" alt="Isha Logo" class="header-logo" />
-          Human Life Sand Clock 
+          Life Sand Clock 
         </h1>
         <div class="sub">Sand clock. DOB pre-filled (01-Feb-1998). Lifespan is configurable.</div>
       </div>
@@ -50,6 +50,23 @@ href="data:image/svg+xml;utf8,
             <label for="lifespan">Lifespan (years)</label>
             <input type="number" id="lifespan" min="1" max="150" value="100" />
           </div>
+          <div>
+  <label for="country">Country</label>
+  <select id="country">
+    <option value="">-- Select Country --</option>
+  </select>
+</div>
+<div>
+  <label for="livingBeing">Search Living Being</label>
+  <input 
+    type="text" 
+    id="livingBeing" 
+    placeholder="Type e.g. Dog, Cat, Elephant..." 
+    list="livingBeingList">
+  <datalist id="livingBeingList"></datalist>
+</div>
+
+
           <div>
             <label for="age">Age (years)</label>
             <input type="range" id="age" min="0" max="100" step="0.01" value="25" />
@@ -69,7 +86,7 @@ href="data:image/svg+xml;utf8,
         Introduction & Context
       </h2>
       <p>
-        This sand clock is a metaphor for human life, reminding us that time flows steadily and cannot be paused.
+        This sand clock is a metaphor for life, reminding us that time flows steadily and cannot be paused.
         Below is a short excerpt from a talk that inspired this visualization.
       </p>
       <div class="video-wrapper">
@@ -126,6 +143,31 @@ href="data:image/svg+xml;utf8,
   </div>
 
   <script src="script.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const inputs = document.querySelectorAll("input, select");
+
+  // Restore saved values
+  inputs.forEach(el => {
+    const saved = localStorage.getItem(el.id);
+    if (saved !== null) {
+      el.value = saved;
+      // Trigger change/input so dependent logic updates
+      el.dispatchEvent(new Event("change"));
+      el.dispatchEvent(new Event("input"));
+    }
+
+    // Save new values on change
+    el.addEventListener("change", () => {
+      localStorage.setItem(el.id, el.value);
+    });
+    el.addEventListener("input", () => {
+      localStorage.setItem(el.id, el.value);
+    });
+  });
+});
+</script>
+
 </body>
 
 </html>

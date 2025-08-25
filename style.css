@@ -77,11 +77,13 @@ h1 {
 }
 
 .controls label {
-  font-size: 12px;
-  color: var(--muted);
   display: block;
-  margin-bottom: 6px
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #f9fafb; /* near white, very visible on dark bg */
 }
+
 
 .controls input,
 .controls button {
@@ -189,11 +191,14 @@ h1 {
   border: 1px dashed #223047;
   border-radius: 12px
 }
-
 .label {
-  color: var(--muted);
-  font-size: 12px
+  color: #f9fafb;   /* near-white, very clear on dark */
+  font-size: 13px;
+  font-weight: 600;
 }
+
+
+
 
 .value {
   font-size: 18px
@@ -313,3 +318,60 @@ footer {
 }
 
 
+/* Style for the container */
+.controls label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #f9fafb;  /* near-white for visibility */
+}
+
+
+/* Beautiful dropdown */
+#country {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  outline: none;
+  appearance: none; /* remove default arrow */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'12'%20height%3D'8'%20viewBox%3D'0%200%2012%208'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M1.41.59L6%205.17%2010.59.59%2012%202l-6%206-6-6z'%20fill%3D'%23666'%20/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+/* Hover / focus effect */
+#country:hover, 
+#country:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 6px rgba(0, 119, 255, 0.3);
+}
+
+/* Options styling (for supported browsers) */
+#country option {
+  padding: 10px;
+  font-size: 14px;
+}
+
+#livingBeing {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #263246;
+  background: #0b1220;
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+#livingBeing:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+}
