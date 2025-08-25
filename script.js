@@ -121,13 +121,23 @@
   // Auto-fill lifespan when a living being is chosen
   const livingBeingInput = document.getElementById("livingBeing");
   const lifespanInput1 = document.getElementById("lifespan"); // assuming you already have lifespan input
-
   livingBeingInput.addEventListener("change", () => {
     const chosen = livingBeingInput.value;
+
     if (livingBeingLifespan[chosen]) {
-      lifespanInput1.value = livingBeingLifespan[chosen];
+      selectedAnimal = chosen;
+
+      if (chosen === "Human") {
+        countrySelect.disabled = false; // Human → allow country change
+      } else {
+        countrySelect.disabled = true; // Non-human → disable country
+        countrySelect.selectedIndex = 0; // reset selection
+      }
+
+      updateLifespan();
     }
   });
+
   const countryLifeExpectancy = {
     Afghanistan: 66.54,
     Albania: 79.95,
@@ -476,50 +486,49 @@
 
   // --- Bottom sand (area-correct with sqrt) ---
   // --- Bottom sand (area-correct with sqrt) ---
-function drawBottomSand(progress) {
-  if (progress <= 0) return neckY;
+  function drawBottomSand(progress) {
+    if (progress <= 0) return neckY;
 
-  // Use sqrt to map progress → height (area correct)
-  //const adjusted = Math.sqrt(progress);
+    // Use sqrt to map progress → height (area correct)
+    //const adjusted = Math.sqrt(progress);
 
-  const pileMaxHeight = rimBottom - neckY;
-  const pileHeight = pileMaxHeight * progress;
-  const levelY = rimBottom - pileHeight;
+    const pileMaxHeight = rimBottom - neckY;
+    const pileHeight = pileMaxHeight * progress;
+    const levelY = rimBottom - pileHeight;
 
-  ctx.save();
-  clipBottomBulb();
+    ctx.save();
+    clipBottomBulb();
 
-  // Left & right bulb walls at the current level
-  const left = leftWallX(levelY);
-  const right = rightWallX(levelY);
-  const midX = (left + right) / 2;
+    // Left & right bulb walls at the current level
+    const left = leftWallX(levelY);
+    const right = rightWallX(levelY);
+    const midX = (left + right) / 2;
 
-  // Gradient shading
-  const sandShade = ctx.createLinearGradient(0, levelY, 0, rimBottom);
-  sandShade.addColorStop(0, sandGradA);
-  sandShade.addColorStop(1, sandGradB);
-  ctx.fillStyle = sandShade;
+    // Gradient shading
+    const sandShade = ctx.createLinearGradient(0, levelY, 0, rimBottom);
+    sandShade.addColorStop(0, sandGradA);
+    sandShade.addColorStop(1, sandGradB);
+    ctx.fillStyle = sandShade;
 
-  ctx.beginPath();
-  ctx.moveTo(left, levelY);
+    ctx.beginPath();
+    ctx.moveTo(left, levelY);
 
-  // Draw a sand mound that starts flat, grows peak as progress rises
-  const moundHeight = Math.min(40, pileHeight * 0.4); // Peak grows gradually
-  const moundPeakY = levelY - moundHeight;
+    // Draw a sand mound that starts flat, grows peak as progress rises
+    const moundHeight = Math.min(40, pileHeight * 0.4); // Peak grows gradually
+    const moundPeakY = levelY - moundHeight;
 
-  ctx.quadraticCurveTo((left + midX) / 2, moundPeakY, midX, moundPeakY);
-  ctx.quadraticCurveTo((right + midX) / 2, moundPeakY, right, levelY);
+    ctx.quadraticCurveTo((left + midX) / 2, moundPeakY, midX, moundPeakY);
+    ctx.quadraticCurveTo((right + midX) / 2, moundPeakY, right, levelY);
 
-  // Close to bottom edges
-  ctx.lineTo(rightWallX(rimBottom), rimBottom);
-  ctx.lineTo(leftWallX(rimBottom), rimBottom);
-  ctx.closePath();
-  ctx.fill();
+    // Close to bottom edges
+    ctx.lineTo(rightWallX(rimBottom), rimBottom);
+    ctx.lineTo(leftWallX(rimBottom), rimBottom);
+    ctx.closePath();
+    ctx.fill();
 
-  ctx.restore();
-  return levelY;
-}
-
+    ctx.restore();
+    return levelY;
+  }
 
   // --- Falling stream + tiny grains ---
   const particles = [];
@@ -576,7 +585,10 @@ function drawBottomSand(progress) {
   let targetProgress = 0; // real % lived (0..1)
   let displayProgress = 0; // drawn % at bottom (0..1), starts 0 so top looks 100%
   let introStart = null;
-  const introDuration = 4500; // ~4.5s from 100% top to target
+  const introDuration = 18000; // ~18s from 100% top to target
+
+let paused = false;
+let pauseTime = 0;
 
   function computeProgress() {
     const lifespan = Math.max(1, Number(lifespanInput.value) || 100);
@@ -620,9 +632,9 @@ function drawBottomSand(progress) {
     const topLevelY = drawTopSand(displayProgress);
     drawStream(topLevelY, bottomLevelY);
     drawFrame();
-     if (Math.abs(displayProgress - targetProgress) < 0.001) {
-    checkAreas(topLevelY, bottomLevelY);
-  }
+    if (Math.abs(displayProgress - targetProgress) < 0.001) {
+      checkAreas(topLevelY, bottomLevelY);
+    }
 
     requestAnimationFrame(draw);
   }
@@ -722,36 +734,36 @@ function drawBottomSand(progress) {
   updateStats();
 
   // --- Area check function ---
-function bulbWidth(y) {
-  return rightWallX(y) - leftWallX(y);
-}
-
-function areaBetween(y1, y2, samples = 500) {
-  const dy = (y2 - y1) / samples;
-  let sum = 0;
-  for (let i = 0; i < samples; i++) {
-    const ya = y1 + i * dy;
-    const yb = ya + dy;
-    sum += 0.5 * (bulbWidth(ya) + bulbWidth(yb)) * dy;
+  function bulbWidth(y) {
+    return rightWallX(y) - leftWallX(y);
   }
-  return sum;
-}
 
-function checkAreas(levelTopY, levelBottomY) {
-  const totalTop = areaBetween(rimTop, neckY);
-  const totalBottom = areaBetween(neckY, rimBottom);
+  function areaBetween(y1, y2, samples = 500) {
+    const dy = (y2 - y1) / samples;
+    let sum = 0;
+    for (let i = 0; i < samples; i++) {
+      const ya = y1 + i * dy;
+      const yb = ya + dy;
+      sum += 0.5 * (bulbWidth(ya) + bulbWidth(yb)) * dy;
+    }
+    return sum;
+  }
 
-  const currentTop = areaBetween(levelTopY, neckY);
-  const currentBottom = areaBetween(levelBottomY, rimBottom);
+  function checkAreas(levelTopY, levelBottomY) {
+    const totalTop = areaBetween(rimTop, neckY);
+    const totalBottom = areaBetween(neckY, rimBottom);
 
-  const fracTop = currentTop / totalTop;
-  const fracBottom = currentBottom / totalBottom;
+    const currentTop = areaBetween(levelTopY, neckY);
+    const currentBottom = areaBetween(levelBottomY, rimBottom);
 
-  console.log("Top fraction:", (fracTop * 100).toFixed(2) + "%");
-  console.log("Bottom fraction:", (fracBottom * 100).toFixed(2) + "%");
-  console.log("Total check:", ((fracTop + fracBottom) * 100).toFixed(2) + "%");
-}
+    const fracTop = currentTop / totalTop;
+    const fracBottom = currentBottom / totalBottom;
 
-
-
+    console.log("Top fraction:", (fracTop * 100).toFixed(2) + "%");
+    console.log("Bottom fraction:", (fracBottom * 100).toFixed(2) + "%");
+    console.log(
+      "Total check:",
+      ((fracTop + fracBottom) * 100).toFixed(2) + "%"
+    );
+  }
 })();

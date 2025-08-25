@@ -16,7 +16,11 @@ body {
   background: radial-gradient(1400px 900px at 50% -20%, #1e293b 0%, var(--bg) 70%);
   color: var(--text);
   font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
+  
+  background-size: cover;
 }
+
+
 
 .wrap {
   min-height: 100%;
@@ -30,11 +34,12 @@ body {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url('snakes.avif');
-  background-repeat: repeat;
+  
   background-size: 260px;
-  opacity: 0.08;               /* keep it subtle */
-  mix-blend-mode: overlay;      /* meld with gradient nicely */
+  opacity: 0.08;
+  /* keep it subtle */
+  mix-blend-mode: overlay;
+  /* meld with gradient nicely */
   pointer-events: none;
   z-index: -1;
 }
@@ -81,7 +86,8 @@ h1 {
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 14px;
-  color: #f9fafb; /* near white, very visible on dark bg */
+  color: #f9fafb;
+  /* near white, very visible on dark bg */
 }
 
 
@@ -159,7 +165,8 @@ h1 {
   background: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 16px;                  /* base padding */
+  padding: 16px;
+  /* base padding */
   border-radius: 16px;
   flex: 1;
   min-width: 260px;
@@ -179,7 +186,8 @@ h1 {
 .stats {
   display: grid;
   gap: 10px;
-  padding: 20px;                 /* extra padding so it doesn’t hug the edge */
+  padding: 20px;
+  /* extra padding so it doesn’t hug the edge */
 }
 
 .stat {
@@ -191,8 +199,10 @@ h1 {
   border: 1px dashed #223047;
   border-radius: 12px
 }
+
 .label {
-  color: #f9fafb;   /* near-white, very clear on dark */
+  color: #f9fafb;
+  /* near-white, very clear on dark */
   font-size: 13px;
   font-weight: 600;
 }
@@ -250,7 +260,8 @@ footer {
 
 .video-wrapper {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 ratio */
   height: 0;
   overflow: hidden;
   border-radius: 16px;
@@ -293,7 +304,8 @@ footer {
   width: auto;
   margin-right: 6px;
   vertical-align: middle;
-  border-radius: 6px; /* sunmoon.jpg might be square/rect; soften edges */
+  border-radius: 6px;
+  /* sunmoon.jpg might be square/rect; soften edges */
 }
 
 .logo-round {
@@ -324,7 +336,8 @@ footer {
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 14px;
-  color: #f9fafb;  /* near-white for visibility */
+  color: #f9fafb;
+  /* near-white for visibility */
 }
 
 
@@ -339,7 +352,8 @@ footer {
   font-weight: 500;
   color: #333;
   outline: none;
-  appearance: none; /* remove default arrow */
+  appearance: none;
+  /* remove default arrow */
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'12'%20height%3D'8'%20viewBox%3D'0%200%2012%208'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M1.41.59L6%205.17%2010.59.59%2012%202l-6%206-6-6z'%20fill%3D'%23666'%20/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
@@ -349,7 +363,7 @@ footer {
 }
 
 /* Hover / focus effect */
-#country:hover, 
+#country:hover,
 #country:focus {
   border-color: #0077ff;
   box-shadow: 0 0 6px rgba(0, 119, 255, 0.3);
@@ -371,6 +385,7 @@ footer {
   font-size: 15px;
   outline: none;
 }
+
 #livingBeing:focus {
   border-color: var(--accent);
   box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
