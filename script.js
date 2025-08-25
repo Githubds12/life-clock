@@ -1,7 +1,6 @@
 (() => {
   const livingBeingLifespan = {
-    // Humans
-    Human: 73,
+    
 
     // Mammals
     Dog: 13,
