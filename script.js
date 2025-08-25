@@ -423,81 +423,73 @@ livingBeingInput.addEventListener("change", () => {
     ctx.clip();
   }
 
-  // --- Sand (top) ---
-  function drawTopSand(progress) {
-    const remaining = 1 - progress;
-    if (remaining <= 0) return;
-    const levelY = lerp(neckY, rimTop, remaining);
+ // --- Top sand (area-correct with sqrt) ---
+function drawTopSand(progress) {
+  const remaining = 1 - progress;
+  if (remaining <= 0) return;
 
-    ctx.save();
-    clipTopBulb();
+  // Area ∝ height² → use sqrt for correct mapping
+  const adjusted = Math.sqrt(remaining);
 
-    const left = leftWallX(levelY);
-    const right = rightWallX(levelY);
-    const midX = (left + right) / 2;
-    const dip = lerp(5, 40, 1 - remaining);
-    const surfaceDipY = levelY + dip;
-
-    const sandShade = ctx.createLinearGradient(0, levelY, 0, neckY);
-    sandShade.addColorStop(0, sandGradA);
-    sandShade.addColorStop(1, sandGradB);
-    ctx.fillStyle = sandShade;
-
-    ctx.beginPath();
-    ctx.moveTo(left, levelY);
-    ctx.quadraticCurveTo(midX, surfaceDipY, right, levelY);
-    ctx.lineTo(W / 2 + 2, neckY);
-    ctx.lineTo(W / 2 - 2, neckY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.restore();
-    return levelY;
-  }
-
-  // --- Sand (bottom, single correct version) ---
- // --- Sand (bottom, with a growing pile) ---
-function drawBottomSand(progress) {
-  if (progress <= 0) return neckY;
-
-  const maxHeight = rimBottom - neckY - 10;
-  const fillHeight = progress * maxHeight;
+  const levelY = lerp(neckY, rimTop, adjusted);
 
   ctx.save();
-  clipBottomBulb();
+  clipTopBulb();
 
-  const baseY = rimBottom;
-  const topY = baseY - fillHeight;
+  const left = leftWallX(levelY);
+  const right = rightWallX(levelY);
+  const midX = (left + right) / 2;
+  const dip = lerp(5, 40, 1 - adjusted); // small dip as sand drains
+  const surfaceDipY = levelY + dip;
 
-  // Sand gradient
-  const sandShade = ctx.createLinearGradient(W / 2, topY, W / 2, baseY);
+  const sandShade = ctx.createLinearGradient(0, rimTop, 0, levelY);
   sandShade.addColorStop(0, sandGradA);
   sandShade.addColorStop(1, sandGradB);
   ctx.fillStyle = sandShade;
 
-  // Draw filled area
   ctx.beginPath();
-  ctx.moveTo(rimLeft, baseY);
-  ctx.lineTo(rimRight, baseY);
-  ctx.lineTo(rimRight, topY);
-  ctx.lineTo(rimLeft, topY);
-  ctx.closePath();
-  ctx.fill();
-
-  // --- Draw sand pile mound ---
-  ctx.beginPath();
-  const pileWidth = lerp(20, rimRight - rimLeft, progress); // pile widens as progress grows
-  const curveDepth = lerp(25, 5, progress); // steep at first, flatter later
-
-  ctx.moveTo(W / 2 - pileWidth / 2, topY);
-  ctx.quadraticCurveTo(W / 2, topY - curveDepth, W / 2 + pileWidth / 2, topY);
+  ctx.moveTo(left, levelY);
+  ctx.quadraticCurveTo(midX, surfaceDipY, right, levelY);
+  ctx.lineTo(rightWallX(neckY), neckY);
+  ctx.lineTo(leftWallX(neckY), neckY);
   ctx.closePath();
   ctx.fill();
 
   ctx.restore();
-  return topY;
+  return levelY;
 }
 
+// --- Bottom sand (area-correct with sqrt) ---
+function drawBottomSand(progress) {
+  if (progress <= 0) return neckY;
+
+  const adjusted = Math.sqrt(progress);
+
+  const levelY = lerp(neckY, rimBottom, adjusted);
+
+  ctx.save();
+  clipBottomBulb();
+
+  const left = leftWallX(levelY);
+  const right = rightWallX(levelY);
+  const midX = (left + right) / 2;
+
+  const sandShade = ctx.createLinearGradient(0, levelY, 0, rimBottom);
+  sandShade.addColorStop(0, sandGradA);
+  sandShade.addColorStop(1, sandGradB);
+  ctx.fillStyle = sandShade;
+
+  ctx.beginPath();
+  ctx.moveTo(left, levelY);
+  ctx.quadraticCurveTo(midX, levelY - 20, right, levelY);
+  ctx.lineTo(rightWallX(rimBottom), rimBottom);
+  ctx.lineTo(leftWallX(rimBottom), rimBottom);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+  return levelY;
+}
 
 
 
