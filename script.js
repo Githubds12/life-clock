@@ -602,5 +602,27 @@ livingBeingInput.addEventListener("change", () => {
   computeProgress();
   requestAnimationFrame(draw); // IMPORTANT: start via RAF so timestamp is valid
 
+document.addEventListener("DOMContentLoaded", () => {
+  const inputs = document.querySelectorAll("input, select");
+
+  // Restore saved values
+  inputs.forEach(el => {
+    const saved = localStorage.getItem(el.id);
+    if (saved !== null) {
+      el.value = saved;
+      // Trigger change/input so dependent logic updates
+      el.dispatchEvent(new Event("change"));
+      el.dispatchEvent(new Event("input"));
+    }
+
+    // Save new values on change
+    el.addEventListener("change", () => {
+      localStorage.setItem(el.id, el.value);
+    });
+    el.addEventListener("input", () => {
+      localStorage.setItem(el.id, el.value);
+    });
+  });
+});
   
 })();
