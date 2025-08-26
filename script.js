@@ -117,7 +117,7 @@
 
   // Auto-fill lifespan when a living being is chosen
   const livingBeingInput = document.getElementById("livingBeing");
-  const lifespanInput1 = document.getElementById("lifespan"); // assuming you already have lifespan input
+
   livingBeingInput.addEventListener("change", () => {
     const chosen = livingBeingInput.value;
 
@@ -131,7 +131,8 @@
         countrySelect.selectedIndex = 0; // reset selection
       }
 
-      updateLifespan();
+      lifespanInput.value = livingBeingLifespan[chosen];
+      restartIntro();
     }
   });
 
@@ -584,8 +585,8 @@
   let introStart = null;
   const introDuration = 18000; // ~18s from 100% top to target
 
-let paused = false;
-let pauseTime = 0;
+  let paused = false;
+  let pauseTime = 0;
 
   function computeProgress() {
     const lifespan = Math.max(1, Number(lifespanInput.value) || 100);
@@ -655,45 +656,44 @@ let pauseTime = 0;
   computeProgress();
   requestAnimationFrame(draw); // IMPORTANT: start via RAF so timestamp is valid
 
- document.addEventListener("DOMContentLoaded", () => {
-  const inputs = document.querySelectorAll("input, select");
+  document.addEventListener("DOMContentLoaded", () => {
+    const inputs = document.querySelectorAll("input, select");
 
-  // Restore lifespan first (manual input has priority)
-  const savedLifespan = localStorage.getItem("lifespan");
-  if (savedLifespan !== null) {
-    document.getElementById("lifespan").value = savedLifespan;
-  }
-
-  // Restore all other inputs except country
-  inputs.forEach((el) => {
-    if (el.id === "lifespan" || el.id === "country") return;
-    const saved = localStorage.getItem(el.id);
-    if (saved !== null) {
-      el.value = saved;
+    // Restore lifespan first (manual input has priority)
+    const savedLifespan = localStorage.getItem("lifespan");
+    if (savedLifespan !== null) {
+      document.getElementById("lifespan").value = savedLifespan;
     }
-  });
 
-  // Restore country only if no manual lifespan is saved
-  if (!savedLifespan) {
-    const savedCountry = localStorage.getItem("country");
-    if (savedCountry !== null) {
-      document.getElementById("country").value = savedCountry;
-      // trigger change to set lifespan from country
-      document.getElementById("country").dispatchEvent(new Event("change"));
+    // Restore all other inputs except country
+    inputs.forEach((el) => {
+      if (el.id === "lifespan" || el.id === "country") return;
+      const saved = localStorage.getItem(el.id);
+      if (saved !== null) {
+        el.value = saved;
+      }
+    });
+
+    // Restore country only if no manual lifespan is saved
+    if (!savedLifespan) {
+      const savedCountry = localStorage.getItem("country");
+      if (savedCountry !== null) {
+        document.getElementById("country").value = savedCountry;
+        // trigger change to set lifespan from country
+        document.getElementById("country").dispatchEvent(new Event("change"));
+      }
     }
-  }
 
-  // Always hook saving
-  inputs.forEach((el) => {
-    el.addEventListener("change", () => {
-      localStorage.setItem(el.id, el.value);
-    });
-    el.addEventListener("input", () => {
-      localStorage.setItem(el.id, el.value);
+    // Always hook saving
+    inputs.forEach((el) => {
+      el.addEventListener("change", () => {
+        localStorage.setItem(el.id, el.value);
+      });
+      el.addEventListener("input", () => {
+        localStorage.setItem(el.id, el.value);
+      });
     });
   });
-});
-
 
   function updateStats() {
     const dobInput = document.getElementById("dob").value;
