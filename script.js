@@ -1,7 +1,5 @@
 (() => {
   const livingBeingLifespan = {
-    
-
     // Mammals
     Dog: 13,
     Cat: 15,
@@ -657,28 +655,45 @@ let pauseTime = 0;
   computeProgress();
   requestAnimationFrame(draw); // IMPORTANT: start via RAF so timestamp is valid
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const inputs = document.querySelectorAll("input, select");
+ document.addEventListener("DOMContentLoaded", () => {
+  const inputs = document.querySelectorAll("input, select");
 
-    // Restore saved values
-    inputs.forEach((el) => {
-      const saved = localStorage.getItem(el.id);
-      if (saved !== null) {
-        el.value = saved;
-        // Trigger change/input so dependent logic updates
-        el.dispatchEvent(new Event("change"));
-        el.dispatchEvent(new Event("input"));
-      }
+  // Restore lifespan first (manual input has priority)
+  const savedLifespan = localStorage.getItem("lifespan");
+  if (savedLifespan !== null) {
+    document.getElementById("lifespan").value = savedLifespan;
+  }
 
-      // Save new values on change
-      el.addEventListener("change", () => {
-        localStorage.setItem(el.id, el.value);
-      });
-      el.addEventListener("input", () => {
-        localStorage.setItem(el.id, el.value);
-      });
+  // Restore all other inputs except country
+  inputs.forEach((el) => {
+    if (el.id === "lifespan" || el.id === "country") return;
+    const saved = localStorage.getItem(el.id);
+    if (saved !== null) {
+      el.value = saved;
+    }
+  });
+
+  // Restore country only if no manual lifespan is saved
+  if (!savedLifespan) {
+    const savedCountry = localStorage.getItem("country");
+    if (savedCountry !== null) {
+      document.getElementById("country").value = savedCountry;
+      // trigger change to set lifespan from country
+      document.getElementById("country").dispatchEvent(new Event("change"));
+    }
+  }
+
+  // Always hook saving
+  inputs.forEach((el) => {
+    el.addEventListener("change", () => {
+      localStorage.setItem(el.id, el.value);
+    });
+    el.addEventListener("input", () => {
+      localStorage.setItem(el.id, el.value);
     });
   });
+});
+
 
   function updateStats() {
     const dobInput = document.getElementById("dob").value;
