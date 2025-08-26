@@ -1,6 +1,9 @@
 (() => {
+  let currentAge = 0; // single source of truth
+
   const livingBeingLifespan = {
     // Mammals
+    Human: 73,
     Dog: 13,
     Cat: 15,
     Elephant: 70,
@@ -120,18 +123,21 @@
 
   livingBeingInput.addEventListener("change", () => {
     const chosen = livingBeingInput.value;
-
     if (livingBeingLifespan[chosen]) {
       selectedAnimal = chosen;
 
+      // Save selection
+      localStorage.setItem("livingBeing", chosen);
+
       if (chosen === "Human") {
-        countrySelect.disabled = false; // Human → allow country change
+        countrySelect.disabled = false;
       } else {
-        countrySelect.disabled = true; // Non-human → disable country
-        countrySelect.selectedIndex = 0; // reset selection
+        countrySelect.disabled = true;
+        countrySelect.selectedIndex = 0;
       }
 
       lifespanInput.value = livingBeingLifespan[chosen];
+      localStorage.setItem("lifespan", lifespanInput.value);
       restartIntro();
     }
   });
@@ -579,6 +585,109 @@
     }
   }
 
+  const barSparkles = [];
+  let barSparklesActive = false;
+
+  function drawBarSparkles() {
+    const barWidth = meterFill.offsetWidth;
+    const barHeight = meterFill.offsetHeight;
+
+    if (!barSparklesActive && displayProgress >= 1) {
+      barSparklesActive = true;
+    }
+
+    if (!barSparklesActive) return;
+
+    // Spawn new sparkles randomly
+    if (Math.random() < 0.3) {
+      // Bar sparkles
+      barSparkles.push({
+        x: Math.random() * barWidth,
+        y: Math.random() * barHeight,
+        r: 3 + Math.random() * 3, // bigger
+        life: 60 + Math.random() * 30,
+        vx: (Math.random() - 0.5) * 1,
+        vy: -0.5 + Math.random() * 0.5,
+      });
+
+      // Final sparkles
+      finalSparkles.push({
+        x: W / 2 + (Math.random() - 0.5) * 80,
+        y: bottomLevelY - 5 + (Math.random() - 0.5) * 20,
+        r: 3 + Math.random() * 5, // bigger
+        life: 50 + Math.random() * 50,
+        vx: (Math.random() - 0.5) * 1,
+        vy: -0.2 + Math.random() * 0.5,
+      });
+    }
+
+    // Draw sparkles
+    barSparkles.forEach((s, i) => {
+      s.life--;
+      s.x += s.vx;
+      s.y += s.vy;
+
+      const sparkle = document.createElement("div");
+      sparkle.style.position = "absolute";
+      sparkle.style.width = `${s.r * 2}px`;
+      sparkle.style.height = `${s.r * 2}px`;
+      sparkle.style.left = `${meterFill.offsetLeft + s.x}px`;
+      sparkle.style.top = `${meterFill.offsetTop + s.y}px`;
+      sparkle.style.borderRadius = "50%";
+      sparkle.style.background = "white";
+      sparkle.style.opacity = Math.min(s.life / 50, 1);
+      sparkle.style.pointerEvents = "none";
+      sparkle.style.zIndex = 1000;
+      document.body.appendChild(sparkle);
+
+      if (s.life <= 0) barSparkles.splice(i, 1);
+      setTimeout(() => sparkle.remove(), 16);
+    });
+  }
+
+  // --- Final sparkle effect at 100% ---
+  const finalSparkles = [];
+  // --- Persistent sparkles spawning after 100% ---
+
+  let finalSparklesActive = false;
+
+  function drawFinalSparkles(bottomLevelY) {
+    if (!finalSparklesActive && displayProgress >= 1) {
+      finalSparklesActive = true;
+    }
+
+    if (finalSparklesActive) {
+      if (Math.random() < 0.5) {
+        finalSparkles.push({
+          x: W / 2 + (Math.random() - 0.5) * 80,
+          y: bottomLevelY - 5 + (Math.random() - 0.5) * 20,
+          r: 2 + Math.random() * 4,
+          life: 40 + Math.random() * 30,
+          vx: (Math.random() - 0.5) * 1,
+          vy: -0.2 + Math.random() * 0.5,
+        });
+      }
+
+      for (let i = finalSparkles.length - 1; i >= 0; i--) {
+        const s = finalSparkles[i];
+        s.life--;
+        s.x += s.vx;
+        s.y += s.vy;
+
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(s.life / 50, 1)})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "white";
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if (s.life <= 0) finalSparkles.splice(i, 1);
+      }
+    }
+  }
+
   // --- Progress & intro animation state ---
   let targetProgress = 0; // real % lived (0..1)
   let displayProgress = 0; // drawn % at bottom (0..1), starts 0 so top looks 100%
@@ -590,49 +699,50 @@
 
   function computeProgress() {
     const lifespan = Math.max(1, Number(lifespanInput.value) || 100);
-    let ageYears;
-    if (dobInput.value) {
-      const dob = new Date(dobInput.value + "T00:00:00");
-      ageYears = (Date.now() - dob.getTime()) / MS_PER_YEAR;
-      ageSlider.disabled = true;
-    } else {
-      ageYears = (Number(ageSlider.value) / 100) * lifespan;
-      ageSlider.disabled = false;
-    }
-    ageYears = Math.max(0, ageYears);
-    targetProgress = clamp(ageYears / lifespan, 0, 1);
 
-    // Stats UI
-    yearsLived.textContent = ageYears.toFixed(2) + " years";
+    // keep slider in sync
+    ageSlider.max = lifespan;
+    ageSlider.value = clamp(currentAge, 0, lifespan);
+
+    targetProgress = clamp(currentAge / lifespan, 0, 1);
+
+    // Stats only
+    yearsLived.textContent = currentAge.toFixed(2) + " years";
     yearsLeft.textContent =
-      Math.max(0, lifespan - ageYears).toFixed(2) + " years";
+      Math.max(0, lifespan - currentAge).toFixed(2) + " years";
     progressText.textContent =
       (targetProgress * 100).toFixed(2) + `% of ${lifespan} years`;
-    meterFill.style.width = (targetProgress * 100).toFixed(2) + "%";
   }
+
   // --- Main loop (always called via RAF, so timestamp is defined) ---
   function draw(timestamp) {
     if (introStart === null) introStart = timestamp;
 
-    // Keep target fresh (lets the sand drip after intro)
     computeProgress();
 
     const elapsed = timestamp - introStart;
     if (elapsed < introDuration) {
-      const t = elapsed / introDuration; // 0..1
-      displayProgress = t * targetProgress; // fall from 0 -> target
+      const t = elapsed / introDuration;
+      displayProgress = t * targetProgress;
     } else {
-      displayProgress += (targetProgress - displayProgress) * 0.05;
+      displayProgress = targetProgress; // snap to final value
     }
+
+    // === Progress bar sync ===
+    meterFill.style.width = (displayProgress * 100).toFixed(2) + "%";
+    progressText.textContent = Math.floor(displayProgress * 100) + "%";
 
     ctx.clearRect(0, 0, W, H);
     const bottomLevelY = drawBottomSand(displayProgress);
     const topLevelY = drawTopSand(displayProgress);
     drawStream(topLevelY, bottomLevelY);
+
+    drawFinalSparkles(bottomLevelY);
     drawFrame();
     if (Math.abs(displayProgress - targetProgress) < 0.001) {
       checkAreas(topLevelY, bottomLevelY);
     }
+    drawBarSparkles(); // after updating progress bar
 
     requestAnimationFrame(draw);
   }
@@ -641,15 +751,80 @@
     displayProgress = 0;
     introStart = null;
   }
-  // Events
-  dobInput.addEventListener("change", restartIntro);
-  lifespanInput.addEventListener("input", restartIntro);
+  // Slider → update currentAge
   ageSlider.addEventListener("input", () => {
-    if (!dobInput.value) restartIntro();
+    currentAge = parseFloat(ageSlider.value) || 0;
+    dobInput.value = ""; // clear DOB if slider is used
+    restartIntro();
+     saveState();
   });
+
+  // DOB → update currentAge
+  dobInput.addEventListener("input", () => {
+    if (!dobInput.value) return;
+    const dob = new Date(dobInput.value + "T00:00:00");
+    currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
+    restartIntro();
+     saveState();
+  });
+
+  // Use DOB button
   useDOBBtn.addEventListener("click", () => {
+    if (!dobInput.value) return;
+    const dob = new Date(dobInput.value + "T00:00:00");
+    currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
     restartIntro();
     canvas.scrollIntoView({ behavior: "smooth", block: "center" });
+     saveState();
+  });
+
+  lifespanInput.addEventListener("input", restartIntro);
+
+  function saveState() {
+  localStorage.setItem("lifespan", lifespanInput.value);
+  localStorage.setItem("age", currentAge);
+  localStorage.setItem("dob", dobInput.value);
+  localStorage.setItem("livingBeing", livingBeingInput.value);
+  if (livingBeingInput.value === "Human" && countrySelect.value) {
+    localStorage.setItem("country", countrySelect.value);
+  }
+}
+
+  // --- Slider ↔ DOB synchronization ---
+  function updateFromSlider() {
+    const lifespan = parseFloat(lifespanInput.value) || 100;
+    const ageYears = parseFloat(ageSlider.value) || 0;
+
+    // Update DOB based on slider
+    const now = new Date();
+    const dobDate = new Date(now.getTime() - ageYears * MS_PER_YEAR);
+    dobInput.value = dobDate.toISOString().slice(0, 10); // YYYY-MM-DD
+
+    updateStats();
+  }
+
+  function updateFromDOB() {
+    if (!dobInput.value) return;
+
+    const dob = new Date(dobInput.value + "T00:00:00");
+    const ageYears = (Date.now() - dob.getTime()) / MS_PER_YEAR;
+
+    // Update slider (slider represents years lived directly, not %)
+    const lifespan = parseFloat(lifespanInput.value) || 100;
+    ageSlider.max = lifespan; // keep slider max in sync with lifespan
+    ageSlider.value = clamp(ageYears, 0, lifespan);
+
+    updateStats();
+  }
+
+  // Hook events (bi-directional sync)
+  ageSlider.addEventListener("input", () => {
+    restartIntro();
+    updateFromSlider();
+  });
+  dobInput.addEventListener("input", () => {
+    restartIntro();
+    updateFromDOB();
   });
 
   // Kick off
@@ -657,43 +832,42 @@
   requestAnimationFrame(draw); // IMPORTANT: start via RAF so timestamp is valid
 
   document.addEventListener("DOMContentLoaded", () => {
-    const inputs = document.querySelectorAll("input, select");
+  const savedAnimal = localStorage.getItem("livingBeing");
+  const savedLifespan = localStorage.getItem("lifespan");
+  const savedAge = localStorage.getItem("age");
+  const savedDob = localStorage.getItem("dob");
+  const savedCountry = localStorage.getItem("country");
 
-    // Restore lifespan first (manual input has priority)
-    const savedLifespan = localStorage.getItem("lifespan");
-    if (savedLifespan !== null) {
-      document.getElementById("lifespan").value = savedLifespan;
+  if (savedAnimal) {
+    livingBeingInput.value = savedAnimal;
+    lifespanInput.value = savedLifespan || livingBeingLifespan[savedAnimal];
+
+    if (savedAnimal === "Human") {
+      countrySelect.disabled = false;
+      if (savedCountry) countrySelect.value = savedCountry;
+    } else {
+      countrySelect.disabled = true;
     }
+  } else {
+    livingBeingInput.value = "Human";
+    lifespanInput.value = livingBeingLifespan["Human"];
+    countrySelect.disabled = false;
+    if (savedCountry) countrySelect.value = savedCountry;
+  }
 
-    // Restore all other inputs except country
-    inputs.forEach((el) => {
-      if (el.id === "lifespan" || el.id === "country") return;
-      const saved = localStorage.getItem(el.id);
-      if (saved !== null) {
-        el.value = saved;
-      }
-    });
+  if (savedDob) {
+    dobInput.value = savedDob;
+    const dob = new Date(savedDob + "T00:00:00");
+    currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
+  } else if (savedAge) {
+    currentAge = parseFloat(savedAge) || 0;
+    ageSlider.value = currentAge;
+  }
 
-    // Restore country only if no manual lifespan is saved
-    if (!savedLifespan) {
-      const savedCountry = localStorage.getItem("country");
-      if (savedCountry !== null) {
-        document.getElementById("country").value = savedCountry;
-        // trigger change to set lifespan from country
-        document.getElementById("country").dispatchEvent(new Event("change"));
-      }
-    }
+  ageSlider.max = Math.max(1, Number(lifespanInput.value) || 100);
+  ageSlider.value = currentAge;
+});
 
-    // Always hook saving
-    inputs.forEach((el) => {
-      el.addEventListener("change", () => {
-        localStorage.setItem(el.id, el.value);
-      });
-      el.addEventListener("input", () => {
-        localStorage.setItem(el.id, el.value);
-      });
-    });
-  });
 
   function updateStats() {
     const dobInput = document.getElementById("dob").value;
