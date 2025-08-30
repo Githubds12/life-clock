@@ -648,17 +648,47 @@
   }
 
   // ===== Mute / Unmute Toggle =====
-  let isMuted = false;
-  if (muteBtn) {
+// ===== Mute / Unmute Toggle (with persistence) =====
+let isMuted = localStorage.getItem("muted") === "true"; // load saved state
+
+function applyMuteState() {
+  muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+  if (noiseGain) {
+    noiseGain.gain.value = isMuted ? 0 : 0.003;
+  }
+}
+const sadhguruQuotes = [
+  "Timely death is not a disaster.",
+  "Once you are constantly aware of your mortality, your spiritual search will be unwavering.",
+  "Death is a cosmic joke. If you get the joke, falling on the other side will be wonderful.",
+  "Birth and death are just passages, not of life but of time.",
+  "Death is a fiction of the unaware. There is only life, life, and life alone, moving from one dimension to another.",
+  "Death is something that happens only once in our lives. It is important that we conduct it well.",
+  "If you can transition from wakefulness to sleep consciously, you will also be able to transition from life to death consciously.",
+
+  // 🔥 New ones added
+  "Every breath you take, you are getting closer to the grave. But every breath you take, you can also get closer to your liberation.",
+  "Only a person who has lived totally can die gracefully.",
+  "Death is the highest relaxation. Life needs a certain amount of tension to keep it going.",
+  "If you realize how fragile your life is, you will walk very gently on this planet.",
+  "Only a person who is willing to die can live totally.",
+  "If we cannot celebrate death as we celebrate birth, we will not know life.",
+  "Life and death are like inhalation and exhalation. They always exist together.",
+  "Only those who shall die, shall live.",
+  "Avoiding death is avoiding life. Dodging life is inviting death.",
+  "The only safe place on the planet is your grave."
+];
+
+// Apply state immediately on load
+if (muteBtn) {
+  applyMuteState();
+
   muteBtn.addEventListener("click", () => {
-    maybeStartAudio(); // make sure audio is initialized on user click
+    maybeStartAudio(); // ensure audio is initialized
 
     isMuted = !isMuted;
-    muteBtn.textContent = isMuted ? "Unmute" : "Mute";
-
-    if (noiseGain) {
-      noiseGain.gain.value = isMuted ? 0 : 0.003; // set immediate volume
-    }
+    localStorage.setItem("muted", isMuted); // save to storage
+    applyMuteState();
   });
 }
 
@@ -863,5 +893,38 @@ function updateSandSound(intensity) {
     const progress = Math.min((ageYears / lifespan) * 100, 100);
     document.getElementById("progressText").textContent = progress.toFixed(2) + "%";
     document.getElementById("meterFill").style.width = progress + "%";
+
   }
+const quoteText = document.getElementById("quoteText");
+const nextQuoteBtn = document.getElementById("nextQuoteBtn");
+
+function showRandomQuote() {
+  if (!quoteText) return;
+
+  // fade out
+  quoteText.classList.remove("visible");
+
+  setTimeout(() => {
+    const q = sadhguruQuotes[Math.floor(Math.random() * sadhguruQuotes.length)];
+    quoteText.textContent = `"${q}" — Sadhguru`;
+
+    // fade in
+    quoteText.classList.add("visible");
+  }, 500); // wait for half the transition
+}
+
+
+// Show one immediately
+showRandomQuote();
+quoteText.classList.add("visible");
+
+// Rotate every 3 minutes
+setInterval(showRandomQuote, 1000 * 60 * 3);
+
+// Button click = new quote instantly
+if (nextQuoteBtn) {
+  nextQuoteBtn.addEventListener("click", showRandomQuote);
+}
+
+
 })();

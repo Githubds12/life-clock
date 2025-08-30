@@ -242,6 +242,7 @@ h1 {
   }
 }
 
+
 /* Meter fill (glowing liquid) */
 #meterFill {
   height: 100%;
@@ -557,4 +558,45 @@ body::after {
 #country {
   background: rgba(0,0,0,0.55) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
+}
+#quoteBox {
+  margin: 30px auto;
+  max-width: 80%;
+  padding: 20px 30px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #f5f5f5;
+  font-style: italic;
+}
+
+#quoteText {
+  margin-bottom: 15px;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+#quoteText.visible {
+  opacity: 1;
+}
+
+#nextQuoteBtn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d4a74f, #b67d2a);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+#nextQuoteBtn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #e6ba6f, #c98c3a);
 }
