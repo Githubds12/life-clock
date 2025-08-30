@@ -654,7 +654,7 @@ let isMuted = localStorage.getItem("muted") === "true"; // load saved state
 function applyMuteState() {
   muteBtn.textContent = isMuted ? "Unmute" : "Mute";
   if (noiseGain) {
-    noiseGain.gain.value = isMuted ? 0 : 0.5;
+    noiseGain.gain.value = isMuted ? 0 : 0.9;
   }
 }
 
@@ -684,7 +684,7 @@ function updateSandSound(intensity) {
   }
 
   // normal operation
-  const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.1;
+  const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.6;
   noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
 
   if (band) {
