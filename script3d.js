@@ -662,21 +662,24 @@
   });
 }
 
-  function updateSandSound(intensity) {
-    if (!noiseGain) return;
+function updateSandSound(intensity) {
+  if (!noiseGain) return;
 
-    if (isMuted) {
-      noiseGain.gain.linearRampToValueAtTime(0, (audioCtx?.currentTime || 0) + 0.05);
-      return;
-    }
-
-    // Softer default volume
-    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.02;
-
-    noiseGain.gain.linearRampToValueAtTime(g, (audioCtx?.currentTime || 0) + 0.08);
-
-    if (band) band.frequency.value = 1200 + Math.sin(performance.now() * 0.001) * 300;
+  if (isMuted) {
+    // force silence, don’t let intensity update volume
+    noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    return;
   }
+
+  // normal operation
+  const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.02;
+  noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
+
+  if (band) {
+    band.frequency.value = 1200 + Math.sin(performance.now() * 0.001) * 300;
+  }
+}
 
   // ===== Main loop =====
   function draw(timestamp) {
