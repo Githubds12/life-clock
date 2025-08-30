@@ -407,7 +407,8 @@
   // ===== Sand drawing =====
   function drawTopSand(progress) {
     const remaining = 1 - progress; if (remaining <= 0) return;
-    const adjusted = Math.sqrt(remaining);
+    const adjusted = Math.pow(remaining, 0.7);  // slower drain, looks fuller
+
     const levelY = lerp(neckY, rimTop, adjusted);
 
     ctx.save(); clipTopBulb();
@@ -452,7 +453,8 @@
     const baseLeft = leftWallX(rimBottom), baseRight = rightWallX(rimBottom);
     const midX = (left + right) / 2;
 
-    const moundHeight = Math.min(46, pileHeight * 0.45);
+    const moundHeight = Math.min(60, pileHeight * 0.65); // taller, fuller mound
+
     const peakY = levelY - moundHeight;
 
     const bodyGrad = ctx.createLinearGradient(0, peakY, 0, rimBottom);
@@ -494,6 +496,7 @@
     ctx.save();
     const startY = neckY + 1.5, endY = bottomLevelY - 2;
     const topWidth = 10, bottomWidth = 3;
+
 
     const streamGrad = ctx.createLinearGradient(W/2, startY, W/2, endY);
     streamGrad.addColorStop(0, sandGradA); streamGrad.addColorStop(1, sandGradB);
