@@ -7,8 +7,7 @@
   <title>Life Sand Clock</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Favicon (Hourglass) -->
-  <!-- Favicon (inline SVG hourglass, no external URL needed) -->
+  <!-- Favicon (inline SVG hourglass) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
   <defs>
@@ -17,20 +16,19 @@
       <stop offset='1' stop-color='%23b67d2a'/>
     </linearGradient>
   </defs>
-  <!-- top & bottom rims -->
   <rect x='14' y='6' width='36' height='6' rx='3' fill='%23e0e0e0'/>
   <rect x='14' y='52' width='36' height='6' rx='3' fill='%23e0e0e0'/>
-  <!-- glass outline -->
   <path d='M17 12 Q32 28 47 12 M47 52 Q32 36 17 52'
         stroke='%23e0e0e0' stroke-width='6' fill='none' stroke-linecap='round'/>
-  <!-- sand (top + bottom) -->
   <path d='M22 20 Q32 28 42 20 L42 26 L22 26 Z' fill='url(%23s)'/>
   <path d='M22 46 L42 46 L42 52 Q32 42 22 52 Z' fill='url(%23s)'/>
 </svg>">
 
-
+  
+</head>
 
 <body>
+ 
   <div class="wrap snake-bg">
     <header>
       <div>
@@ -61,16 +59,14 @@
             <input type="text" id="livingBeing" placeholder="Type e.g. Dog, Cat, Elephant..." list="livingBeingList">
             <datalist id="livingBeingList"></datalist>
           </div>
-
-
           <div>
             <label for="age">Age (years)</label>
             <input type="range" id="age" min="0" max="100" step="0.01">
-
           </div>
           <div>
             <label>&nbsp;</label>
             <button id="useDOB">Use DOB</button>
+            <button id="muteBtn">🔇 Mute</button>
           </div>
         </div>
       </div>
@@ -138,8 +134,22 @@
     </footer>
   </div>
 
+  <!-- Sound setup -->
+  <audio id="sandSound" src="sand.mp3" autoplay loop></audio>
 
-  <script src="script.js"></script>
+  <script src="script3d.js"></script>
+  <script>
+    const audio = document.getElementById("sandSound");
+    audio.volume = 0.2; // softer sound
+
+    const muteBtn = document.getElementById("muteBtn");
+    let muted = false;
+
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      audio.muted = muted;
+      muteBtn.textContent = muted ? "🔊 Unmute" : "🔇 Mute";
+    });
+  </script>
 </body>
-
 </html>

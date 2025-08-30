@@ -9,15 +9,20 @@
   --sandB: #f59e0b;
 }
 
-html,
-body {
-  height: 100%;
+html, body {
   margin: 0;
-  background: radial-gradient(1400px 900px at 50% -20%, #1e293b 0%, var(--bg) 70%);
-  color: var(--text);
-  font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial;
+  padding: 0;
+  height: 100%;
+}
 
+/* Galaxy wallpaper stays fixed */
+body {
+  font-family: 'Inter', sans-serif;
+  background: url("https://cdn.esahubble.org/archives/images/screen/heic0910e.jpg") no-repeat center center fixed;
   background-size: cover;
+  background-attachment: fixed; /* this keeps it in place */
+  color: var(--text);
+  overflow-x: hidden;
 }
 
 
@@ -249,6 +254,8 @@ h1 {
   transition: width 0.2s linear;
 }
 
+
+
 /* 🔥 Auto pulse only when bar width = 100% */
 #meterFill[style*="100%"] {
   animation: flow 6s linear infinite, pulse 2s ease-in-out infinite;
@@ -305,15 +312,21 @@ footer {
   font-size: 14px;
   color: var(--muted);
 }
+.video-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 
 .video-wrapper {
   position: relative;
-  padding-bottom: 56.25%;
-  /* 16:9 ratio */
-  height: 0;
+  width: 100%;
+  max-width: 560px;   /* shrink width (you can set 400px if you want smaller) */
+  margin: 1.5rem auto; /* center it with spacing */
+  aspect-ratio: 16 / 9; /* keeps video ratio */
+  border-radius: 12px;
   overflow: hidden;
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 
 .video-wrapper iframe {
@@ -323,11 +336,15 @@ footer {
   width: 100%;
   height: 100%;
   border: none;
-  border-radius: 16px;
+}
+
+.box-title {
+  color: white; /* or gold, silver, etc. instead of green */
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6); /* optional glow */
 }
 
 /* Titles inside boxes */
-.box-title {
+/* .box-title {
   font-size: 18px;
   margin: 0 0 12px;
   color: var(--accent);
@@ -336,7 +353,7 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
+} */
 
 /* Clock wrapper for a heading above canvas */
 .clock-wrapper {
@@ -437,4 +454,107 @@ footer {
 #livingBeing:focus {
   border-color: var(--accent);
   box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+}
+.card,
+.container,
+.panel,
+.clock-wrapper,
+.stats {
+  background: transparent !important; /* removes box background */
+  box-shadow: none !important;       /* remove shadow if any */
+  border: none !important;           /* optional – remove border */
+}
+
+/* Keep your panels readable */
+.card, .panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+/* Ensure your content panels remain readable */
+.card, .panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+
+/* Star texture layer */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("https://www.transparenttextures.com/patterns/stardust.png");
+  opacity: 0.3;
+  /* faint */
+  z-index: -3;
+}
+
+
+
+/* === Panels & Inputs (less see-through) === */
+.card,
+.panel {
+  background: rgba(17, 24, 39, 0.8);
+  /* stronger background */
+  backdrop-filter: blur(8px);
+}
+
+.controls input,
+.controls button,
+#livingBeing {
+  background: rgba(11, 18, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* === FINAL OVERRIDES: make everything transparent === */
+
+/* Remove any overlay/film layers */
+.wrap.snake-bg::before,
+body::after {
+  display: none !important;
+}
+
+/* Make all panels/cards/containers transparent */
+.card,
+.panel,
+.intro.card,
+.stats,
+.clock-wrapper,
+.container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* YouTube wrapper fully transparent */
+.video-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+/* Canvas: remove inner gradient, border, and glow */
+#canvas {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#canvas:hover {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Title color — ensure it's not green */
+.box-title {
+  color: #fff !important;
+}
+
+/* Keep form controls readable on a transparent background */
+.controls input,
+.controls button,
+#livingBeing,
+#country {
+  background: rgba(0,0,0,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
 }
