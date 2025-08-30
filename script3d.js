@@ -897,7 +897,17 @@ const sadhguruQuotes = [
   "Life and death are like inhalation and exhalation. They always exist together.",
   "Only those who shall die, shall live.",
   "Avoiding death is avoiding life. Dodging life is inviting death.",
-  "The only safe place on the planet is your grave."
+  "The only safe place on the planet is your grave.",
+
+  // 🌿 Extra fresh ones
+  "Mortality is not a curse – it is the very thing that makes life precious.",
+  "When death comes, it is neither good nor bad. It is just the completion of a certain process.",
+  "If you constantly remember that you are mortal, you will walk with intensity and involvement.",
+  "Death is not the end of life – it is the end of the body. Life is beyond that.",
+  "The moment you came out of your mother’s womb, the countdown to your grave started.",
+  "Only when you accept death gracefully will you know how to live gracefully.",
+  "When you look at your life as a limited lease of time, every moment becomes immensely valuable.",
+  "Your life is ticking away like a clock. The question is, will you make it worthwhile before it stops?"
 ];
 
 
@@ -949,22 +959,27 @@ const nextQuoteBtn = document.getElementById("nextQuoteBtn");
 function showRandomQuote() {
   if (!quoteText) return;
 
-  quoteText.classList.remove("visible"); // fade-out if CSS exists
+  // fade out
+  quoteText.classList.remove("visible");
 
   setTimeout(() => {
     const q = getNextQuote();
     quoteText.textContent = `"${q}" — Sadhguru`;
-    quoteText.classList.add("visible"); // fade-in
-  }, 500);
+
+    // fade in
+    quoteText.classList.add("visible");
+
+    saveQuoteState();
+  }, 800);
 }
+
+// === Auto cycle every 15 seconds ===
+setInterval(showRandomQuote, 15000);
 
 
 // Show one immediately
 showRandomQuote();
 quoteText.classList.add("visible");
-
-// Rotate every 3 minutes
-setInterval(showRandomQuote, 1000 * 60 * 3);
 
 // Button click = new quote instantly
 if (nextQuoteBtn) {
