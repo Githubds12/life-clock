@@ -650,11 +650,18 @@
   // ===== Mute / Unmute Toggle =====
   let isMuted = false;
   if (muteBtn) {
-    muteBtn.addEventListener("click", () => {
-      isMuted = !isMuted;
-      muteBtn.textContent = isMuted ? "Unmute" : "Mute";
-    });
-  }
+  muteBtn.addEventListener("click", () => {
+    maybeStartAudio(); // make sure audio is initialized on user click
+
+    isMuted = !isMuted;
+    muteBtn.textContent = isMuted ? "Unmute" : "Mute";
+
+    if (noiseGain) {
+      noiseGain.gain.value = isMuted ? 0 : 0.003; // set immediate volume
+    }
+  });
+}
+
   function updateSandSound(intensity) {
     if (!noiseGain) return;
 
@@ -664,7 +671,8 @@
     }
 
     // Softer default volume
-    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.005;
+    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.02;
+
     noiseGain.gain.linearRampToValueAtTime(g, (audioCtx?.currentTime || 0) + 0.08);
 
     if (band) band.frequency.value = 1200 + Math.sin(performance.now() * 0.001) * 300;
