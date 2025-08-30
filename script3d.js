@@ -657,27 +657,8 @@ function applyMuteState() {
     noiseGain.gain.value = isMuted ? 0 : 0.003;
   }
 }
-const sadhguruQuotes = [
-  "Timely death is not a disaster.",
-  "Once you are constantly aware of your mortality, your spiritual search will be unwavering.",
-  "Death is a cosmic joke. If you get the joke, falling on the other side will be wonderful.",
-  "Birth and death are just passages, not of life but of time.",
-  "Death is a fiction of the unaware. There is only life, life, and life alone, moving from one dimension to another.",
-  "Death is something that happens only once in our lives. It is important that we conduct it well.",
-  "If you can transition from wakefulness to sleep consciously, you will also be able to transition from life to death consciously.",
 
-  // 🔥 New ones added
-  "Every breath you take, you are getting closer to the grave. But every breath you take, you can also get closer to your liberation.",
-  "Only a person who has lived totally can die gracefully.",
-  "Death is the highest relaxation. Life needs a certain amount of tension to keep it going.",
-  "If you realize how fragile your life is, you will walk very gently on this planet.",
-  "Only a person who is willing to die can live totally.",
-  "If we cannot celebrate death as we celebrate birth, we will not know life.",
-  "Life and death are like inhalation and exhalation. They always exist together.",
-  "Only those who shall die, shall live.",
-  "Avoiding death is avoiding life. Dodging life is inviting death.",
-  "The only safe place on the planet is your grave."
-];
+
 
 // Apply state immediately on load
 if (muteBtn) {
@@ -895,22 +876,86 @@ function updateSandSound(intensity) {
     document.getElementById("meterFill").style.width = progress + "%";
 
   }
+
+
+const sadhguruQuotes = [
+  "Timely death is not a disaster.",
+  "Once you are constantly aware of your mortality, your spiritual search will be unwavering.",
+  "Death is a cosmic joke. If you get the joke, falling on the other side will be wonderful.",
+  "Birth and death are just passages, not of life but of time.",
+  "Death is a fiction of the unaware. There is only life, life, and life alone, moving from one dimension to another.",
+  "Death is something that happens only once in our lives. It is important that we conduct it well.",
+  "If you can transition from wakefulness to sleep consciously, you will also be able to transition from life to death consciously.",
+
+  // 🔥 New ones added
+  "Every breath you take, you are getting closer to the grave. But every breath you take, you can also get closer to your liberation.",
+  "Only a person who has lived totally can die gracefully.",
+  "Death is the highest relaxation. Life needs a certain amount of tension to keep it going.",
+  "If you realize how fragile your life is, you will walk very gently on this planet.",
+  "Only a person who is willing to die can live totally.",
+  "If we cannot celebrate death as we celebrate birth, we will not know life.",
+  "Life and death are like inhalation and exhalation. They always exist together.",
+  "Only those who shall die, shall live.",
+  "Avoiding death is avoiding life. Dodging life is inviting death.",
+  "The only safe place on the planet is your grave."
+];
+
+
+// Quote shuffling system with memory
+let shuffledQuotes = [];
+let quoteIndex = 0;
+
+function shuffleQuotes() {
+  shuffledQuotes = [...sadhguruQuotes].sort(() => Math.random() - 0.5);
+  quoteIndex = 0;
+  saveQuoteState();
+}
+
+function getNextQuote() {
+  if (quoteIndex >= shuffledQuotes.length) {
+    shuffleQuotes(); // reshuffle once all quotes are used
+  }
+  const q = shuffledQuotes[quoteIndex++];
+  saveQuoteState();
+  return q;
+}
+
+function saveQuoteState() {
+  localStorage.setItem("quoteState", JSON.stringify({
+    shuffledQuotes,
+    quoteIndex
+  }));
+}
+
+function loadQuoteState() {
+  const saved = localStorage.getItem("quoteState");
+  if (saved) {
+    try {
+      const state = JSON.parse(saved);
+      if (state.shuffledQuotes && state.shuffledQuotes.length === sadhguruQuotes.length) {
+        shuffledQuotes = state.shuffledQuotes;
+        quoteIndex = state.quoteIndex || 0;
+        return;
+      }
+    } catch (e) {
+      console.warn("Quote state reset", e);
+    }
+  }
+  loadQuoteState();
+}
 const quoteText = document.getElementById("quoteText");
 const nextQuoteBtn = document.getElementById("nextQuoteBtn");
 
 function showRandomQuote() {
   if (!quoteText) return;
 
-  // fade out
-  quoteText.classList.remove("visible");
+  quoteText.classList.remove("visible"); // fade-out if CSS exists
 
   setTimeout(() => {
-    const q = sadhguruQuotes[Math.floor(Math.random() * sadhguruQuotes.length)];
+    const q = getNextQuote();
     quoteText.textContent = `"${q}" — Sadhguru`;
-
-    // fade in
-    quoteText.classList.add("visible");
-  }, 500); // wait for half the transition
+    quoteText.classList.add("visible"); // fade-in
+  }, 500);
 }
 
 
