@@ -654,7 +654,7 @@ let isMuted = localStorage.getItem("muted") === "true"; // load saved state
 function applyMuteState() {
   muteBtn.textContent = isMuted ? "Unmute" : "Mute";
   if (noiseGain) {
-    noiseGain.gain.value = isMuted ? 0 : 0.003;
+    noiseGain.gain.value = isMuted ? 0 : 0.01;
   }
 }
 
@@ -684,7 +684,7 @@ function updateSandSound(intensity) {
   }
 
   // normal operation
-  const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.02;
+  const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0.05;
   noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
 
   if (band) {
@@ -985,6 +985,183 @@ quoteText.classList.add("visible");
 if (nextQuoteBtn) {
   nextQuoteBtn.addEventListener("click", showRandomQuote);
 }
+
+// ====================
+// 🌿 Pebbles of Wisdom
+// ====================
+
+const pebblesOfWisdom = [
+  "I have no teachings at all. If you are willing, then I can deliver you into a space and a situation within yourself that you have never imagined possible in human life.",
+  "Liberation is not my idea; it is the fundamental longing in every form of life.",
+  "When you are torn by the pain of ignorance, then a Master arrives…",
+  "‘Sadhguru’ means a dissolving agent, a catalyst to dissolve you faster.",
+  "Spirituality is not something you do. If you stop all of your nonsense, you are spiritual. Spirituality is ultimate sense.",
+  "The significance of human nature is that you have the discretion to decide how God should function within you. This is not a small choice, not a small responsibility, not a small honor. Is it a small honor that you can decide how God should function? Most people are letting this go by, not realizing what is being bestowed upon them.",
+  "There is no such thing as ego; it is empty talk. The nasty part of you, you call it ego. Whenever you get nasty, you don’t want to see, 'It is me who is nasty.' You want to say, 'Oh, it is my ego.' This is another way of passing the buck. There is no ego. There is just you, and you, and you alone.",
+  "The spiritual path has become a struggle only because of this: you have a strong sense of like and dislike, but you are trying to be all-inclusive. It’s a self-defeating process.",
+  "Learning is a natural human trait. When you learn something that you did not know, it should make you joyful. But if learning is making children miserable, then we have not understood how to impart learning.",
+  "Once your consciousness rises beyond the needs of security, prosperity and pleasure, you will see that flowering is the very basis of life. It is not the end-product – it is the beginning and the end. The very purpose of life is to reach the highest possible flowering.",
+  "Right now, you are half alive, because you are mistaking your psychological drama for reality. If you were truly alive, everything would be flowing and flowering within you.",
+  "Don’t believe what I say. Don’t disbelieve what I say. Don’t just believe or disbelieve me. Just experiment, be a scientist in your own life. If it works, it works. If it doesn’t, you throw it away. You lose nothing.",
+  "Devotion means involvement with no limits, prejudice, and conditions.",
+  "The moment you ascribe who you are right now to what happened yesterday, you cannot change yourself.",
+  "Nothing is right and nothing is wrong. It is just limited or unlimited.",
+  "Once your vision becomes absolutely clear, your body, mind, emotions and energies will function only for what you really want to do.",
+  "Every little thing that you do should become an act of love.",
+  "Your wealth, your money, your positions, your education, your career – all these things you might gather, but you will never gather yourself. For that, you need to look inward.",
+  "Belief gives you confidence, but it deprives you of clarity. Confidence without clarity is a disaster.",
+  "There is no insurance for life. Life is happening the way it is happening because of the way you are handling it. If you handle it properly, it will happen beautifully.",
+  "Your personality is something that you created consciously or unconsciously. You can always create it whichever way you want.",
+  "This is the fundamental nature of life: if you want to go up somewhere, you have to leave where you are right now. Only if you leave here can you go there.",
+  "This body is just a piece of Earth that you carry with you. If you get it now, you can live gracefully. If you get it when they bury you, you will still be graceful, but too late.",
+  "If you want flowers in your garden, you don’t have to pray to God and ask for flowers. You have to just understand the soil, manure, and water. If you handle this well, flowers will come. This is the nature of existence.",
+  "What you identify yourself with, that is what you become.",
+  "Peace and joy are not things that you can get from outside. They can only come from within.",
+  "You cannot suffer the past or the future because they do not exist. What you are suffering is your memory and your imagination.",
+  "If you resist change, you resist life.",
+  "Life is just a certain amount of time and energy. If you make the best out of it, you live fully.",
+  "Your mind is a projection machine. It projects your past experience into the future.",
+  "To live totally means, before you fall dead, every aspect of life has been explored – nothing has been left untouched.",
+  "Once you are in touch with your inner nature, nothing external will ever decide who you are.",
+  "If you do not know how to be still, you can only know how to be restless.",
+  "If you stop clinging to everything, your life will become very simple.",
+  "Spirituality is not about looking up or down – it is about looking inward.",
+  "There is no need to search for God. If you deepen your experience of life to its core, you will know the source of creation.",
+  "What you call ‘life’ is just a certain combination of time and energy. Time is ticking away. Energy is not limitless. If you make the best of these two things, you will live a full life.",
+  "The problem is not that there is not enough time. The problem is you do not know how to use the time you have.",
+  "The fear is not of suffering. The fear is that suffering may last forever.",
+  "Every moment, life is a possibility. Either you can use it or you can lose it.",
+  "If you are conscious, every moment is an eternity.",
+  "When you are truly in touch with life, you will naturally live joyfully.",
+  "Your ideas of right and wrong are just social norms. Life knows no such boundaries.",
+  "Do not try to fix whatever comes in your life. Fix yourself in such a way that whatever comes, you will be fine.",
+  "If you do not know how to manage your mind, your mind will manage you.",
+  "You cannot be in the present moment if you are ruled by your memory and imagination.",
+  "If you can breathe consciously for even a few minutes a day, it will change the way you experience life.",
+  "The most beautiful moments in life are moments when you are expressing your joy, not when you are seeking it.",
+  "You don’t have to do anything to be spiritual. If you stop your distortions, you are spiritual.",
+  "When you do not know what to do, just sit and watch the sky, or a flower, or a child. This is meditation.",
+  "You don’t have to be serious to be spiritual. You have to be sincere.",
+  "Life is neither suffering nor joy. It is what you make out of it.",
+  "If you want to enjoy the journey of life, you must be willing to be flexible.",
+  "Only when you realize the fragility of life will you walk gently on this planet.",
+  "The only way to experience true freedom is to go beyond the limitations of the body and the mind.",
+  "When you are aware of your mortality, you will naturally want to know what is beyond.",
+  "The only way to be truly alive is to be conscious.",
+  "Life is not about what you have. It is about how you are.",
+  "When you see everything as one, you are spiritual.",
+  "Do not try to control life. If you live with awareness, life will be beautiful.",
+  "When you stop interfering in your own mind, peace will naturally happen.",
+  "Life is not a race. It is a journey.",
+  "When you are truly joyful, you do not need anything else.",
+  "The more you are connected to life, the more joyful you will be.",
+  "Life is not about reaching somewhere. It is about living fully here and now.",
+  "When you live in gratitude, every moment becomes a celebration.",
+  "If you know how to manage your mind, you know how to manage life.",
+  "You are not what you gather. You are not your body, mind, or emotions. You are something beyond.",
+  "The greatest crime you can commit against life is to live it half-heartedly.",
+  "If you live without being a solution to at least one other life, you are a wasted life.",
+  "When you realize that you are just a small part of the cosmos, you will live in humility.",
+  "Your life becomes beautiful not because of what you have, but because of how you are.",
+  "If you can remain joyful for no reason, you are truly free.",
+  "Life is not about comfort. Life is about experiencing the ultimate possibility.",
+  "The only way to live without fear is to accept death as a part of life.",
+  "Every breath you take is a step towards death. Every breath you take can also be a step towards liberation.",
+  "If you are willing, you can turn every moment of your life into a stepping stone for the ultimate.",
+  "When you realize the value of your own life, you will naturally respect every other life.",
+  "Life is not about getting somewhere. It is about being.",
+  "Only if you live totally will death be a wonderful completion.",
+  "The only way to experience life is to be involved in it totally.",
+  "If you live in fear of suffering, you will never know life.",
+  "When you live with awareness, everything in life becomes a possibility.",
+  "Life is not about avoiding difficulties. It is about learning to handle them gracefully.",
+  "Every human being is capable of joy. It is just that they are looking in the wrong place.",
+  "Life will not be a problem if you do not make it one.",
+  "When you know that you are mortal, you will naturally become more alive.",
+  "Do not try to understand life. Just live it.",
+  "When you are truly alive, you do not need entertainment.",
+  "If you want to know the beauty of life, you must be willing to look beyond yourself.",
+  "The more you are willing to see, the more you will know life.",
+  "Life is not about having everything. It is about appreciating everything.",
+  "When you stop chasing happiness, joy will naturally come to you.",
+  "If you want to know what life is, you must be willing to experience it.",
+  "When you live without resistance, life flows effortlessly.",
+  "The only way to experience truth is to be open to it.",
+  "When you are willing to look beyond your own nonsense, you will know life.",
+  "Life is not about winning or losing. It is about experiencing.",
+  "When you know how to handle your body, mind, emotions, and energy, you are a complete human being.",
+  "If you want to know the essence of life, you must be willing to go beyond your limitations.",
+  "Life is not about what you do. It is about how you do it.",
+  "When you live in tune with existence, everything will fall into place.",
+  "Life is not about being special. It is about being real.",
+  "When you stop judging, you will know the beauty of life.",
+  "Life is not about achieving. It is about living.",
+  "When you are willing to learn, every moment is a teacher.",
+  "Life is not about becoming something. It is about realizing who you are.",
+  "When you are in harmony within, everything outside will be in harmony too.",
+  "Life is not about controlling. It is about allowing.",
+  "When you are truly free, you will know what it means to live.",
+  "Life is not about creating boundaries. It is about breaking them.",
+  "When you know how to simply be, you are spiritual.",
+  "Life is not about surviving. It is about thriving.",
+  "When you live with love, everything becomes beautiful.",
+  "Life is not about running away from death. It is about embracing it.",
+  "When you accept life as it is, joy will naturally happen.",
+  "Life is not about searching for meaning. It is about experiencing it fully."
+];let pebbleIndex = parseInt(localStorage.getItem("pebbleIndex")) || 0; // restore from storage or start at 0
+const pebblesText = document.getElementById("pebblesText");
+const pebblesBtn = document.getElementById("pebblesBtn");
+
+function showPebble(index) {
+  pebblesText.classList.remove("visible");
+
+  // wait long enough for fade-out (~500ms matches CSS transition)
+  setTimeout(() => {
+    pebblesText.textContent = pebblesOfWisdom[index];
+    pebblesText.classList.add("visible"); // triggers fade-in
+  }, 600);
+
+  // save current index
+  localStorage.setItem("pebbleIndex", index);
+}
+
+// manual next
+pebblesBtn.addEventListener("click", () => {
+  pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
+  showPebble(pebbleIndex);
+});
+
+// auto-cycle every 15 seconds
+setInterval(() => {
+  pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
+  showPebble(pebbleIndex);
+}, 15000);
+
+const pebblesSection = document.querySelector(".pebbles-section");
+
+if (pebblesSection) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        pebblesSection.classList.add("visible");
+
+        // 👉 show pebble only after section is visible
+        showPebble(pebbleIndex);
+
+        observer.unobserve(pebblesSection);
+      }
+    });
+  }, { threshold: 0 });
+
+  observer.observe(pebblesSection);
+
+  // If already in view on load
+  if (pebblesSection.getBoundingClientRect().top < window.innerHeight) {
+    pebblesSection.classList.add("visible");
+    showPebble(pebbleIndex); // also trigger here
+  }
+}
+
 
 
 })();

@@ -600,3 +600,66 @@ body::after {
   transform: scale(1.05);
   background: linear-gradient(135deg, #e6ba6f, #c98c3a);
 }
+
+/* Pebbles section box */
+.pebbles-section {
+  margin-top: 20px;
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.65); /* darker, more opaque */
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+
+  /* 🔥 Fade effect */
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.pebbles-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+#pebblesText {
+  font-size: 1.2em;
+  font-style: italic;
+  line-height: 1.6;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  margin-bottom: 15px;
+  color: #fff; /* brighter text */
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.6); /* glow for readability */
+}
+
+
+
+#pebblesBtn {
+  padding: 8px 18px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#pebblesBtn:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* Pebbles text fade */
+#pebblesText {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+#pebblesText.visible {
+  opacity: 1;
+}
