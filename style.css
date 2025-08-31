@@ -654,12 +654,6 @@ body::after {
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
-/* Pebbles text fade */
-#pebblesText {
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
 #pebblesText.visible {
   opacity: 1;
 }
