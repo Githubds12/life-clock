@@ -11,7 +11,6 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Patrick+Hand&display=swap"
     rel="stylesheet">
-  <!-- Favicon (inline SVG hourglass) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
   <defs>
@@ -76,7 +75,6 @@
       </div>
     </header>
 
-    <!-- Intro Section -->
     <section class="intro card">
       <h2 class="box-title">
         <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
@@ -95,7 +93,6 @@
       </div>
     </section>
 
-    <!-- Main container -->
     <div class="container">
       <div class="clock-wrapper">
         <h2 class="box-title">
@@ -135,25 +132,33 @@
 
     <div id="quoteBox">
       <div id="quoteText"></div>
-      <button id="nextQuoteBtn">Next Quote</button>
+      <div class="quote-controls">
+        <span id="quoteCounter"></span>
+        <div class="button-group">
+          <button id="prevQuoteBtn">Previous</button>
+          <button id="nextQuoteBtn">Next Quote</button>
+          <button id="pauseQuoteBtn">Pause</button>
+        </div>
+      </div>
     </div>
 
-   <div class="pebbles-section">
-  <p id="pebblesText"></p>
-  <div class="pebble-controls">
-    <p id="pebbleCounter"></p>
-    <button id="pebblesPrevBtn">Previous</button>
-    <button id="pebblesBtn">Next(Pebbles of Wisdom) - Sadhguru</button>
-    <button id="pebblesPauseBtn">Pause</button>
-  </div>
-</div>
+    <div class="pebbles-section">
+      <p id="pebblesText"></p>
+      <div class="pebble-controls">
+        <p id="pebbleCounter"></p>
+        <div class="button-group">
+          <button id="pebblesPrevBtn">Previous</button>
+          <button id="pebblesBtn">Next(Pebbles of Wisdom) - Sadhguru</button>
+          <button id="pebblesPauseBtn">Pause</button>
+        </div>
+      </div>
+    </div>
     <footer>
       <img src="ishalogo.png" alt="Isha Logo" class="footer-logo" />
       Made with love.
     </footer>
   </div>
 
-  <!-- Sound setup -->
   <audio id="sandSound" src="sand.mp3" autoplay loop></audio>
 
   <script src="script3d.js"></script>

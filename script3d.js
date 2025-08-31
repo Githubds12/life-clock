@@ -911,85 +911,85 @@ const sadhguruQuotes = [
 ];
 
 
-// Quote shuffling system with memory
-let shuffledQuotes = [];
-let quoteIndex = 0;
+// ====================
+// 🧠 Quotes Logic (Refactored)
+// ====================
+let quoteIndex = parseInt(localStorage.getItem("quoteIndex")) || 0;
+let quoteInterval = null;
 
-function shuffleQuotes() {
-  shuffledQuotes = [...sadhguruQuotes].sort(() => Math.random() - 0.5);
-  quoteIndex = 0;
-  saveQuoteState();
-}
-
-function getNextQuote() {
-  if (quoteIndex >= shuffledQuotes.length) {
-    shuffleQuotes(); // reshuffle once all quotes are used
-  }
-  const q = shuffledQuotes[quoteIndex++];
-  saveQuoteState();
-  return q;
-}
-
-function saveQuoteState() {
-  localStorage.setItem("quoteState", JSON.stringify({
-    shuffledQuotes,
-    quoteIndex
-  }));
-}
-
-function loadQuoteState() {
-  const saved = localStorage.getItem("quoteState");
-  if (saved) {
-    try {
-      const state = JSON.parse(saved);
-      if (state.shuffledQuotes && state.shuffledQuotes.length === sadhguruQuotes.length) {
-        shuffledQuotes = state.shuffledQuotes;
-        quoteIndex = state.quoteIndex || 0;
-        return;
-      }
-    } catch (e) {
-      console.warn("Quote state reset", e);
-    }
-  }
-  loadQuoteState();
-}
 const quoteText = document.getElementById("quoteText");
 const nextQuoteBtn = document.getElementById("nextQuoteBtn");
+const prevQuoteBtn = document.getElementById("prevQuoteBtn");
+const pauseQuoteBtn = document.getElementById("pauseQuoteBtn");
+const quoteCounter = document.getElementById("quoteCounter");
 
-function showRandomQuote() {
+function showQuote(index) {
   if (!quoteText) return;
 
-  // fade out
   quoteText.classList.remove("visible");
 
   setTimeout(() => {
-    const q = getNextQuote();
-    quoteText.textContent = `"${q}" — Sadhguru`;
-
-    // fade in
+    quoteText.textContent = `"${sadhguruQuotes[index]}" — Sadhguru`;
     quoteText.classList.add("visible");
+    if (quoteCounter) {
+      quoteCounter.textContent = `Quote ${index + 1} of ${sadhguruQuotes.length}`;
+    }
+  }, 600);
 
-    saveQuoteState();
-  }, 800);
+  localStorage.setItem("quoteIndex", index);
 }
 
-// === Auto cycle every 15 seconds ===
-setInterval(showRandomQuote, 15000);
+function startQuoteAutoCycle() {
+  if (quoteInterval) return;
+  if (pauseQuoteBtn) pauseQuoteBtn.textContent = "Pause";
+  quoteInterval = setInterval(() => {
+    quoteIndex = (quoteIndex + 1) % sadhguruQuotes.length;
+    showQuote(quoteIndex);
+  }, 15000);
+}
 
-
-// Show one immediately
-showRandomQuote();
-quoteText.classList.add("visible");
+function stopQuoteAutoCycle() {
+  clearInterval(quoteInterval);
+  quoteInterval = null;
+  if (pauseQuoteBtn) pauseQuoteBtn.textContent = "Play";
+}
 
 // Button click = new quote instantly
 if (nextQuoteBtn) {
-  nextQuoteBtn.addEventListener("click", showRandomQuote);
+  nextQuoteBtn.addEventListener("click", () => {
+    stopQuoteAutoCycle();
+    quoteIndex = (quoteIndex + 1) % sadhguruQuotes.length;
+    showQuote(quoteIndex);
+  });
 }
+
+// Previous button
+if (prevQuoteBtn) {
+  prevQuoteBtn.addEventListener("click", () => {
+    stopQuoteAutoCycle();
+    quoteIndex = (quoteIndex - 1 + sadhguruQuotes.length) % sadhguruQuotes.length;
+    showQuote(quoteIndex);
+  });
+}
+
+// Pause/Play button
+if (pauseQuoteBtn) {
+  pauseQuoteBtn.addEventListener("click", () => {
+    if (quoteInterval) {
+      stopQuoteAutoCycle();
+    } else {
+      startQuoteAutoCycle();
+    }
+  });
+}
+
+// Initial display on page load
+showQuote(quoteIndex);
+startQuoteAutoCycle();
 
 // ====================
 // 🌿 Pebbles of Wisdom
 // ====================
-
 const pebblesOfWisdom = [
   "I have no teachings at all. If you are willing, then I can deliver you into a space and a situation within yourself that you have never imagined possible in human life.",
   "Liberation is not my idea; it is the fundamental longing in every form of life.",
@@ -1135,7 +1135,7 @@ function showPebble(index) {
 
 function startPebbleAutoCycle() {
   if (pebbleInterval) return; // Prevent multiple intervals
-  pebblesPauseBtn.textContent = "Pause";
+  if (pebblesPauseBtn) pebblesPauseBtn.textContent = "Pause";
   pebbleInterval = setInterval(() => {
     pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
     showPebble(pebbleIndex);
@@ -1145,7 +1145,7 @@ function startPebbleAutoCycle() {
 function stopPebbleAutoCycle() {
   clearInterval(pebbleInterval);
   pebbleInterval = null;
-  pebblesPauseBtn.textContent = "Play";
+  if (pebblesPauseBtn) pebblesPauseBtn.textContent = "Play";
 }
 
 // manual next
@@ -1199,5 +1199,4 @@ if (pebblesSection) {
     startPebbleAutoCycle();
   }
 }
-
 })();

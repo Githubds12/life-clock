@@ -27,24 +27,9 @@ html, body {
   color: var(--text);
   overflow-x: hidden;
   font-size:20px !important;
-} 
-
-/* New styles for the pebble buttons */
-.pebble-controls button {
-    padding: 8px 16px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.pebble-controls button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
+
 
 .wrap {
   min-height: 100%;
@@ -592,6 +577,48 @@ body::after {
   color: #f5f5f5;
   font-style: italic;
 }
+/* Styles for the quote controls */
+.quote-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.quote-controls button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #d4a74f, #b67d2a);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.quote-controls button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #e6ba6f, #c98c3a);
+}
+
+#quoteCounter {
+  font-size: 1em;
+  font-style: normal;
+  color: #ccc;
+  margin-bottom: 5px; /* Add some space below the counter */
+}
+
 
 #quoteText {
   margin-bottom: 15px;
@@ -603,21 +630,9 @@ body::after {
   opacity: 1;
 }
 
+/* Re-styling the original nextQuoteBtn to fit the new controls */
 #nextQuoteBtn {
-  margin-top: 10px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #d4a74f, #b67d2a);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.3s ease;
-}
-
-#nextQuoteBtn:hover {
-  transform: scale(1.05);
-  background: linear-gradient(135deg, #e6ba6f, #c98c3a);
+  margin-top: 0; /* Remove top margin from original button */
 }
 
 /* Pebbles section box */
@@ -644,6 +659,35 @@ body::after {
   transform: translateY(0);
 }
 
+.pebble-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.pebble-controls p {
+  margin-bottom: 5px;
+}
+
+.pebble-controls button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.pebble-controls button:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    transform: scale(1.05);
+}
 
 #pebblesText {
   font-size: 1.2em;
@@ -654,23 +698,6 @@ body::after {
   margin-bottom: 15px;
   color: #fff; /* brighter text */
   text-shadow: 1px 1px 4px rgba(0,0,0,0.6); /* glow for readability */
-}
-
-
-
-#pebblesBtn {
-  padding: 8px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #d97706, #b45309);
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#pebblesBtn:hover {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
 #pebblesText.visible {
