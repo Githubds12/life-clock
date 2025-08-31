@@ -1135,7 +1135,7 @@ pebblesBtn.addEventListener("click", () => {
 setInterval(() => {
   pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
   showPebble(pebbleIndex);
-}, 15000);
+}, 30000);
 
 const pebblesSection = document.querySelector(".pebbles-section");
 
