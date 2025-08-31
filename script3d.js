@@ -832,7 +832,7 @@ function updateSandSound(intensity) {
     if (savedDob) {
       dobInput.value = savedDob;
       const dob = new Date(savedDob + "T00:00:00");
-      currentAge = (Date.now() - dob.getTime()) / MS_YEAR;
+      currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
     } else if (savedAge) {
       currentAge = parseFloat(savedAge) || 0;
       ageSlider.value = currentAge;
@@ -1108,46 +1108,83 @@ const pebblesOfWisdom = [
   "Life is not about running away from death. It is about embracing it.",
   "When you accept life as it is, joy will naturally happen.",
   "Life is not about searching for meaning. It is about experiencing it fully."
-];let pebbleIndex = parseInt(localStorage.getItem("pebbleIndex")) || 0; // restore from storage or start at 0
+];
 const pebblesText = document.getElementById("pebblesText");
 const pebblesBtn = document.getElementById("pebblesBtn");
+const pebblesPrevBtn = document.getElementById("pebblesPrevBtn");
+const pebblesPauseBtn = document.getElementById("pebblesPauseBtn");
+const pebbleCounter = document.getElementById("pebbleCounter");
+const pebblesSection = document.querySelector(".pebbles-section");
+
+let pebbleIndex = parseInt(localStorage.getItem("pebbleIndex")) || 0;
+let pebbleInterval = null;
 
 function showPebble(index) {
   pebblesText.classList.remove("visible");
 
-  // wait long enough for fade-out (~500ms matches CSS transition)
   setTimeout(() => {
     pebblesText.textContent = pebblesOfWisdom[index];
-    pebblesText.classList.add("visible"); // triggers fade-in
+    pebblesText.classList.add("visible");
+    if (pebbleCounter) {
+      pebbleCounter.textContent = `Pebble ${index + 1} of ${pebblesOfWisdom.length}`;
+    }
   }, 600);
 
-  // save current index
   localStorage.setItem("pebbleIndex", index);
 }
 
+function startPebbleAutoCycle() {
+  if (pebbleInterval) return; // Prevent multiple intervals
+  pebblesPauseBtn.textContent = "Pause";
+  pebbleInterval = setInterval(() => {
+    pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
+    showPebble(pebbleIndex);
+  }, 30000);
+}
+
+function stopPebbleAutoCycle() {
+  clearInterval(pebbleInterval);
+  pebbleInterval = null;
+  pebblesPauseBtn.textContent = "Play";
+}
+
 // manual next
-pebblesBtn.addEventListener("click", () => {
-  pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
-  showPebble(pebbleIndex);
-});
+if (pebblesBtn) {
+  pebblesBtn.addEventListener("click", () => {
+    stopPebbleAutoCycle();
+    pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
+    showPebble(pebbleIndex);
+  });
+}
 
-// auto-cycle every 15 seconds
-setInterval(() => {
-  pebbleIndex = (pebbleIndex + 1) % pebblesOfWisdom.length;
-  showPebble(pebbleIndex);
-}, 30000);
+// manual previous
+if (pebblesPrevBtn) {
+  pebblesPrevBtn.addEventListener("click", () => {
+    stopPebbleAutoCycle();
+    pebbleIndex = (pebbleIndex - 1 + pebblesOfWisdom.length) % pebblesOfWisdom.length;
+    showPebble(pebbleIndex);
+  });
+}
 
-const pebblesSection = document.querySelector(".pebbles-section");
+// pause/play button
+if (pebblesPauseBtn) {
+  pebblesPauseBtn.addEventListener("click", () => {
+    if (pebbleInterval) {
+      stopPebbleAutoCycle();
+    } else {
+      startPebbleAutoCycle();
+    }
+  });
+}
 
+// Handle visibility and initial load
 if (pebblesSection) {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         pebblesSection.classList.add("visible");
-
-        // 👉 show pebble only after section is visible
         showPebble(pebbleIndex);
-
+        startPebbleAutoCycle();
         observer.unobserve(pebblesSection);
       }
     });
@@ -1158,10 +1195,9 @@ if (pebblesSection) {
   // If already in view on load
   if (pebblesSection.getBoundingClientRect().top < window.innerHeight) {
     pebblesSection.classList.add("visible");
-    showPebble(pebbleIndex); // also trigger here
+    showPebble(pebbleIndex);
+    startPebbleAutoCycle();
   }
 }
-
-
 
 })();
