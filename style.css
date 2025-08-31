@@ -578,7 +578,7 @@ body::after {
   font-style: italic;
 }
 /* Styles for the quote controls */
-.quote-controls {
+.quote-controls, .pebble-controls, .sutra-controls, .book-excerpts-controls {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -612,65 +612,21 @@ body::after {
     background: linear-gradient(135deg, #e6ba6f, #c98c3a);
 }
 
-#quoteCounter {
-  font-size: 1em;
-  font-style: normal;
-  color: #ccc;
-  margin-bottom: 5px; /* Add some space below the counter */
+.sutra-controls button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #4f96d4, #2a5bb6);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
 }
 
-
-#quoteText {
-  margin-bottom: 15px;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-
-#quoteText.visible {
-  opacity: 1;
-}
-
-/* Re-styling the original nextQuoteBtn to fit the new controls */
-#nextQuoteBtn {
-  margin-top: 0; /* Remove top margin from original button */
-}
-
-/* Pebbles section box */
-.pebbles-section {
-  margin-top: 20px;
-  padding: 20px 30px;
-  background: rgba(0, 0, 0, 0.65); /* darker, more opaque */
-  backdrop-filter: blur(6px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-  border-radius: 16px;
-  text-align: center;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-
-  /* 🔥 Fade effect */
-  opacity: 0;
-  transform: translateY(15px);
-  transition: opacity 1.5s ease, transform 1.5s ease;
-}
-
-.pebbles-section.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.pebble-controls {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-.pebble-controls p {
-  margin-bottom: 5px;
+.sutra-controls button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #6fc9e6, #3a9cc9);
 }
 
 .pebble-controls button {
@@ -689,7 +645,69 @@ body::after {
     transform: scale(1.05);
 }
 
-#pebblesText {
+.book-excerpts-controls button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7c3aed, #4c1d95);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.book-excerpts-controls button:hover {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    transform: scale(1.05);
+}
+
+
+#quoteCounter, #pebbleCounter, #sutraCounter, #bookExcerptsCounter {
+  font-size: 1em;
+  font-style: normal;
+  color: #ccc;
+  margin-bottom: 5px; /* Add some space below the counter */
+}
+
+
+#quoteText {
+  margin-bottom: 15px;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+#quoteText.visible {
+  opacity: 1;
+}
+
+/* Pebbles and Sutras section styling */
+.pebbles-section, .sutras-section, .book-excerpts-section {
+  margin-top: 20px;
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.65); /* darker, more opaque */
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+
+  /* 🔥 Fade effect */
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+
+.pebbles-section.visible, .sutras-section.visible, .book-excerpts-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+#pebblesText, #sutrasText, #bookExcerptsText {
   font-size: 1.2em;
   font-style: italic;
   line-height: 1.6;
@@ -700,6 +718,11 @@ body::after {
   text-shadow: 1px 1px 4px rgba(0,0,0,0.6); /* glow for readability */
 }
 
-#pebblesText.visible {
+#pebblesText.visible, #sutrasText.visible, #bookExcerptsText.visible {
   opacity: 1;
+}
+
+/* Re-styling the original nextQuoteBtn to fit the new controls */
+#nextQuoteBtn {
+  margin-top: 0; /* Remove top margin from original button */
 }
