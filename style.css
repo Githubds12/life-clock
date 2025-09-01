@@ -792,3 +792,8 @@ body::after {
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
+
+.scrollable-text-container {
+  max-height: 200px; /* Adjust this value as needed */
+  overflow-y: auto;
+}

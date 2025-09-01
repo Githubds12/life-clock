@@ -2161,7 +2161,7 @@ window.onYouTubeIframeAPIReady = function () {
   player = new YT.Player("youtube-player", {
     videoId: "IvjMgVS6kng", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
     playerVars: {
-      autoplay: 1,
+      autoplay: 0,
       controls: 1,
       autoplay: 1,
       loop: 1,
