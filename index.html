@@ -11,6 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Patrick+Hand&display=swap"
     rel="stylesheet">
+  <!-- Favicon (inline SVG hourglass) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
   <defs>
@@ -33,6 +34,17 @@
 <body>
 
   <div class="wrap snake-bg">
+    
+    <nav class="top-nav">
+      <a href="#clock-section">Clock</a>
+      <a href="#quotes-section">Quotes</a>
+      <a href="#sutras-section">Sutras</a>
+      <a href="#book-excerpts-section">Excerpts</a>
+      <a href="#pebbles-section">Pebbles</a>
+      <a href="#tips-section">Tips</a>
+      <a href="#music-section">Music</a>
+    </nav>
+    
     <header>
       <div>
         <h1>
@@ -69,13 +81,14 @@
           <div>
             <label>&nbsp;</label>
             <button id="useDOB">Use DOB</button>
-            <!-- <button id="muteBtn">🔇 Mute</button> -->
+            <button id="muteBtn">🔇 Mute</button>
           </div>
         </div>
       </div>
     </header>
 
-    <section class="intro card">
+    <!-- Intro Section -->
+    <section class="intro card" id="intro-section">
       <h2 class="box-title">
         <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
         Introduction & Context
@@ -93,7 +106,8 @@
       </div>
     </section>
 
-    <div class="container">
+    <!-- Main container -->
+    <div class="container" id="clock-section">
       <div class="clock-wrapper">
         <h2 class="box-title">
           <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
@@ -102,7 +116,7 @@
         <canvas id="canvas" width="900" height="1500"></canvas>
       </div>
 
-      <div class="panel stats" aria-live="polite">
+      <div class="panel stats" aria-live="polite" id="progress-section">
         <h2 class="box-title">
           <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
           📊 Life Statistics
@@ -129,20 +143,21 @@
       </div>
     </div>
 
-
-    <div id="quoteBox">
-      <div id="quoteText"></div>
-      <div class="quote-controls">
-        <span id="quoteCounter"></span>
-        <div class="button-group">
-          <button id="prevQuoteBtn">Previous</button>
-          <button id="nextQuoteBtn">Next Quote</button>
-          <button id="pauseQuoteBtn">Pause</button>
+    <div id="quotes-section">
+      <div id="quoteBox">
+        <div id="quoteText"></div>
+        <div class="quote-controls">
+          <span id="quoteCounter"></span>
+          <div class="button-group">
+            <button id="prevQuoteBtn">Previous</button>
+            <button id="nextQuoteBtn">Next Quote</button>
+            <button id="pauseQuoteBtn">Pause</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="sutras-section">
+    <div class="sutras-section" id="sutras-section">
       <p id="sutrasText"></p>
       <div class="sutra-controls">
         <p id="sutraCounter"></p>
@@ -154,7 +169,7 @@
       </div>
     </div>
     
-    <div class="book-excerpts-section">
+    <div class="book-excerpts-section" id="book-excerpts-section">
       <p id="bookExcerptsText"></p>
       <div class="book-excerpts-controls">
         <p id="bookExcerptsCounter"></p>
@@ -165,53 +180,63 @@
         </div>
       </div>
     </div>
-
-    <div class="pebbles-section">
+    
+    <div class="pebbles-section" id="pebbles-section">
       <p id="pebblesText"></p>
       <div class="pebble-controls">
         <p id="pebbleCounter"></p>
         <div class="button-group">
           <button id="pebblesPrevBtn">Previous</button>
-          <button id="pebblesBtn">Next(Pebbles of Wisdom)</button>
+          <button id="pebblesBtn">Next(Pebbles of Wisdom) - Sadhguru</button>
           <button id="pebblesPauseBtn">Pause</button>
         </div>
       </div>
     </div>
-
-    <!-- Tips Section -->
-<div class="tips-section">
-  <p id="tipsText"></p>
-  <div class="tips-controls">
-    <p id="tipCounter"></p>
-    <div class="button-group">
-      <button id="tipsPrevBtn">Previous</button>
-      <button id="tipsBtn">Next Tip</button>
-      <button id="tipsPauseBtn">Pause</button>
+    
+    <div class="tips-section" id="tips-section">
+      <p id="tipsText"></p>
+      <div class="tips-controls">
+        <p id="tipCounter"></p>
+        <div class="button-group">
+          <button id="tipsPrevBtn">Previous</button>
+          <button id="tipsBtn">Next Tip</button>
+          <button id="tipsPauseBtn">Pause</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- Music Player Section -->
-<div class="music-section card">
-  <div class="box-title">
-    🎵 Background Music
-  </div>
-  <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
-</div>
-
+    
+    <!-- Music Player Section -->
+    <div class="music-section card" id="music-section">
+      <div class="box-title">
+        🎵 Background Music
+      </div>
+      <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
+    </div>
+    
     <footer>
       <img src="ishalogo.png" alt="Isha Logo" class="footer-logo" />
       Made with love.
     </footer>
   </div>
 
-
-
-  <!-- <audio id="sandSound" src="sand.mp3" autoplay loop></audio> -->
-   <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- Sound setup -->
+  <audio id="sandSound" src="sand.mp3" autoplay loop></audio>
+  
+  <script src="https://www.youtube.com/iframe_api"></script>
   <script src="script3d.js"></script>
- 
- 
+  <script>
+    const audio = document.getElementById("sandSound");
+    audio.volume = 0.2; // softer sound
+
+    const muteBtn = document.getElementById("muteBtn");
+    let muted = false;
+
+    muteBtn.addEventListener("click", () => {
+      muted = !muted;
+      audio.muted = muted;
+      muteBtn.textContent = muted ? "🔊 Unmute" : "🔇 Mute";
+    });
+  </script>
 </body>
 
 </html>
