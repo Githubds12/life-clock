@@ -1104,7 +1104,26 @@
     ageSlider.value = currentAge;
     updateStats();
   });
+// This function will be called once to start the clock
+function startContinuousClock() {
+    // If a DOB is saved in localStorage, start the timer
+    const savedDob = localStorage.getItem("dob");
+    if (savedDob) {
+        const dob = new Date(savedDob + "T00:00:00");
+        const MS_PER_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
 
+        // Clear any existing timer to prevent conflicts
+        if (window.clockInterval) {
+            clearInterval(window.clockInterval);
+        }
+
+        // Start a new timer that updates the age every second
+        window.clockInterval = setInterval(() => {
+            currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
+            computeProgress();
+        }, 1000); // Update every second
+    }
+}
   // Stats UI
   function updateStats() {
     const dobStr = document.getElementById("dob").value;
