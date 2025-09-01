@@ -799,3 +799,22 @@ body::after {
     background: linear-gradient(135deg, #34d399, #10b981);
     transform: scale(1.05);
 }
+
+.music-section {
+  margin: 30px auto;
+  max-width: 560px;
+  padding: 20px 30px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
+
+#youtube-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}

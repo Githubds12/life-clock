@@ -197,9 +197,18 @@
     </footer>
   </div>
 
-  <audio id="sandSound" src="sand.mp3" autoplay loop></audio>
+<!-- Music Player Section -->
+<div class="music-section card">
+  <div class="box-title">
+    🎵 Background Music
+  </div>
+  <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
+</div>
 
+  <!-- <audio id="sandSound" src="sand.mp3" autoplay loop></audio> -->
+   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="script3d.js"></script>
+ 
   <script>
     const audio = document.getElementById("sandSound");
     audio.volume = 0.2; // softer sound
