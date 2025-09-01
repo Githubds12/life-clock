@@ -7,6 +7,24 @@
 */
 (() => {
   let currentAge = 0; // single source of truth
+let clockInterval = null; // A variable to hold our timer
+
+// This function will be called once to start the clock
+function startContinuousClock() {
+  if (clockInterval) clearInterval(clockInterval); // Prevent multiple timers
+
+  const savedDob = localStorage.getItem("dob");
+
+  if (savedDob) {
+    const dob = new Date(savedDob + "T00:00:00");
+    const MS_PER_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
+
+    clockInterval = setInterval(() => {
+      currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
+      computeProgress();
+    }, 1000); // Update every second
+  }
+}
 
   // ===== Datasets (snakes removed) =====
   const livingBeingLifespan = {
@@ -994,7 +1012,7 @@
     restartIntro();
     saveState();
     updateFromSlider();
-    initializeClock();
+    
   });
   dobInput.addEventListener("input", () => {
     if (!dobInput.value) return;
@@ -1003,7 +1021,7 @@
     restartIntro();
     saveState();
     updateFromDOB();
-    initializeClock();
+    
   });
   if (useDOBBtn) {
     useDOBBtn.addEventListener("click", () => {
@@ -1060,39 +1078,7 @@
   // Kick off
   computeProgress();
   requestAnimationFrame(draw);
-// --- FIX FOR THE CLOCK ---
-// This function will set the initial age and start a continuous timer.
-function initializeClock() {
-  const savedDob = localStorage.getItem("dob");
-  const savedAge = parseFloat(localStorage.getItem("age")) || 0;
-  
-  if (savedDob) {
-    const dob = new Date(savedDob + "T00:00:00");
-    currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
-  } else {
-    currentAge = savedAge;
-  }
 
-  // Clear any existing interval to prevent multiple timers running
-  if (window.clockInterval) {
-    clearInterval(window.clockInterval);
-  }
-
-  // Store the initial age at the start of the timer
-  const initialAgeAtStart = currentAge;
-  const startTime = Date.now();
-
-  // Start the timer to continuously update the age
-  window.clockInterval = setInterval(() => {
-    const elapsedTime = Date.now() - startTime;
-    currentAge = initialAgeAtStart + (elapsedTime / MS_PER_YEAR);
-    computeProgress();
-  }, 1000); // Update once per second
-}
-
-
-// --- END OF FIX ---
-  // Restore saved state on DOMContentLoaded
   document.addEventListener("DOMContentLoaded", () => {
     const savedAnimal = localStorage.getItem("livingBeing");
     const savedLifespan = localStorage.getItem("lifespan");
