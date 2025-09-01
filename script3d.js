@@ -885,35 +885,35 @@
   function applyMuteState() {
     muteBtn.textContent = isMuted ? "Unmute" : "Mute";
     if (noiseGain) {
-      noiseGain.gain.value = isMuted ? 0 : 2.0; //increase volume
+      noiseGain.gain.value = isMuted ? 0 : 0; //increase volume
     }
   }
 
   // Apply state immediately on load
-  if (muteBtn) {
-    applyMuteState();
+  // if (muteBtn) {
+    // applyMuteState();
 
-    muteBtn.addEventListener("click", () => {
-      maybeStartAudio(); // ensure audio is initialized
+    // muteBtn.addEventListener("click", () => {
+    //   maybeStartAudio(); // ensure audio is initialized
 
-      isMuted = !isMuted;
-      localStorage.setItem("muted", isMuted); // save to storage
-      applyMuteState();
-    });
-  }
+    //   isMuted = !isMuted;
+    //   localStorage.setItem("muted", isMuted); // save to storage
+    //   applyMuteState();
+    // });
+  // }
 
   function updateSandSound(intensity) {
     if (!noiseGain) return;
 
-    if (isMuted) {
-      // force silence, don’t let intensity update volume
-      noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
-      return;
-    }
+    // if (isMuted) {
+    //   // force silence, don’t let intensity update volume
+    //   noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    //   noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    //   return;
+    // }
 
     // normal operation
-    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 2.5; //increase volume
+    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0; //increase volume
     noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
 
     if (band) {
@@ -2146,12 +2146,13 @@
 window.onYouTubeIframeAPIReady = function () {
   let player;
   player = new YT.Player("youtube-player", {
-    videoId: "tNh2kjmSzPw", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
+    videoId: "IvjMgVS6kng", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
     playerVars: {
       autoplay: 1,
       controls: 1,
+      autoplay: 1,
       loop: 1,
-      playlist: "tNh2kjmSzPw", // Required for looping
+      playlist: "IvjMgVS6kng", // Required for looping
     },
   });
 };

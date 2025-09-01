@@ -69,7 +69,7 @@
           <div>
             <label>&nbsp;</label>
             <button id="useDOB">Use DOB</button>
-            <button id="muteBtn">🔇 Mute</button>
+            <!-- <button id="muteBtn">🔇 Mute</button> -->
           </div>
         </div>
       </div>
@@ -191,12 +191,6 @@
   </div>
 </div>
 
-    <footer>
-      <img src="ishalogo.png" alt="Isha Logo" class="footer-logo" />
-      Made with love.
-    </footer>
-  </div>
-
 <!-- Music Player Section -->
 <div class="music-section card">
   <div class="box-title">
@@ -205,23 +199,19 @@
   <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
 </div>
 
+    <footer>
+      <img src="ishalogo.png" alt="Isha Logo" class="footer-logo" />
+      Made with love.
+    </footer>
+  </div>
+
+
+
   <!-- <audio id="sandSound" src="sand.mp3" autoplay loop></audio> -->
    <script src="https://www.youtube.com/iframe_api"></script>
   <script src="script3d.js"></script>
  
-  <script>
-    const audio = document.getElementById("sandSound");
-    audio.volume = 0.2; // softer sound
-
-    const muteBtn = document.getElementById("muteBtn");
-    let muted = false;
-
-    muteBtn.addEventListener("click", () => {
-      muted = !muted;
-      audio.muted = muted;
-      muteBtn.textContent = muted ? "🔊 Unmute" : "🔇 Mute";
-    });
-  </script>
+ 
 </body>
 
 </html>
