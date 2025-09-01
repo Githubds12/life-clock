@@ -7,24 +7,6 @@
 */
 (() => {
   let currentAge = 0; // single source of truth
-let clockInterval = null; // A variable to hold our timer
-
-// This function will be called once to start the clock
-function startContinuousClock() {
-  if (clockInterval) clearInterval(clockInterval); // Prevent multiple timers
-
-  const savedDob = localStorage.getItem("dob");
-
-  if (savedDob) {
-    const dob = new Date(savedDob + "T00:00:00");
-    const MS_PER_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
-
-    clockInterval = setInterval(() => {
-      currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
-      computeProgress();
-    }, 1000); // Update every second
-  }
-}
 
   // ===== Datasets (snakes removed) =====
   const livingBeingLifespan = {
@@ -903,24 +885,35 @@ function startContinuousClock() {
   function applyMuteState() {
     muteBtn.textContent = isMuted ? "Unmute" : "Mute";
     if (noiseGain) {
-      noiseGain.gain.value = isMuted ? 0 : 0; //increase volume
+      noiseGain.gain.value = isMuted ? 0 : 2.0; //increase volume
     }
   }
 
+  // Apply state immediately on load
+  if (muteBtn) {
+    applyMuteState();
 
+    muteBtn.addEventListener("click", () => {
+      maybeStartAudio(); // ensure audio is initialized
+
+      isMuted = !isMuted;
+      localStorage.setItem("muted", isMuted); // save to storage
+      applyMuteState();
+    });
+  }
 
   function updateSandSound(intensity) {
     if (!noiseGain) return;
 
-    // if (isMuted) {
-    //   // force silence, don’t let intensity update volume
-    //   noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
-    //   noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    //   return;
-    // }
+    if (isMuted) {
+      // force silence, don’t let intensity update volume
+      noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      return;
+    }
 
     // normal operation
-    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0; //increase volume
+    const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 2.5; //increase volume
     noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08);
 
     if (band) {
@@ -1012,7 +1005,6 @@ function startContinuousClock() {
     restartIntro();
     saveState();
     updateFromSlider();
-    
   });
   dobInput.addEventListener("input", () => {
     if (!dobInput.value) return;
@@ -1021,7 +1013,6 @@ function startContinuousClock() {
     restartIntro();
     saveState();
     updateFromDOB();
-    
   });
   if (useDOBBtn) {
     useDOBBtn.addEventListener("click", () => {
@@ -1079,6 +1070,7 @@ function startContinuousClock() {
   computeProgress();
   requestAnimationFrame(draw);
 
+  // Restore saved state on DOMContentLoaded
   document.addEventListener("DOMContentLoaded", () => {
     const savedAnimal = localStorage.getItem("livingBeing");
     const savedLifespan = localStorage.getItem("lifespan");
@@ -1117,7 +1109,6 @@ function startContinuousClock() {
     ageSlider.max = Math.max(1, Number(lifespanInput.value) || 100);
     ageSlider.value = currentAge;
     updateStats();
-    initializeClock();
   });
 
   // Stats UI
@@ -2155,13 +2146,12 @@ function startContinuousClock() {
 window.onYouTubeIframeAPIReady = function () {
   let player;
   player = new YT.Player("youtube-player", {
-    videoId: "IvjMgVS6kng", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
+    videoId: "l8C0Ld1fSSs", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
     playerVars: {
       autoplay: 1,
       controls: 1,
-      autoplay: 1,
       loop: 1,
-      playlist: "IvjMgVS6kng", // Required for looping
+      playlist: "l8C0Ld1fSSs", // Required for looping
     },
   });
 };
