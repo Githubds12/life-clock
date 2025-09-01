@@ -1538,6 +1538,130 @@ const bookExcerpts = [
   "A blessing is gasoline. It’s a piece of energy. It’s not good wishes.",
   "You can’t teach madness to people. They have to be infected.",
   "Allow the mountains to happen to you.",
+  "Above all, there is now sufficient medical and scientific evidence that your body and mind function at their best when you are in a state of joy. It is said that if you can remain in a state of bliss for twenty-four hours, your intellectual capacity can almost double. This can be achieved simply by calming the inner chaos and directing clarity.",
+  "There is only one obstacle between you and your well-being. That is, you have allowed your thoughts and emotions to take instructions from the outside, instead of from within.",
+  "Just earning a living, having children, raising a family, and one day dying. What a big challenge it is! It's surprising how much humans struggle just to do this, while insects, birds, and animals do it with great ease.",
+  "If you go outwards, it is an endless journey. But if you turn inwards, it's just a moment's distance.",
+  "Unknowingly, you write your own destiny. If you have mastery over your physical body, then fifteen to twenty percent of your life and destiny will be in your own hands. If you have mastery over your mind, then fifty to sixty percent of your life and destiny will be in your hands. If you have mastery over your life energies, then your life and destiny will be completely in your hands.",
+  "When you are in pain, distress, or anger, that is the time to look within, not to look around you.",
+  "If you accept that 'I am responsible for who I am right now,' then even the most terrible things can enrich your life. You can turn the biggest calamity into a stepping stone for your growth. If you take 100% responsibility for who you are right now, a better tomorrow can be a possibility for you. But if you don't take responsibility for the present—and blame your parents, friends, husband, lover, or colleagues for your situation—then you have lost your future even before it has arrived.",
+  "Resentment, anger, jealousy, pain, suffering, and depression—all these are like poisons that you drink yourself, and expect someone else to die. Life doesn't work that way. Most people waste many lifetimes trying to understand this simple truth.",
+  "Next time you eat a meal, for the first fifteen minutes, do not speak to anyone. Just be in a state of actively and consciously responding to the food you are eating, the air you are breathing, and the water you are drinking.",
+  "'My responsibility is limitless. If I am willing, I can respond to everything.' Remain aware of this until you fall asleep and let this be the first thing you remember upon waking up.",
+  "Only when you get dis-identified, when you are able to be involved but not entangled, only then it can stop.",
+  "Your mind need not be controlled; your mind needs to be liberated.",
+  "Having an aversion to something and an attraction towards something else is the basis of identification. Whatever you are averse to dominates your mind. The nature of your mind is such that if you say, “I do not want something,” only that thing keeps happening in your mind. There is no subtraction or division in the mind, there is only addition and multiplication.",
+  "It is the identification which is causing entanglement, not the involvement. If your involvement is beyond your identifications, you will see that involvement brings absolute joy to life.",
+  "Your aliveness is going down because you are committing suicide in installments by becoming selective in your involvement. Whatever you do willingly, that is your heaven. Whatever you do unwillingly, that is your hell.",
+  "Whether your mind is a misery or your mind is a miracle simply depends on whether you are allowing life to happen to you absolutely willingly or unwillingly.",
+  "if you truly want to unleash the power of the mind, the fundamental thing is, your intellect should not be identified with anything.",
+  "Once you liberate your mind from being identified with anything, then mind is a miracle; mind is a spectacular circus, not a mess.",
+  "Detachment means you have disentangled yourself from the process that you call “body,” and from the process that you call “mind,” because both these things are accumulations from outside.",
+  "Mind is not in any one place. Every cell in this body has its own intelligence. The brain is sitting in your head, but mind is all over the place.",
+  "If you try to make the limited unlimited, you will suffer.",
+  "If you simply sit here as a piece of life – not as a man or a woman, not as a Hindu or a Christian, not as an Indian or an American, not as anything – simply as a piece of life, you will see, the mind will become still.",
+  "The main aspect of meditation is, as you become more meditative, you become the boss, your mind becomes the slave, and that is how it should always be.",
+  "If you want to know life in its immensity, you need something more than your thoughts, your logic, or your intellect",
+  "One should use information and logic as a drunkard would use a lamp post, only for support, not for illumination.",
+  "A devotee has no agenda of his own. His only objective is to dissolve into his object of devotion.",
+  "Your mind is not a solid state, your mind is a fluid. You can make it take on any shape.",
+  "Most of a human being’s suffering is mental, and mental suffering is self-created. A human being is an expert at creating suffering for himself and for others. This is because he has a discretionary mind – he can choose to be any way he wants right now. He can make himself joyful or make himself miserable. You can make anything out of your mind. This choice is there at every moment.",
+  "If you are genuinely hallucinating, it means you are making up things so powerfully in your mind that it seems real. If you create it in your mind and empower it with your consciousness, it can become a live process.",
+  "If you transcend the mind, you transcend the karmic bondage also, completely.",
+  "A human is not a being; he is a becoming. He is an ongoing process, nothing is fixed.",
+  "It is uncanny that today’s neuroscientists are saying there is no way a human being can get any more brainy than the way he is right now.",
+  "The very life process is a great miracle. The very way you have become all this, from being two little cells, is it not a miracle?",
+  "Certain qualities in nature have been identified as masculine, while other qualities have been identified as feminine.",
+  "Very few people are mad enough to live their life with total abandon.",
+  "The whole science of yoga is to understand the geometry of your existence, because the whole existence is a certain kind of geometry, and your body is also a certain kind of geometry",
+  "By consciously getting your body into a certain posture, you can also elevate your consciousness, you can change the very way you feel, think, understand, and experience life simply by sitting in a particular way.",
+  "If you travel through the breath, deep into yourself, it will take you to that point where you are tied to the body.",
+  "Where the receptivity is in your hand and where the giving nature of the feet is – if these two things are connected – what you cannot achieve in years of sadhana, you may achieve in a moment.",
+  "Disease and ailments happen fundamentally because somewhere your energy body is not functioning properly.",
+  "No one who genuinely walks a spiritual path will ever attempt healing because it is a sure way of entangling yourself.",
+  "If you want to meditate, your alertness must be not of the mind alone, but of your very energy.",
+  "When it comes to food, experiment with different foods and see how your body feels after eating the food.",
+  "The five elements of earth, water, fire, air and space, are the basis of this body, the basis of this planet, and the basis of the whole creation.",
+  "If you know how to organize these five elements properly within yourself, there is nothing more to life. In terms of health, wellbeing, perception, knowing and enlightenment – everything is handled if only you know how to keep these five elements properly.",
+  "You are just a small outcrop of this earth. Right now, you are an outcrop that prances around. As a little blade of grass has shot out of the earth, you are also like that – a little mobile, that is all.",
+  "Water is one thing that is freaking the scientific community. They cannot understand what water is because it is one of the few substances which contracts when you heat it and expands when you cool it; it is one of the few things which exists on earth in all the three states of being solid, liquid and gaseous, and it is the very basis of our life.",
+  "If you get cooperation from akash, life will happen in magical ways. An intelligence that you have never thought possible will become yours.",
+  "There are certain patterns running in your aura. If you run fire along those tracks, suddenly you feel bright and clear.",
+  "If one has mastery over the five elements, the body can even be dematerialized.",
+  "When my guru touched me on the forehead with his staff, what could not be learnt in lifetimes was transmitted in a moment. Since then, on the existential level, whatever I have needed to know has been available to me when I have needed it. On a daily basis, I do not carry the burden of this knowing. People usually become heavy and serious with knowledge. But when knowing is transmitted as energy, not memory, the burden of knowledge is not on you.",
+  "Don’t look up to anything, don’t look down on anything.",
+  "Shi-va is the centripetal force that holds existence together; Shakti is the centrifugal force that gives rise to the explosive diversity of existence.",
+  "Shiva is only meant for those whose greed is unlimited, for those who are not willing to settle for life in instalments, for those who want to become one with the very source of existence.",
+  "The spiritual journey is a journey towards clarity, but never towards certainty. When you draw conclusions about beginnings and endings, you are a believer. When you accept that you really do not know anything, you become a seeker.",
+  "The logic is simple: if you do the right things, the right things will happen to you even without your intent.",
+  "What unfolds here are the chronicles not of Shi-va, the ultimate emptiness, or Shiva in his innumerable other mythic forms, but of Adiyogi, the first yogi.",
+  "Fundamentally, the basis of yoga is just this: to initiate a process of self-creation where the nature of your body, your emotion, your mind, your energy is consciously created by you. This is what Adiyogi did. He crafted his life in its entirety.",
+  "Our lives are ruled by eight forms of memory, Adiyogi explained. These are elemental, atomic, evolutionary, genetic, karmic, sensory, inarticulate and articulate.",
+  "Life has no use at all, declared Adiyogi. It is simply a phenomenon. Little acts have purpose. But life is not framed within the narrow grid of utility. It is beyond frames. It is beyond grids. It is beyond utility. If you have a taste of this existence beyond purpose, of life beyond sense, you are enlightened.",
+  "When a Being beyond Time and Space touches you, you also become beyond Time and Space – the privilege of knowing “The Only Solution Is Dissolution”.",
+  "The hen that you are, how will you know what deceptive ways Grace will descend. It is Grace that brought you here and it is Grace that will deliver: I prefer the hen that looks up to the sky than an eagle that flies but always looking down. How high is not the question, but how intense is your longing for the sky. May you always be in Grace.",
+  "Only when a person begins to experience himself beyond the limitations of his physical body and mind, then this person can become free from insecurity and fear. Experiencing yourself beyond the physical is what we’re referring to as spiritual.",
+  "So when I say “spiritual,” I am talking about you beginning to experience that which is not physical. Once this spiritual dimension is alive, once you start experiencing yourself beyond the limitations of the physical and the mental, only then there’s no such thing as fear. Fear is just the creation of an overactive and out-of-control mind.",
+  "You need to understand the limitations and the capabilities of these thousand people and do what you can; only then will you have the power to move the situation the way you want it to go. If you’re waiting for these thousand people to understand you and act, it is only a pipe dream; it’s never going to happen.",
+  "Somebody becomes closer and dearer to you only as you understand them better. If they understand you, they enjoy the closeness of the relationship. If you understand them better, then you enjoy the closeness.",
+  "If you use your emotions and try to reach the ultimate, we call this bhakti yoga; that means the path of devotion. If you use your intelligence and try to reach the ultimate, we call this gnana yoga; that means the path of intelligence. If you use your body, or physical action to reach the ultimate, we call this karma yoga; that means the path of action. Now if you transform your energies and try to reach the ultimate, we call this kriya yoga; that means internal action.",
+  "The only thing you can do is to stop attaching importance to your own ways of thinking and feeling, your thought patterns, your emotions, and your opinions. Don’t attach any importance to them. Then your limitations will become weaker and weaker and one day collapse.",
+  "If you create any image without a break in it, if there is a continuous mental focus towards it, it will happen, no matter what.",
+  "Right now, medical sciences are limited to just knowing the physical body. If anything happens beyond that, you think it’s a miracle.",
+  "Similarly, life happens in many different ways. But you have limited yourself to just the physical, the logical—physical in experience, logical in thinking.",
+  "is. If your energy body is in proper balance and full flow, your physical body and mental body will be in perfect health, there is no question about it.",
+  "Accepting the other team is most important. When acceptance is total, there is no more opposition.",
+  "Acceptance is important to connect to a situation and to respond to the situation intelligently.",
+  "whatever action you perform in your life, there is a consequence to it. There is no such thing as you must perform only this type of action and you must not perform another type of action. You can do anything. But you must be in a state to accept the consequences joyously.",
+  "You want to race with everybody because you want to be one up on everybody, especially your neighbour. But you do not want to face the difficulties that arise due to this competition.",
+  "Just because somebody else is doing something, you don’t have to attempt it or do it. You do not know the kind of energy they have, isn’t it? So, the society has not only become competitive; you are caught in the rat race.",
+  "The closer the relationship is, the more effort you should make to understand them.",
+  "The way you are right now, the very quality of your life is decided by the type of relationships you hold. You better make the needed effort to understand the people around you.",
+  "Your child should do something that you did not even dare to think of in your life.",
+  "If you want to bring up your child well, the first thing is that you should be happy. Right now, you, by yourself, do not know how to be happy. Every day in your house, there is a demonstration of tension, anger, fear, anxiety and jealousy. Only these things are being demonstrated to your child. What will happen to him? He will learn only this. If you really have the intention of bringing up your child well, you must first change your way of being. If you are incapable of transforming yourself, where is the question of you bringing up your child?",
+  "You have become a disciple of the devil if your whole life is about making deals. The devil is always making a deal with somebody.",
+  "Right now, why you think in terms of right and wrong is simply because of the social moral code.",
+  "The karma is not made in physical action; it is made only by volition.",
+  "Your idea of good and bad has been taught to you. You have imbibed it from the social atmosphere in which you have lived. Karma is in the context of your life, and not in the action itself.",
+  "Today, it has become a common phenomenon in society that everybody is in some level of neurosis. This is simply because your energy is not worked out; it’s trapped.",
+  "Right now, religion is mostly about belonging to groups; that’s all it is doing to people.",
+  "Normally, everybody wants to rule the world.",
+  "Unfortunately, for most people, fear, anger, hatred are the most intense situations in their lives. Their love is never so intense, their peace is never so intense, their joy is never so intense, but their negativities are intense.",
+  "The most beautiful things will happen when your actions spring from your intelligence and not from your anger.",
+  "India is the ultimate spiritual democracy.",
+  "Ours is a culture of quest, not commandment. There is no divide between the sacred and the secular.",
+  "Learning to live in lively exuberance and collective responsibility, without mistaking the spirit of debate for the spirit of revolt.",
+  "As members of the human race, we need to move towards an inclusive universality rather than a reverse biological bigotry.",
+  "It takes tremendous maturity to simply sit quietly, only doing things to the extent that it is needed.",
+  "The complexities that one encounters on the spiritual path are not because of the path. The complexities are only there because of the mess that is your mind.",
+  "The moment you say something is bad, you can’t stop disliking it, can you?",
+  "You believe in things that you have not seen and experienced. This has become the basis of all conflict.",
+  "What you call a person is just like a bubble. This bubble doesn’t have any substance of its own.",
+  "God is not somewhere, he is here and now. It is you who is not.",
+  "If every moment, one is like a snake leaving the skin behind, only then there is growth.",
+  "Only if you know to what extent your logic should go and where it should not go, your life will be beautiful.",
+  "If you are seeking something beyond survival, then the sense perceptions are not enough.",
+  "The whole process of yoga is to take you from something that you know and take the next step into the unknown.",
+  "If you look at it objectively, stillness and stagnation are about the same. Physically they could be seen as about the same, but qualitatively they are worlds apart.",
+  "Generally, mental alertness is mistaken for awareness, but awareness is a far deeper dimension than just mental alertness alone.",
+  "If you gain a little bit of mastery over your own energies, you will see, things that you never imagined possible, you will do simply and naturally.",
+  "What you don’t know, if you accept that you do not know it, there will be growth.",
+  "If you have to do something that you do not like, you can only do it consciously; there is no other way to do it.",
+  "In your attempt to understand a flower, maybe you will pull it apart petal by petal. But you will understand nothing.",
+  "Unless you do something to the inner, you will not know what it is to be peaceful, to be joyous, you will not know how to go beyond the limitations of being just a physical body and mind.",
+  "A prayer is not a means to reach God, but God is only a means so that we can pray.",
+  "If you truly become aware of the disease, then you become aware of the cause also.",
+  "Without being capable of bringing peace into your own being, there is no way you are going to be capable of bringing peace to the world.",
+  "Once you become a true individual, your destiny is yours.",
+  "Every breath, every step, every act that you perform in your life becomes a spiritual process.",
+  "Let your humanity overflow and the Divine will happen.",
+  "When a man has reached a state within himself where his actions are only to the extent required for outer life situations, then he is a complete person.",
+  "You deal with life as if you have got nothing to do with anything outside of your limited perception.",
+  "Whatever is your highest, you just contemplate upon that. Your inner and outer purity will happen naturally.",
+  "A Guru mixes the right cocktail for you, otherwise there is no punch.",
+  "To live on this planet, you need trust. Right now, you trust unconsciously.",
+  "A spiritual person has earned everything else from within, only for food he begs."
+
 ];
 
 let bookExcerptsIndex = parseInt(localStorage.getItem("bookExcerptsIndex")) || 0;
@@ -1627,6 +1751,105 @@ if (bookExcerptsSection) {
     bookExcerptsSection.classList.add("visible");
     showBookExcerpt(bookExcerptsIndex);
     startBookExcerptsAutoCycle();
+  }
+}
+
+// ====================
+// 💡 Tips Section
+// ====================
+const tips = [
+  "First accept every limitation you have. Physically,mentally we are very limited, if you hate the fact and try to dog train your body or mind for a day, next day they are going to bark at you. You need to address your body and mind like a child. Accept and work with the limitation.",
+  "Remember that your intention is your fuel, your intention is your anchor and your intention is the first step. So keep an intention that is way higher than what you want to achieve, your target will be achieved quicker than you thought you could achieve.",
+  "Small steps are your way to success in every aspect of your life. You take a guitar, just learn one small and very easy chord from youtube and just spend five minutes twice everyday. Add five more minutes and a new chord every month. In a year you will be an awesome guitar player. I can keep on going about small steps. Its the most important thing that we often underestimate and let go of.",
+  "Repetition is crucial, if you are irregular then you are hitting a wall here. Without repetition both intention and small steps are just a joke.",
+  "One thing about repetition is that, its always your mind vs repetition. Everytime you repeat a particular activity, that activity wins over your mind, even if you are sick, even if you are angry, sad, bored, dull or in love! Whatever your state is, repetition will win it over. But unfortunately you break a repetition cycle then your mind dominates your activity that you are trying to regularise Suddenly next day you will be less drawn towards doing a particular activity.",
+  "Remembering that I’ll be dead soon is the most important tool I’ve ever encountered to help me make the big choices in life. Because almost everything — all external expectations, all pride, all fear of embarrassment or failure — these things just fall away in the face of death, leaving only what is truly important.",
+  "If you are serious about success in life then make your body this strong that it can work efficiently with less food and sleep."
+];
+
+let tipIndex = parseInt(localStorage.getItem("tipIndex")) || 0;
+let tipInterval = null;
+
+const tipsText = document.getElementById("tipsText");
+const tipsBtn = document.getElementById("tipsBtn");
+const tipsPrevBtn = document.getElementById("tipsPrevBtn");
+const tipsPauseBtn = document.getElementById("tipsPauseBtn");
+const tipCounter = document.getElementById("tipCounter");
+const tipsSection = document.querySelector(".tips-section");
+
+function showTip(index) {
+  if (!tipsText) return;
+  tipsText.classList.remove("visible");
+  setTimeout(() => {
+    tipsText.textContent = tips[index] + " —Putr, Devi. Shambhavi Twice: Ingredients for a Corporate Yogi";
+    tipsText.classList.add("visible");
+    if (tipCounter) {
+      tipCounter.textContent = `Tip ${index + 1} of ${tips.length}`;
+    }
+  }, 600);
+  localStorage.setItem("tipIndex", index);
+}
+
+function startTipAutoCycle() {
+  if (tipInterval) return;
+  if (tipsPauseBtn) tipsPauseBtn.textContent = "Pause";
+  tipInterval = setInterval(() => {
+    tipIndex = (tipIndex + 1) % tips.length;
+    showTip(tipIndex);
+  }, 20000); 
+}
+
+function stopTipAutoCycle() {
+  clearInterval(tipInterval);
+  tipInterval = null;
+  if (tipsPauseBtn) tipsPauseBtn.textContent = "Play";
+}
+
+if (tipsBtn) {
+  tipsBtn.addEventListener("click", () => {
+    stopTipAutoCycle();
+    tipIndex = (tipIndex + 1) % tips.length;
+    showTip(tipIndex);
+  });
+}
+
+if (tipsPrevBtn) {
+  tipsPrevBtn.addEventListener("click", () => {
+    stopTipAutoCycle();
+    tipIndex = (tipIndex - 1 + tips.length) % tips.length;
+    showTip(tipIndex);
+  });
+}
+
+if (tipsPauseBtn) {
+  tipsPauseBtn.addEventListener("click", () => {
+    if (tipInterval) {
+      stopTipAutoCycle();
+    } else {
+      startTipAutoCycle();
+    }
+  });
+}
+
+// Handle visibility and initial load
+if (tipsSection) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tipsSection.classList.add("visible");
+        showTip(tipIndex);
+        startTipAutoCycle();
+        observer.unobserve(tipsSection);
+      }
+    });
+  }, { threshold: 0 });
+
+  observer.observe(tipsSection);
+
+  if (tipsSection.getBoundingClientRect().top < window.innerHeight) {
+    tipsSection.classList.add("visible");
+    showTip(tipIndex);
+    startTipAutoCycle();
   }
 }
 })();

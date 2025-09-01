@@ -726,3 +726,76 @@ body::after {
 #nextQuoteBtn {
   margin-top: 0; /* Remove top margin from original button */
 }
+
+/* Add .tips-section to these existing rules */
+.pebbles-section, .sutras-section, .book-excerpts-section, .tips-section {
+  margin-top: 20px;
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.pebbles-section.visible, .sutras-section.visible, .book-excerpts-section.visible, .tips-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#pebblesText, #sutrasText, #bookExcerptsText, #tipsText {
+  font-size: 1.2em;
+  font-style: italic;
+  line-height: 1.6;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  margin-bottom: 15px;
+  color: #fff;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+}
+
+#pebblesText.visible, #sutrasText.visible, #bookExcerptsText.visible, #tipsText.visible {
+  opacity: 1;
+}
+
+/* Add this to the counter rule */
+#quoteCounter, #pebbleCounter, #sutraCounter, #bookExcerptsCounter, #tipCounter {
+  font-size: 1em;
+  font-style: normal;
+  color: #ccc;
+  margin-bottom: 5px;
+}
+
+/* Add these new rules for the tips section controls */
+.tips-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.tips-controls button {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #10b981, #059669); /* Green gradient */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.tips-controls button:hover {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    transform: scale(1.05);
+}
