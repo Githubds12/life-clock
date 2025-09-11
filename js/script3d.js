@@ -2159,12 +2159,12 @@ function startContinuousClock() {
 window.onYouTubeIframeAPIReady = function () {
   let player;
   player = new YT.Player("youtube-player", {
-    videoId: "IvjMgVS6kng", // Lofi Girl - Lofi hip hop radio. This is a very popular and stable video.
+    videoId: "vxQKqtlPvks", 
     playerVars: {
       controls: 1,
       autoplay: 1,
       loop: 1,
-      playlist: "IvjMgVS6kng", // Required for looping
+      playlist: "vxQKqtlPvks", // Required for looping
     },
   });
 };
