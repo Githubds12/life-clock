@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Life Sand Clock</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -34,7 +34,7 @@
 <body>
 
   <div class="wrap snake-bg">
-    
+
     <nav class="top-nav">
       <a href="#clock-section">Clock</a>
       <a href="#quotes-section">Quotes</a>
@@ -44,11 +44,11 @@
       <a href="#tips-section">Tips</a>
       <a href="#music-section">Music</a>
     </nav>
-    
+
     <header>
       <div>
         <h1>
-          <img src="ishalogo.png" alt="Isha Logo" class="header-logo" />
+          <img src="assets/ishalogo.png" alt="Isha Logo" class="header-logo" />
           Life Sand Clock
         </h1>
         <div class="sub">Sand clock. DOB pre-filled (01-Feb-1998). Lifespan is configurable.</div>
@@ -90,7 +90,7 @@
     <!-- Intro Section -->
     <section class="intro card" id="intro-section">
       <h2 class="box-title">
-        <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
+        <img src="assets/sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
         Introduction & Context
       </h2>
       <p>
@@ -107,7 +107,7 @@
     </section>
 
     <!-- Main container -->
-    <div class="container" id="clock-section" >
+    <div class="container" id="clock-section">
       <div class="clock-wrapper">
         <h2 class="box-title">
           <img src="sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
@@ -142,6 +142,11 @@
         </div>
       </div>
     </div>
+    <footer>
+      <img src="assets/ishalogo.png" alt="Isha Logo" class="footer-logo" />
+      Made with love.
+    </footer>
+
 
     <div id="quotes-section" class="scrollable-content">
       <div id="quoteBox">
@@ -168,7 +173,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="book-excerpts-section" id="book-excerpts-section" class="scrollable-content">
       <p id="bookExcerptsText"></p>
       <div class="book-excerpts-controls">
@@ -180,7 +185,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="pebbles-section" id="pebbles-section" class="scrollable-content">
       <p id="pebblesText"></p>
       <div class="pebble-controls">
@@ -192,7 +197,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="tips-section" id="tips-section" class="scrollable-content">
       <p id="tipsText"></p>
       <div class="tips-controls">
@@ -204,7 +209,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Music Player Section -->
     <div class="music-section card" id="music-section">
       <div class="box-title">
@@ -212,18 +217,21 @@
       </div>
       <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
     </div>
-    
-    <footer>
-      <img src="ishalogo.png" alt="Isha Logo" class="footer-logo" />
-      Made with love.
-    </footer>
+
+
   </div>
 
-  <!-- Sound setup -->
-  <audio id="sandSound" src="sand.mp3" autoplay loop></audio>
-  
+
+  <section id="sadhana-section" class="card" style="margin: 30px auto; max-width: 900px;">
+    <h2 class="box-title">Transforming Actions into Sadhana</h2>
+    <div id="sadhana-content" style="text-align: left; line-height: 1.6;">
+      <p>Loading spiritual practice guidelines...</p>
+    </div>
+  </section>
+
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="script3d.js"></script>
+  <script src="js/script3d.js"></script>
+  <script src="js/sadhana-loader.js"></script>
   <script>
     const audio = document.getElementById("sandSound");
     audio.volume = 0.2; // softer sound
