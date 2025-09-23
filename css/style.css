@@ -16,36 +16,32 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* Add this to your css/style.css file */
 #sadhana-content {
-    background-color: rgba(0, 0, 0, 0.7); /* Black with 70% opacity */
-    padding: 20px; /* Add some space around the content */
-    border-radius: 8px; /* Slightly rounded corners */
-    color: #f0f0f0; /* Light text color for contrast */
-    margin-top: 20px; /* Space above the sadhana content */
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    color: #f0f0f0;
+    margin-top: 20px;
 }
 
-/* Optional: Adjust heading and list item colors within sadhana-content */
 #sadhana-content h3 {
-    color: #ffffff; /* White headings */
+    color: #ffffff;
 }
 
 #sadhana-content ul {
-    color: #e0e0e0; /* Slightly lighter list item text */
+    color: #e0e0e0;
 }
 
-/* Galaxy wallpaper stays fixed */
- body {
+body {
   font-family: 'Patrick Hand', sans-serif;
   background: url("https://cdn.esahubble.org/archives/images/screen/heic0910e.jpg") no-repeat center center fixed;
   background-size: cover;
-  background-attachment: fixed; /* this keeps it in place */
+  background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
   font-size:20px !important;
 }
 
-/* New Navigation Bar */
 .top-nav {
   position: sticky;
   top: 0;
@@ -75,7 +71,6 @@ html, body {
   color: #fff;
 }
 
-
 .wrap {
   min-height: 100%;
   display: grid;
@@ -83,17 +78,13 @@ html, body {
   position: relative;
 }
 
-/* Subtle snakes background overlay (non-intrusive) */
 .wrap.snake-bg::before {
   content: "";
   position: fixed;
   inset: 0;
-
   background-size: 260px;
   opacity: 0.08;
-  /* keep it subtle */
   mix-blend-mode: overlay;
-  /* meld with gradient nicely */
   pointer-events: none;
   z-index: -1;
 }
@@ -126,7 +117,6 @@ h1 {
   box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
 }
 
-/* Controls */
 .controls {
   margin-top: 10px;
   display: grid;
@@ -141,9 +131,7 @@ h1 {
   margin-bottom: 6px;
   font-size: 16px;
   color: #f9fafb;
-  /* near white, very visible on dark bg */
 }
-
 
 .controls input,
 .controls button {
@@ -170,14 +158,12 @@ h1 {
   background: linear-gradient(180deg, #22d3ee, #0ea5e9);
 }
 
-/* Responsive small screens */
 @media(max-width:700px) {
   .controls {
     grid-template-columns: 1fr
   }
 }
 
-/* Main layout */
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -187,7 +173,6 @@ h1 {
   margin-top: 20px;
 }
 
-/* Canvas spotlight + reflection */
 #canvas {
   width: 100%;
   max-width: 450px;
@@ -220,7 +205,6 @@ h1 {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 16px;
-  /* base padding */
   border-radius: 16px;
   flex: 1;
   min-width: 260px;
@@ -236,12 +220,10 @@ h1 {
   transform: translateY(-4px);
 }
 
-/* Stats inside panel */
 .stats {
   display: grid;
   gap: 10px;
   padding: 20px;
-  /* extra padding so it doesn’t hug the edge */
 }
 
 .stat {
@@ -256,13 +238,9 @@ h1 {
 
 .label {
   color: #f9fafb;
-  /* near-white, very clear on dark */
   font-size: 16px;
   font-weight: 600;
 }
-
-
-
 
 .value {
   font-size: 18px
@@ -291,8 +269,6 @@ h1 {
   }
 }
 
-
-/* Meter fill (glowing liquid) */
 #meterFill {
   height: 100%;
   width: 0%;
@@ -304,9 +280,6 @@ h1 {
   transition: width 0.2s linear;
 }
 
-
-
-/* 🔥 Auto pulse only when bar width = 100% */
 #meterFill[style*="100%"] {
   animation: flow 6s linear infinite, pulse 2s ease-in-out infinite;
 }
@@ -321,17 +294,14 @@ h1 {
   }
 }
 
-
 .meter>div.animate {
   transition: width 18s linear;
 }
-
 
 .meter>div {
   height: 100%;
   background: linear-gradient(90deg, #22d3ee, #38bdf8, #60a5fa);
   width: 0%;
-  /* transition: width .6s cubic-bezier(.2, .8, .2, 1) */
 }
 
 footer {
@@ -345,7 +315,6 @@ footer {
   justify-content: center;
 }
 
-/* Intro + video styling */
 .intro {
   margin: 20px auto;
   max-width: 900px;
@@ -367,13 +336,12 @@ footer {
   box-shadow: none !important;
 }
 
-
 .video-wrapper {
   position: relative;
   width: 100%;
-  max-width: 560px;   /* shrink width (you can set 400px if you want smaller) */
-  margin: 1.5rem auto; /* center it with spacing */
-  aspect-ratio: 16 / 9; /* keeps video ratio */
+  max-width: 560px;
+  margin: 1.5rem auto;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
@@ -389,23 +357,10 @@ footer {
 }
 
 .box-title {
-  color: white; /* or gold, silver, etc. instead of green */
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6); /* optional glow */
+  color: white;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
 }
 
-/* Titles inside boxes */
-/* .box-title {
-  font-size: 18px;
-  margin: 0 0 12px;
-  color: var(--accent);
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-} */
-
-/* Clock wrapper for a heading above canvas */
 .clock-wrapper {
   flex: 1;
   min-width: 260px;
@@ -413,14 +368,12 @@ footer {
   text-align: center;
 }
 
-/* Logos */
 .logo {
   height: 24px;
   width: auto;
   margin-right: 6px;
   vertical-align: middle;
   border-radius: 6px;
-  /* sunmoon.jpg might be square/rect; soften edges */
 }
 
 .logo-round {
@@ -444,19 +397,14 @@ footer {
   vertical-align: middle;
 }
 
-
-/* Style for the container */
 .controls label {
   display: block;
   font-weight: 600;
   margin-bottom: 6px;
   font-size: 16px;
   color: #f9fafb;
-  /* near-white for visibility */
 }
 
-
-/* Beautiful dropdown */
 #country {
   width: 100%;
   padding: 10px 14px;
@@ -468,7 +416,6 @@ footer {
   color: #333;
   outline: none;
   appearance: none;
-  /* remove default arrow */
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'12'%20height%3D'8'%20viewBox%3D'0%200%2012%208'%20xmlns%3D'http://www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M1.41.59L6%205.17%2010.59.59%2012%202l-6%206-6-6z'%20fill%3D'%23666'%20/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
@@ -477,14 +424,12 @@ footer {
   cursor: pointer;
 }
 
-/* Hover / focus effect */
 #country:hover,
 #country:focus {
   border-color: #0077ff;
   box-shadow: 0 0 6px rgba(0, 119, 255, 0.3);
 }
 
-/* Options styling (for supported browsers) */
 #country option {
   padding: 10px;
   font-size: 16px;
@@ -505,47 +450,34 @@ footer {
   border-color: var(--accent);
   box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
 }
+
 .card,
 .container,
 .panel,
 .clock-wrapper,
 .stats {
-  background: transparent !important; /* removes box background */
-  box-shadow: none !important;       /* remove shadow if any */
-  border: none !important;           /* optional – remove border */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
-/* Keep your panels readable */
 .card, .panel {
   background: rgba(17, 24, 39, 0.7);
   backdrop-filter: blur(6px);
 }
 
-/* Ensure your content panels remain readable */
-.card, .panel {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(6px);
-}
-
-
-/* Star texture layer */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   background: url("https://www.transparenttextures.com/patterns/stardust.png");
   opacity: 0.3;
-  /* faint */
   z-index: -3;
 }
 
-
-
-/* === Panels & Inputs (less see-through) === */
 .card,
 .panel {
   background: rgba(17, 24, 39, 0.8);
-  /* stronger background */
   backdrop-filter: blur(8px);
 }
 
@@ -556,15 +488,11 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* === FINAL OVERRIDES: make everything transparent === */
-
-/* Remove any overlay/film layers */
 .wrap.snake-bg::before,
 body::after {
   display: none !important;
 }
 
-/* Make all panels/cards/containers transparent */
 .card,
 .panel,
 .intro.card,
@@ -577,14 +505,12 @@ body::after {
   backdrop-filter: none !important;
 }
 
-/* YouTube wrapper fully transparent */
 .video-wrapper {
   background: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
 }
 
-/* Canvas: remove inner gradient, border, and glow */
 #canvas {
   background: transparent !important;
   border: none !important;
@@ -595,12 +521,10 @@ body::after {
   transform: none !important;
 }
 
-/* Title color — ensure it's not green */
 .box-title {
   color: #fff !important;
 }
 
-/* Keep form controls readable on a transparent background */
 .controls input,
 .controls button,
 #livingBeing,
@@ -608,22 +532,31 @@ body::after {
   background: rgba(0,0,0,0.55) !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
 }
+
 #quoteBox {
   margin: 30px auto;
   max-width: 80%;
   padding: 20px 30px;
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
   text-align: center;
   font-size: 1.2rem;
   line-height: 1.6;
   color: #f5f5f5;
   font-style: italic;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
 }
-/* Styles for the quote controls */
-.quote-controls, .pebble-controls, .sutra-controls, .book-excerpts-controls, .tips-controls {
+
+#quoteBox.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quote-controls {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -657,136 +590,23 @@ body::after {
     background: linear-gradient(135deg, #e6ba6f, #c98c3a);
 }
 
-.sutra-controls button {
-    padding: 8px 16px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #4f96d4, #2a5bb6);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease;
-}
-
-.sutra-controls button:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, #6fc9e6, #3a9cc9);
-}
-
-.pebble-controls button {
-    padding: 8px 16px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #d97706, #b45309);
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.pebble-controls button:hover {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    transform: scale(1.05);
-}
-
-.book-excerpts-controls button {
-    padding: 8px 16px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #7c3aed, #4c1d95);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.book-excerpts-controls button:hover {
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
-    transform: scale(1.05);
-}
-
-.tips-controls button {
-    padding: 8px 16px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #10b981, #059669); /* Green gradient */
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.tips-controls button:hover {
-    background: linear-gradient(135deg, #34d399, #10b981);
-    transform: scale(1.05);
-}
-
-
-#quoteCounter, #pebbleCounter, #sutraCounter, #bookExcerptsCounter, #tipCounter {
+#quoteCounter {
   font-size: 1em;
   font-style: normal;
   color: #ccc;
-  margin-bottom: 5px; /* Add some space below the counter */
+  margin-bottom: 5px;
 }
-
 
 #quoteText {
   margin-bottom: 15px;
   opacity: 0;
   transition: opacity 1s ease-in-out;
+  color: #fff;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
 }
 
 #quoteText.visible {
   opacity: 1;
-}
-
-/* Pebbles and Sutras section styling */
-.pebbles-section, .sutras-section, .book-excerpts-section, .tips-section {
-  margin-top: 20px;
-  padding: 20px 30px;
-  background: rgba(0, 0, 0, 0.65); /* darker, more opaque */
-  backdrop-filter: blur(6px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
-  border-radius: 16px;
-  text-align: center;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-
-  /* 🔥 Fade effect */
-  opacity: 0;
-  transform: translateY(15px);
-  transition: opacity 1.5s ease, transform 1.5s ease;
-}
-
-
-.pebbles-section.visible, .sutras-section.visible, .book-excerpts-section.visible, .tips-section.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-
-#pebblesText, #sutrasText, #bookExcerptsText, #tipsText {
-  font-size: 1.2em;
-  font-style: italic;
-  line-height: 1.6;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  margin-bottom: 15px;
-  color: #fff; /* brighter text */
-  text-shadow: 1px 1px 4px rgba(0,0,0,0.6); /* glow for readability */
-}
-
-#pebblesText.visible, #sutrasText.visible, #bookExcerptsText.visible, #tipsText.visible {
-  opacity: 1;
-}
-
-/* Re-styling the original nextQuoteBtn to fit the new controls */
-#nextQuoteBtn {
-  margin-top: 0; /* Remove top margin from original button */
 }
 
 .music-section {
@@ -809,47 +629,34 @@ body::after {
 }
 
 .scrollable-text-container {
-  max-height: 200px; /* Adjust this value as needed */
+  max-height: 250px; /* Increased height */
   overflow-y: auto;
+  padding-right: 10px; /* space for scrollbar */
 }
 
-
-/* Add this to the END of your css/style.css file */
-
 @media (max-width: 768px) {
-  /* This block applies styles ONLY to screens 768px wide or smaller 📱 */
-
   header {
-    padding: 10px; /* Reduce padding around the entire header */
+    padding: 10px;
   }
-
   header h1 {
-    font-size: 1.5rem; /* Make the main title smaller */
+    font-size: 1.5rem;
     margin-bottom: 15px;
   }
-
   .header-logo {
-    width: 35px; /* Shrink the logo */
+    width: 35px;
   }
-  
   .sub {
-    font-size: 0.8rem; /* Make the subtitle smaller */
+    font-size: 0.8rem;
   }
-
-  /* --- This is the most important part --- */
   .controls {
-    display: grid; /* Arrange controls in a grid instead of stacking */
-    grid-template-columns: 1fr 1fr; /* Create two equal columns */
-    gap: 12px; /* Adjust the space between controls */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
-
   .controls label {
-    font-size: 0.85rem; /* Make control labels smaller */
+    font-size: 0.85rem;
   }
-
   .controls > div {
-    /* Target each individual control group (label + input) */
-    margin-bottom: 0; /* Remove extra bottom margin if any */
+    margin-bottom: 0;
   }
-  
 }
