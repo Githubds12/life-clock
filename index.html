@@ -2,164 +2,223 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Life Sand Clock</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deepanshu Singh · Life Sand Clock</title>
+  <meta name="description" content="A personalized 3D hourglass life clock for Deepanshu Singh — watch the sands of time flow in an immersive cosmic experience." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Patrick+Hand&display=swap"
-    rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
-  <defs>
-    <linearGradient id='s' x1='0' y1='0' x2='0' y2='1'>
-      <stop offset='0' stop-color='%23d4a74f'/>
-      <stop offset='1' stop-color='%23b67d2a'/>
-    </linearGradient>
-  </defs>
-  <rect x='14' y='6' width='36' height='6' rx='3' fill='%23e0e0e0'/>
-  <rect x='14' y='52' width='36' height='6' rx='3' fill='%23e0e0e0'/>
-  <path d='M17 12 Q32 28 47 12 M47 52 Q32 36 17 52'
-        stroke='%23e0e0e0' stroke-width='6' fill='none' stroke-linecap='round'/>
-  <path d='M22 20 Q32 28 42 20 L42 26 L22 26 Z' fill='url(%23s)'/>
-  <path d='M22 46 L42 46 L42 52 Q32 42 22 52 Z' fill='url(%23s)'/>
-</svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
 </head>
 
 <body>
-  <div class="wrap snake-bg">
-    <nav class="top-nav">
-      <a href="#clock-section">Clock</a>
-      <a href="#quotes-section">Wisdom</a>
-      <a href="#music-section">Music</a>
-    </nav>
 
-    <header>
-      <div>
-        <h1>
-          Life Sand Clock
-        </h1>
-        <div class="sub">Sand clock. DOB pre-filled (01-Feb-1998). Lifespan is configurable.</div>
-      </div>
-      <div class="card">
-        <div class="controls">
-          <div>
-            <label for="dob">Birthdate</label>
-            <input type="date" id="dob" value="1998-02-01" />
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-brand">⏳ Life Clock</div>
+    <div class="nav-links">
+      <a href="#hero" class="nav-link">Clock</a>
+      <a href="#intro-section" class="nav-link">About</a>
+      <a href="#wisdom-section" class="nav-link">Wisdom</a>
+      <a href="#music-section" class="nav-link">Music</a>
+    </div>
+    <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle menu">☰</button>
+  </nav>
+
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#hero" class="mobile-nav-link">Clock</a>
+    <a href="#intro-section" class="mobile-nav-link">About</a>
+    <a href="#wisdom-section" class="mobile-nav-link">Wisdom</a>
+    <a href="#music-section" class="mobile-nav-link">Music</a>
+  </div>
+
+  <!-- HERO SECTION (Three.js canvas + overlaid UI) -->
+  <section id="hero">
+
+    <!-- Three.js 3D canvas renders here -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- LEFT PANEL: Personalized greeting + live counter -->
+    <div class="hero-left">
+      <p class="hero-greeting">Welcome back,</p>
+      <h1 class="hero-name">Deepanshu<br>Singh</h1>
+      <p class="hero-dob">Born · 1 February 1998</p>
+
+      <div class="live-counter" id="live-counter">
+        <div class="counter-row primary">
+          <div class="counter-unit">
+            <span class="counter-val" id="c-years">28</span>
+            <span class="counter-label">yrs</span>
           </div>
-          <div>
-            <label for="lifespan">Lifespan (years)</label>
-            <input type="number" id="lifespan" min="1" max="150" value="100" />
+          <span class="counter-sep">·</span>
+          <div class="counter-unit">
+            <span class="counter-val" id="c-months">00</span>
+            <span class="counter-label">mo</span>
           </div>
-          <div>
-            <label for="country">Country</label>
-            <select id="country">
-              <option value="">-- Select Country --</option>
-            </select>
+          <span class="counter-sep">·</span>
+          <div class="counter-unit">
+            <span class="counter-val" id="c-days">00</span>
+            <span class="counter-label">days</span>
           </div>
-          <div>
-            <label for="livingBeing">Search Living Being</label>
-            <input type="text" id="livingBeing" placeholder="Type e.g. Dog, Cat, Elephant..." list="livingBeingList">
-            <datalist id="livingBeingList"></datalist>
+        </div>
+        <div class="counter-row secondary">
+          <div class="counter-unit">
+            <span class="counter-val" id="c-hours">00</span>
+            <span class="counter-label">hrs</span>
           </div>
-          <div>
-            <label for="age">Age (years)</label>
-            <input type="range" id="age" min="0" max="100" step="0.01">
+          <span class="counter-sep">:</span>
+          <div class="counter-unit">
+            <span class="counter-val" id="c-mins">00</span>
+            <span class="counter-label">min</span>
           </div>
-          <div>
-            <label>&nbsp;</label>
-            <button id="useDOB">Use DOB</button>
+          <span class="counter-sep">:</span>
+          <div class="counter-unit">
+            <span class="counter-val" id="c-secs">00</span>
+            <span class="counter-label">sec</span>
           </div>
         </div>
       </div>
-    </header>
 
-    <section class="intro card" id="intro-section">
-      <h2 class="box-title">
-        <img src="assets/sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
-        Introduction & Context
-      </h2>
-      <p>
-        This sand clock is a metaphor for life, reminding us that time flows steadily and cannot be paused.
-        Below is a short excerpt from a talk that inspired this visualization.
+      <p class="hero-hint">Drag to rotate · Scroll to zoom</p>
+    </div>
+
+    <!-- RIGHT PANEL: Stats + Controls -->
+    <div class="hero-right">
+
+      <!-- Stats Card -->
+      <div class="glass-card" id="stats-card">
+        <h3 class="card-title">📊 Life Statistics</h3>
+        <div class="stat-row">
+          <span class="stat-label">Exact Age</span>
+          <span class="stat-val" id="exactAge">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Years Lived</span>
+          <span class="stat-val" id="yearsLived">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Years Left</span>
+          <span class="stat-val" id="yearsLeft">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Life Progress</span>
+          <span class="stat-val" id="progressText">—</span>
+        </div>
+        <div class="life-bar">
+          <div class="life-bar-fill" id="meterFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Controls Card -->
+      <div class="glass-card" id="controls-card">
+        <h3 class="card-title">⚙️ Customize</h3>
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="dob">Birthdate</label>
+          <input type="date" id="dob" value="1998-02-01" class="ctrl-input">
+        </div>
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="lifespan">Lifespan (years)</label>
+          <input type="number" id="lifespan" min="1" max="300" value="72" class="ctrl-input">
+        </div>
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="country">Country</label>
+          <select id="country" class="ctrl-input ctrl-select"></select>
+        </div>
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="livingBeing">Living Being</label>
+          <input type="text" id="livingBeing" placeholder="Human, Dog, Elephant..." list="livingBeingList" class="ctrl-input">
+          <datalist id="livingBeingList"></datalist>
+        </div>
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="age">Age Slider</label>
+          <input type="range" id="age" min="0" max="100" step="0.01" class="ctrl-range">
+        </div>
+        <button id="useDOB" class="btn-primary">⏳ Apply DOB</button>
+      </div>
+
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" id="scroll-indicator">
+      <div class="scroll-arrow">↓</div>
+      <span>Explore</span>
+    </div>
+
+  </section>
+
+  <!-- INTRO SECTION -->
+  <section class="content-section fade-in-section" id="intro-section">
+    <div class="section-inner">
+      <span class="section-tag">The Story</span>
+      <h2 class="section-title">A Clock That Measures Life</h2>
+      <p class="section-desc">
+        Every grain of sand represents a moment you cannot reclaim. This hourglass is not just a clock — it's a mirror.
+        Watch the sands of your life flow, and let it remind you: the time you have is finite, precious, and entirely yours to shape.
       </p>
       <div class="video-wrapper">
-        <iframe src="https://www.youtube.com/embed/NcCnFbWZQKE?start=1120&amp;end=1174"
-          title="YouTube video: Context behind this clock"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        <iframe
+          src="https://www.youtube.com/embed/NcCnFbWZQKE?start=1120&amp;end=1174"
+          title="Sadhguru — On Mortality and the Value of Time"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
         </iframe>
       </div>
-    </section>
-
-    <div class="container" id="clock-section">
-      <div class="clock-wrapper">
-        <h2 class="box-title">
-          <img src="assets/sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
-          ⏳ Life Sand Clock
-        </h2>
-        <canvas id="canvas" width="900" height="1500"></canvas>
-      </div>
-
-      <div class="panel stats" aria-live="polite" id="progress-section">
-        <h2 class="box-title">
-          <img src="assets/sunmoon.jpg" alt="Isha Snake-Moon-Sun Symbol" class="logo-round" />
-          📊 Life Statistics
-        </h2>
-        <div class="stat">
-          <div class="label">Exact age</div>
-          <div class="value" id="exactAge">—</div>
-        </div>
-        <div class="stat">
-          <div class="label">Years lived</div>
-          <div class="value" id="yearsLived">—</div>
-        </div>
-        <div class="stat">
-          <div class="label">Years remaining</div>
-          <div class="value" id="yearsLeft">—</div>
-        </div>
-        <div class="stat">
-          <div class="label">Progress</div>
-          <div class="value" id="progressText">—</div>
-        </div>
-        <div class="meter">
-          <div id="meterFill" style="width:0%"></div>
-        </div>
-      </div>
     </div>
+  </section>
 
-    <div id="quotes-section" class="scrollable-content">
-      <div id="quoteBox">
-        <div id="quoteText" class="scrollable-text-container">Loading wisdom...</div>
+  <!-- WISDOM SECTION -->
+  <section class="content-section fade-in-section" id="wisdom-section">
+    <div class="section-inner">
+      <span class="section-tag">Daily Reflection</span>
+      <h2 class="section-title">Words That Endure</h2>
+      <div id="quoteBox" class="quote-box">
+        <span class="quote-mark">"</span>
+        <div id="quoteText" class="quote-text">Loading wisdom...</div>
         <div class="quote-controls">
-          <span id="quoteCounter"></span>
-          <div class="button-group">
-            <button id="prevQuoteBtn">Previous</button>
-            <button id="nextQuoteBtn">Next</button>
-            <button id="pauseQuoteBtn">Pause</button>
+          <span id="quoteCounter" class="quote-counter"></span>
+          <div class="btn-group">
+            <button id="prevQuoteBtn" class="btn-secondary">← Prev</button>
+            <button id="pauseQuoteBtn" class="btn-secondary">Pause</button>
+            <button id="nextQuoteBtn" class="btn-secondary">Next →</button>
           </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="music-section card" id="music-section">
-      <div class="box-title">
-        🎵 Background Music
+  <!-- MUSIC SECTION -->
+  <section class="content-section fade-in-section" id="music-section">
+    <div class="section-inner">
+      <span class="section-tag">Ambience</span>
+      <h2 class="section-title">🎵 Meditative Music</h2>
+      <p class="section-desc">Let the music deepen your reflection as the sands of time fall.</p>
+      <div class="music-player">
+        <div id="youtube-player"></div>
       </div>
-      <div id="youtube-player" class="w-full aspect-video rounded-xl overflow-hidden mx-auto"></div>
     </div>
+  </section>
 
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p class="footer-brand">⏳ Life Clock · Deepanshu Singh</p>
+    <p class="footer-note">Made with love · Not officially affiliated with Isha Foundation</p>
+  </footer>
 
-    <footer>
-      Note: This is not officially by Isha.
-      Made with love.
-    </footer>
-  </div>
+  <!-- Three.js ESM Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    }
+  }
+  </script>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="js/script3d.js"></script>
-</body>
+  <script type="module" src="js/script3d.js"></script>
 
+</body>
 </html>
