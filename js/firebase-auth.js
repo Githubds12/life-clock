@@ -117,11 +117,16 @@ onAuthStateChanged(auth, async (user) => {
     try {
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
+      
+      const usernameFromEmail = user.email.split('@')[0];
+      let data = { name: usernameFromEmail }; // default
+
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        // Dispatch custom event to let script3d.js know to update
-        window.dispatchEvent(new CustomEvent('lifeclock-cloud-load', { detail: data }));
+        data = { ...data, ...docSnap.data() };
       }
+      
+      // Dispatch custom event to let script3d.js know to update
+      window.dispatchEvent(new CustomEvent('lifeclock-cloud-load', { detail: data }));
     } catch (err) {
       console.error('Error fetching user data from Firestore:', err);
     }
