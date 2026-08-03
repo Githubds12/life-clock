@@ -43,20 +43,20 @@
   <nav class="nav" id="nav">
     <div class="nav-brand">⏳ Life Clock</div>
     <div class="nav-links">
-      <a href="#hero" class="nav-link">Clock</a>
-      <a href="#intro-section" class="nav-link">About</a>
-      <a href="#wisdom-section" class="nav-link">Wisdom</a>
-      <a href="#music-section" class="nav-link">Music</a>
+      <a href="#about-section">About</a>
+      <a href="#wisdom-section">Wisdom</a>
+      <a href="#music-section">Music</a>
+      <button id="auth-nav-btn" class="auth-btn">Sign In</button>
     </div>
-    <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle menu">☰</button>
+    <div class="nav-menu-btn" id="nav-menu-btn">☰</div>
   </nav>
 
   <!-- MOBILE NAV -->
   <div class="mobile-nav" id="mobile-nav">
-    <a href="#hero" class="mobile-nav-link">Clock</a>
-    <a href="#intro-section" class="mobile-nav-link">About</a>
+    <a href="#about-section" class="mobile-nav-link">About</a>
     <a href="#wisdom-section" class="mobile-nav-link">Wisdom</a>
     <a href="#music-section" class="mobile-nav-link">Music</a>
+    <button id="auth-mobile-btn" class="auth-btn mobile-nav-link">Sign In</button>
   </div>
 
   <!-- HERO SECTION (Three.js canvas + overlaid UI) -->
@@ -235,17 +235,42 @@
     <p class="footer-note">Made with love · Not officially affiliated with Isha Foundation</p>
   </footer>
 
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-content glass-panel">
+      <button id="auth-close-btn" class="modal-close">&times;</button>
+      <h2 id="auth-title">Sign In</h2>
+      <p id="auth-subtitle" class="section-desc">Save your Life Clock to the cloud.</p>
+      
+      <form id="auth-form" class="auth-form">
+        <input type="email" id="auth-email" placeholder="Email Address" required />
+        <input type="password" id="auth-password" placeholder="Password" required />
+        <p id="auth-error" class="auth-error"></p>
+        <button type="submit" id="auth-submit-btn" class="btn-primary" style="width: 100%;">Sign In</button>
+      </form>
+      
+      <p class="auth-switch">
+        <span id="auth-switch-text">Don't have an account?</span>
+        <button id="auth-switch-btn" class="btn-link">Register</button>
+      </p>
+    </div>
+  </div>
+
   <!-- Three.js ESM Import Map -->
   <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/",
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+      }
     }
-  }
   </script>
 
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script type="module" src="js/firebase-auth.js"></script>
   <script type="module" src="js/script3d.js"></script>
 
 </body>
