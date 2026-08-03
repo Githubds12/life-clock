@@ -24,7 +24,7 @@ const authMobileBtn = document.getElementById('auth-mobile-btn');
 const authModal = document.getElementById('auth-modal');
 const authCloseBtn = document.getElementById('auth-close-btn');
 const authForm = document.getElementById('auth-form');
-const authEmail = document.getElementById('auth-email');
+const authUsername = document.getElementById('auth-username');
 const authPassword = document.getElementById('auth-password');
 const authError = document.getElementById('auth-error');
 const authTitle = document.getElementById('auth-title');
@@ -80,7 +80,15 @@ if (authForm) {
   authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     authError.textContent = '';
-    const email = authEmail.value.trim();
+    
+    // Firebase requires an email, so we construct a dummy email from the username
+    const username = authUsername.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (!username) {
+      authError.textContent = 'Please enter a valid username (letters, numbers, underscores).';
+      return;
+    }
+    const email = `${username}@lifeclock.local`;
+    
     const password = authPassword.value;
     authSubmitBtn.disabled = true;
     
