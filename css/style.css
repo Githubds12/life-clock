@@ -16,21 +16,6 @@ html, body {
   scroll-behavior: smooth;
 }
 
-#sadhana-content {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 8px;
-    color: #f0f0f0;
-    margin-top: 20px;
-}
-
-#sadhana-content h3 {
-    color: #ffffff;
-}
-
-#sadhana-content ul {
-    color: #e0e0e0;
-}
 
 body {
   font-family: 'Patrick Hand', sans-serif;
