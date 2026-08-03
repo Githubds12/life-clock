@@ -146,14 +146,15 @@ const scene  = new THREE.Scene();
 scene.background = new THREE.Color(0x020817);
 scene.fog = new THREE.FogExp2(0x020817, 0.04);
 
+// Camera pulled back so hourglass fits comfortably in viewport
 const camera = new THREE.PerspectiveCamera(44, hero.clientWidth / hero.clientHeight, 0.1, 120);
-camera.position.set(0, 0.4, 6.2);
+camera.position.set(0, 0, 8.5);
 
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping    = true;
 controls.dampingFactor    = 0.06;
-controls.minDistance      = 3;
-controls.maxDistance      = 10;
+controls.minDistance      = 4.5;
+controls.maxDistance      = 14;
 controls.maxPolarAngle    = Math.PI * 0.78;
 controls.minPolarAngle    = Math.PI * 0.18;
 controls.autoRotate       = true;
@@ -243,6 +244,7 @@ function buildGlassProfile(segs = 52) {
 }
 
 const hourglassGroup = new THREE.Group();
+hourglassGroup.scale.setScalar(0.72);   // fit comfortably in viewport
 scene.add(hourglassGroup);
 
 // Glass shell
@@ -537,7 +539,7 @@ function animate(timestamp) {
 
   if (streamPoints.visible) {
     const attr = streamGeo.attributes.position;
-    const bottomLevel = -2.0 + 2.0 * displayProgress;
+    const bottomLevel = (-2.0 + 2.0 * displayProgress) * 0.72;
     for (let i = 0; i < N_STREAM; i++) {
       attr.array[i*3+1] -= streamVel[i];
       if (attr.array[i*3+1] < bottomLevel + 0.05) {
