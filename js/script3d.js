@@ -125,7 +125,6 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020817);
 scene.fog = new THREE.FogExp2(0x020817, 0.028);
 
-// Camera further back — hourglass fits with room to breathe
 const camera = new THREE.PerspectiveCamera(44, hero.clientWidth / hero.clientHeight, 0.1, 120);
 camera.position.set(0, 0, 10);
 
@@ -141,7 +140,6 @@ controls.autoRotateSpeed = 0.25;
 controls.enablePan       = false;
 controls.target.set(0, 0, 0);
 
-// Environment map for glass reflections
 const pmrem = new THREE.PMREMGenerator(renderer);
 pmrem.compileEquirectangularShader();
 scene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
@@ -214,7 +212,7 @@ function buildGlassProfile(segs = 52) {
 }
 
 const hourglassGroup = new THREE.Group();
-hourglassGroup.scale.setScalar(0.60);  // smaller so full hourglass fits in viewport
+hourglassGroup.scale.setScalar(0.60);
 scene.add(hourglassGroup);
 
 // Glass shell
@@ -228,18 +226,19 @@ hourglassGroup.add(new THREE.Mesh(
   })
 ));
 
-// Gold rings
+// Gold material
 const goldMat = new THREE.MeshStandardMaterial({
   color: 0xd4a44c, metalness: 0.95, roughness: 0.1, envMapIntensity: 1.5,
 });
-function addRing(y, outerR, tubeR) {
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(outerR, tubeR, 8, 64), goldMat);
+
+// Small neck ring at the waist — sits cleanly without clipping the glass
+function addRing(y, outerR, tubeR, segments = 64) {
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(outerR, tubeR, 8, segments), goldMat);
   ring.position.y = y;
   hourglassGroup.add(ring);
 }
-addRing( 2.0,  1.02, 0.045);
-addRing(-2.0,  1.02, 0.045);
-addRing( 0.0, 0.095, 0.030);
+// Only neck ring — rim rings at y=±2 clipped through the glass and looked wrong
+addRing(0.0,  0.095, 0.030);  // neck ring
 
 // Wooden stands
 const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2007, metalness: 0.05, roughness: 0.85 });
@@ -247,8 +246,9 @@ function addDisc(y) {
   const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.22, 1.32, 0.14, 48), woodMat);
   disc.position.y = y;
   hourglassGroup.add(disc);
-  const edge = new THREE.Mesh(new THREE.TorusGeometry(1.27, 0.025, 6, 48), goldMat);
-  edge.position.y = y + (y > 0 ? -0.07 : 0.07);
+  // Gold band around the edge of each wooden disc
+  const edge = new THREE.Mesh(new THREE.TorusGeometry(1.27, 0.032, 8, 64), goldMat);
+  edge.position.y = y;
   hourglassGroup.add(edge);
 }
 addDisc( 2.22);
@@ -315,7 +315,7 @@ const topSandMat = new THREE.ShaderMaterial({
     sandLevel: { value: 2.0 },
     colorA: { value: new THREE.Color(0xd4a030) },
     colorB: { value: new THREE.Color(0x9a6010) },
-    yMin:   { value: 0.0 }, yRange: { value: 2.0 },
+    yMin: { value: 0.0 }, yRange: { value: 2.0 },
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -329,7 +329,7 @@ const bottomSandMat = new THREE.ShaderMaterial({
     sandLevel: { value: -2.0 },
     colorA: { value: new THREE.Color(0xc89428) },
     colorB: { value: new THREE.Color(0x7a4a08) },
-    yMin:   { value: -2.0 }, yRange: { value: 2.0 },
+    yMin: { value: -2.0 }, yRange: { value: 2.0 },
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -456,7 +456,6 @@ let clock = 0;
 function animate(timestamp) {
   requestAnimationFrame(animate);
   clock = timestamp * 0.001;
-
   if (introStart === null) introStart = timestamp;
   const elapsed = timestamp - introStart;
   if (elapsed < INTRO_MS) {
@@ -465,9 +464,7 @@ function animate(timestamp) {
   } else {
     displayProgress = lifeProgress;
   }
-
   updateSand(displayProgress);
-
   if (streamPoints.visible) {
     const attr = streamGeo.attributes.position;
     const bottomLevel = -2.0 + 2.0 * displayProgress;
@@ -483,15 +480,12 @@ function animate(timestamp) {
     }
     attr.needsUpdate = true;
   }
-
   stars.rotation.y = clock * 0.00006;
   stars.rotation.x = Math.sin(clock * 0.00004) * 0.02;
-
   const pulse = 0.03 + Math.sin(clock * 0.8) * 0.015;
   topGlow.material.opacity    = pulse * (1 - displayProgress * 0.6);
   bottomGlow.material.opacity = pulse * displayProgress;
   warmLight.intensity = (4 + displayProgress * 14) + Math.sin(clock * 0.7) * 0.8;
-
   controls.update();
   renderer.render(scene, camera);
 }
@@ -502,7 +496,6 @@ function animate(timestamp) {
 dobInput.value      = DOB_DEFAULT;
 lifespanInput.value = LIFESPAN_DEF;
 livingBeingEl.value = 'Human';
-
 const saved = {
   dob: localStorage.getItem('lc_dob'),
   ls:  localStorage.getItem('lc_lifespan'),
@@ -514,7 +507,6 @@ if (saved.animal) {
   livingBeingEl.value = saved.animal;
   if (saved.animal !== 'Human') countrySelect.disabled = true;
 }
-
 updateStats();
 restartIntro();
 animate(0);
@@ -549,9 +541,6 @@ livingBeingEl.addEventListener('change', () => {
   }
 });
 
-// ============================================================
-// RESIZE
-// ============================================================
 window.addEventListener('resize', () => {
   const w = hero.clientWidth, h = hero.clientHeight;
   camera.aspect = w / h;
@@ -574,9 +563,6 @@ document.getElementById('scroll-indicator')?.addEventListener('click', () =>
   document.getElementById('intro-section')?.scrollIntoView({ behavior: 'smooth' })
 );
 
-// ============================================================
-// SCROLL FADE-IN
-// ============================================================
 const observer = new IntersectionObserver(
   entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
   { threshold: 0.12 }
