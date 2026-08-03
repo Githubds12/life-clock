@@ -456,7 +456,7 @@ window.addEventListener('lifeclock-cloud-logout', () => {
 });
 
 userNameInput.addEventListener('input', () => {
-  const nm = userNameInput.value || 'Deepanshu Singh';
+  const nm = userNameInput.value || 'Life Clock';
   heroNameDisplay.innerHTML = nm.replace(' ', '<br>');
   saveState();
 });
