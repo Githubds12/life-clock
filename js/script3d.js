@@ -1,399 +1,680 @@
-(() => {
-  let currentAge = 0; // single source of truth
+/**
+ * script3d.js — Three.js 3D Life Sand Clock
+ * Personalized for Deepanshu Singh (DOB: 01 Feb 1998)
+ *
+ * Features:
+ *  • 3D glass hourglass with LatheGeometry + MeshPhysicalMaterial
+ *  • Amber sand particle system (GLSL shader-based level control)
+ *  • Falling sand stream animated through the neck
+ *  • Cosmic starfield (7000 stars) + nebula wisps
+ *  • OrbitControls (drag to rotate, scroll to zoom)
+ *  • Live age counter ticking every second (yrs/mo/days/hrs/min/sec)
+ *  • Wisdom carousel + YouTube player preserved
+ *  • All original datasets (countries, living beings) preserved
+ */
 
-  // ===== Datasets =====
-  const livingBeingLifespan = {
-    // Mammals
-    Human: 73, Dog: 13, Cat: 15, Elephant: 70, Horse: 30, Cow: 20, Rabbit: 9, Mouse: 2, Rat: 3, Pig: 15, Sheep: 12, Goat: 15, Kangaroo: 20, Giraffe: 25, Lion: 14, Tiger: 16, Leopard: 15, Cheetah: 12, Bear: 25, Wolf: 13, Deer: 20, Camel: 40, Dolphin: 40, "Blue Whale": 80, "Orca (Killer Whale)": 50, Bat: 20,
-    // Birds
-    Parrot: 50, Macaw: 60, Cockatoo: 70, Pigeon: 6, Crow: 14, Sparrow: 3, Eagle: 20, Owl: 15, Swan: 20, Penguin: 20, Chicken: 8, Duck: 10, Goose: 15, Falcon: 13, Peacock: 20,
-    // Reptiles
-    Crocodile: 70, Alligator: 50, Lizard: 5, Gecko: 10, Chameleon: 7, Frog: 10, Toad: 12, Tortoise: 100, "Sea Turtle": 80, "Komodo Dragon": 30,
-    // Marine Life
-    Goldfish: 10, "Koi Fish": 40, Shark: 30, "Great White Shark": 70, Salmon: 4, Tuna: 15, Clownfish: 10, Octopus: 3, Squid: 2, Lobster: 50, Crab: 8, Starfish: 10, Jellyfish: 1,
-    // Insects & Arthropods
-    Ant: 0.2, Bee: 0.3, Butterfly: 0.1, Dragonfly: 0.5, Mosquito: 0.05, Cockroach: 1, Spider: 2, Tarantula: 20, Scorpion: 5, Grasshopper: 0.5, Ladybug: 1,
-    // Trees & Plants
-    "Oak Tree": 300, "Pine Tree": 250, "Baobab Tree": 2000, Bamboo: 120, "Banana Plant": 25, "Sequoia Tree": 3000, Cactus: 150, "Mango Tree": 100, "Palm Tree": 80,
-  };
-  const livingBeingInput = document.getElementById("livingBeing");
-  const livingBeingList = document.getElementById("livingBeingList");
-  if (livingBeingList) {
-    Object.keys(livingBeingLifespan).forEach((animal) => {
-      const option = document.createElement("option");
-      option.value = animal;
-      livingBeingList.appendChild(option);
-    });
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const DOB_DEFAULT   = '1998-02-01';   // 1 February 1998
+const LIFESPAN_DEF  = 72;             // India avg life expectancy
+const INTRO_MS      = 14000;          // sand fill animation duration (ms)
+const N_SAND        = 22000;          // particles per bulb
+const N_STREAM      = 100;            // stream particles
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+// ============================================================
+// DATASETS
+// ============================================================
+const livingBeingLifespan = {
+  Human: 73, Dog: 13, Cat: 15, Elephant: 70, Horse: 30, Cow: 20, Rabbit: 9,
+  Mouse: 2, Rat: 3, Pig: 15, Sheep: 12, Goat: 15, Kangaroo: 20, Giraffe: 25,
+  Lion: 14, Tiger: 16, Leopard: 15, Cheetah: 12, Bear: 25, Wolf: 13, Deer: 20,
+  Camel: 40, Dolphin: 40, 'Blue Whale': 80, 'Orca (Killer Whale)': 50, Bat: 20,
+  Parrot: 50, Macaw: 60, Cockatoo: 70, Pigeon: 6, Crow: 14, Sparrow: 3,
+  Eagle: 20, Owl: 15, Swan: 20, Penguin: 20, Chicken: 8, Duck: 10, Goose: 15,
+  Falcon: 13, Peacock: 20,
+  Crocodile: 70, Alligator: 50, Lizard: 5, Gecko: 10, Chameleon: 7, Frog: 10,
+  Toad: 12, Tortoise: 100, 'Sea Turtle': 80, 'Komodo Dragon': 30,
+  Goldfish: 10, 'Koi Fish': 40, Shark: 30, 'Great White Shark': 70, Salmon: 4,
+  Tuna: 15, Clownfish: 10, Octopus: 3, Squid: 2, Lobster: 50, Crab: 8,
+  Starfish: 10, Jellyfish: 1,
+  Ant: 0.2, Bee: 0.3, Butterfly: 0.1, Dragonfly: 0.5, Mosquito: 0.05,
+  Cockroach: 1, Spider: 2, Tarantula: 20, Scorpion: 5, Grasshopper: 0.5, Ladybug: 1,
+  'Oak Tree': 300, 'Pine Tree': 250, 'Baobab Tree': 2000, Bamboo: 120,
+  'Banana Plant': 25, 'Sequoia Tree': 3000, Cactus: 150, 'Mango Tree': 100, 'Palm Tree': 80,
+};
+
+const countryLifeExpectancy = {
+  Afghanistan: 66.54, Albania: 79.95, Algeria: 76.38, Angola: 61.64, Argentina: 77.69,
+  Armenia: 76.01, Australia: 84.21, Austria: 82.29, Azerbaijan: 74.43, Bahamas: 74.55,
+  Bahrain: 81.58, Bangladesh: 74.67, Barbados: 76.18, Belarus: 74.18, Belgium: 82.4,
+  Belize: 73.57, Benin: 60.77, Bhutan: 72.97, Bolivia: 68.58,
+  'Bosnia and Herzegovina': 77.85, Botswana: 69.16, Brazil: 75.85, Brunei: 75.33,
+  Bulgaria: 75.71, Burundi: 63.65, Cambodia: 70.67, Cameroon: 63.7, Canada: 81.65,
+  'Central African Republic': 57.41, Chad: 55.07, Chile: 81.17, China: 77.95,
+  Colombia: 77.72, Comoros: 66.78, 'Costa Rica': 80.8, Croatia: 78.47, Cuba: 78.08,
+  Cyprus: 81.65, 'Czech Republic': 79.88, Denmark: 81.85, 'Dominican Republic': 73.72,
+  Ecuador: 77.39, Egypt: 71.63, 'El Salvador': 72.1, Estonia: 78.49, Eswatini: 64.12,
+  Ethiopia: 67.32, Finland: 81.69, France: 82.93, Gabon: 68.34, Gambia: 65.86,
+  Georgia: 74.5, Germany: 80.54, Ghana: 65.5, Greece: 81.54, Guatemala: 72.6,
+  Guinea: 60.74, 'Guinea-Bissau': 64.08, Haiti: 64.94, Honduras: 72.88, Hungary: 76.77,
+  Iceland: 82.61, India: 72.0, Indonesia: 71.15, Iran: 77.65, Iraq: 72.32,
+  Ireland: 82.86, Israel: 83.2, Italy: 83.7, Jamaica: 71.48, Japan: 84.04,
+  Jordan: 77.81, Kazakhstan: 74.4, Kenya: 63.65, Kosovo: 78.03, Kuwait: 83.19,
+  Kyrgyzstan: 72.25, Laos: 68.96, Latvia: 75.68, Lebanon: 77.82, Lesotho: 57.38,
+  Liberia: 62.16, Libya: 69.34, Lithuania: 76.99, Luxembourg: 83.36, Macedonia: 75.32,
+  Madagascar: 63.63, Malawi: 67.35, Malaysia: 76.66, Maldives: 81.04, Mali: 60.44,
+  Malta: 83.51, Mauritania: 68.48, Mauritius: 73.41, Mexico: 75.07, Moldova: 71.2,
+  Mongolia: 72.12, Montenegro: 77.59, Morocco: 75.31, Mozambique: 63.61, Myanmar: 66.89,
+  Namibia: 67.39, Nepal: 70.35, Netherlands: 81.91, 'New Zealand': 83.0,
+  Nicaragua: 74.95, Niger: 61.18, Nigeria: 54.46, 'North Korea': 73.64, Norway: 83.11,
+  Oman: 80.03, Pakistan: 67.65, Panama: 79.59, 'Papua New Guinea': 66.13,
+  Paraguay: 73.84, Peru: 77.74, Philippines: 69.83, Poland: 78.51, Portugal: 82.28,
+  Qatar: 82.37, Romania: 76.61, Russia: 73.25, Rwanda: 67.78, 'Saudi Arabia': 78.73,
+  Senegal: 68.68, Serbia: 76.22, Seychelles: 74.96, 'Sierra Leone': 61.79,
+  Singapore: 82.9, Slovakia: 78.02, Slovenia: 81.98, Somalia: 58.82,
+  'South Africa': 66.14, 'South Korea': 83.43, 'South Sudan': 57.62, Spain: 83.88,
+  'Sri Lanka': 77.48, Sudan: 66.33, Sweden: 83.31, Switzerland: 84.06, Syria: 72.12,
+  Taiwan: 80.94, Tajikistan: 71.79, Tanzania: 67.0, Thailand: 76.41, Togo: 62.74,
+  Tunisia: 76.51, Turkey: 77.16, Turkmenistan: 70.07, Uganda: 68.25, Ukraine: 73.42,
+  'United Arab Emirates': 82.91, 'United Kingdom': 81.24, 'United States': 78.39,
+  Uruguay: 78.14, Uzbekistan: 72.39, Venezuela: 72.51, Vietnam: 74.59, Yemen: 69.3,
+  Zambia: 66.35, Zimbabwe: 62.78,
+};
+
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
+const canvas         = document.getElementById('three-canvas');
+const hero           = document.getElementById('hero');
+const dobInput       = document.getElementById('dob');
+const lifespanInput  = document.getElementById('lifespan');
+const ageSlider      = document.getElementById('age');
+const useDOBBtn      = document.getElementById('useDOB');
+const countrySelect  = document.getElementById('country');
+const livingBeingEl  = document.getElementById('livingBeing');
+const livingBeingList= document.getElementById('livingBeingList');
+const exactAgeEl     = document.getElementById('exactAge');
+const yearsLivedEl   = document.getElementById('yearsLived');
+const yearsLeftEl    = document.getElementById('yearsLeft');
+const progressTextEl = document.getElementById('progressText');
+const meterFill      = document.getElementById('meterFill');
+
+// Populate dropdowns
+Object.keys(livingBeingLifespan).forEach(name => {
+  const opt = document.createElement('option');
+  opt.value = name;
+  livingBeingList.appendChild(opt);
+});
+
+Object.entries(countryLifeExpectancy).forEach(([country, exp]) => {
+  const opt = document.createElement('option');
+  opt.value = exp;
+  opt.textContent = country;
+  countrySelect.appendChild(opt);
+});
+
+// ============================================================
+// THREE.JS RENDERER
+// ============================================================
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: false,
+  powerPreference: 'high-performance',
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(hero.clientWidth, hero.clientHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.localClippingEnabled = true;
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x020817);
+scene.fog = new THREE.FogExp2(0x020817, 0.038);
+
+const camera = new THREE.PerspectiveCamera(44, hero.clientWidth / hero.clientHeight, 0.1, 120);
+camera.position.set(0, 0.4, 6.2);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping    = true;
+controls.dampingFactor    = 0.06;
+controls.minDistance      = 3;
+controls.maxDistance      = 10;
+controls.maxPolarAngle    = Math.PI * 0.78;
+controls.minPolarAngle    = Math.PI * 0.18;
+controls.autoRotate       = true;
+controls.autoRotateSpeed  = 0.25;
+controls.enablePan        = false;
+controls.target.set(0, 0, 0);
+
+// Environment map for glass reflections
+const pmrem = new THREE.PMREMGenerator(renderer);
+pmrem.compileEquirectangularShader();
+scene.environment = pmrem.fromScene(new THREE.RoomEnvironment()).texture;
+
+// ============================================================
+// LIGHTING
+// ============================================================
+scene.add(new THREE.AmbientLight(0x0d1a38, 4));
+scene.add(new THREE.HemisphereLight(0x1a2a50, 0x080808, 1.5));
+
+const warmLight = new THREE.PointLight(0xf59e0b, 12, 5, 1.5);
+warmLight.position.set(0, -1.6, 0.3);
+scene.add(warmLight);
+
+const coolLight = new THREE.PointLight(0x22d3ee, 6, 8, 1.5);
+coolLight.position.set(1.5, 3.5, 2);
+scene.add(coolLight);
+
+const rimLight = new THREE.DirectionalLight(0x6688cc, 0.8);
+rimLight.position.set(-2, 1, -3);
+scene.add(rimLight);
+
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+fillLight.position.set(0, 2, 4);
+scene.add(fillLight);
+
+// ============================================================
+// STARFIELD
+// ============================================================
+const STAR_COUNT = 7000;
+const starPos    = new Float32Array(STAR_COUNT * 3);
+const starColors = new Float32Array(STAR_COUNT * 3);
+
+for (let i = 0; i < STAR_COUNT; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi   = Math.acos(2 * Math.random() - 1);
+  const r     = 30 + Math.random() * 50;
+  starPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+  starPos[i*3+2] = r * Math.cos(phi);
+  const t = Math.random();
+  if (t < 0.33)      { starColors[i*3]=1;    starColors[i*3+1]=0.95; starColors[i*3+2]=0.85; }
+  else if (t < 0.66) { starColors[i*3]=0.85; starColors[i*3+1]=0.90; starColors[i*3+2]=1;    }
+  else               { starColors[i*3]=1;    starColors[i*3+1]=1;    starColors[i*3+2]=1;    }
+}
+
+const starGeo = new THREE.BufferGeometry();
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,    3));
+starGeo.setAttribute('color',    new THREE.BufferAttribute(starColors, 3));
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
+  size: 0.12, sizeAttenuation: true, vertexColors: true,
+  transparent: true, opacity: 0.85, depthWrite: false,
+}));
+scene.add(stars);
+
+// ============================================================
+// HOURGLASS GEOMETRY
+// ============================================================
+function glassRadius(y) {
+  const n = Math.abs(clamp(y, -2, 2)) / 2;
+  return 0.09 + 0.91 * Math.pow(n, 0.50);
+}
+
+function buildGlassProfile(segs = 52) {
+  const pts = [];
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs;
+    const y = (t - 0.5) * 4.6;
+    pts.push(new THREE.Vector2(glassRadius(y) * 1.02, y));
+  }
+  return pts;
+}
+
+const hourglassGroup = new THREE.Group();
+scene.add(hourglassGroup);
+
+// Glass shell
+hourglassGroup.add(new THREE.Mesh(
+  new THREE.LatheGeometry(buildGlassProfile(), 96),
+  new THREE.MeshPhysicalMaterial({
+    color: 0x99ccee, metalness: 0.0, roughness: 0.02,
+    transmission: 0.90, thickness: 0.2,
+    transparent: true, opacity: 0.75,
+    side: THREE.DoubleSide, ior: 1.48,
+    envMapIntensity: 1.2, iridescence: 0.06, iridescenceIOR: 1.3,
+    depthWrite: false,
+  })
+));
+
+// Gold decorative rings
+const goldMat = new THREE.MeshStandardMaterial({
+  color: 0xd4a44c, metalness: 0.95, roughness: 0.1, envMapIntensity: 1.5,
+});
+
+function addRing(y, outerR, tubeR) {
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(outerR, tubeR, 8, 64), goldMat);
+  ring.position.y = y;
+  hourglassGroup.add(ring);
+}
+addRing(2.0,  1.02, 0.045);
+addRing(-2.0, 1.02, 0.045);
+addRing(0.0,  0.095, 0.030);
+
+// Wooden stands
+const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2007, metalness: 0.05, roughness: 0.85 });
+
+function addDisc(y) {
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(1.22, 1.32, 0.14, 48), woodMat);
+  disc.position.y = y;
+  hourglassGroup.add(disc);
+  const edge = new THREE.Mesh(new THREE.TorusGeometry(1.27, 0.025, 6, 48), goldMat);
+  edge.position.y = y + (y > 0 ? -0.07 : 0.07);
+  hourglassGroup.add(edge);
+}
+addDisc( 2.22);
+addDisc(-2.22);
+
+// Inner glow orbs (visual only)
+const glowMat = new THREE.MeshBasicMaterial({
+  color: 0xf59e0b, transparent: true, opacity: 0.04, side: THREE.BackSide, depthWrite: false,
+});
+const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), glowMat.clone());
+topGlow.position.y = 1.0;
+hourglassGroup.add(topGlow);
+const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), glowMat.clone());
+bottomGlow.position.y = -1.0;
+hourglassGroup.add(bottomGlow);
+
+// ============================================================
+// SAND PARTICLE SHADER
+// ============================================================
+const SAND_VERT = /* glsl */`
+  varying float vWorldY;
+  void main() {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
+    vWorldY = worldPos.y;
+    gl_PointSize = 3.5;
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+  }
+`;
+
+const SAND_FRAG = /* glsl */`
+  uniform float sandLevel;
+  uniform vec3  colorA;
+  uniform vec3  colorB;
+  uniform float yMin;
+  uniform float yRange;
+  varying float vWorldY;
+  void main() {
+    if (vWorldY > sandLevel) discard;
+    float d = length(gl_PointCoord - 0.5);
+    if (d > 0.5) discard;
+    float t = clamp((vWorldY - yMin) / yRange, 0.0, 1.0);
+    vec3 color = mix(colorB, colorA, t * t);
+    float alpha = 1.0 - smoothstep(0.35, 0.5, d);
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+function generateBulbPoints(yMin, yMax, count) {
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const y    = yMin + Math.random() * (yMax - yMin);
+    const maxR = glassRadius(y) * 0.92;
+    const r    = Math.sqrt(Math.random()) * maxR;
+    const th   = Math.random() * Math.PI * 2;
+    pos[i*3]   = r * Math.cos(th);
+    pos[i*3+1] = y;
+    pos[i*3+2] = r * Math.sin(th);
+  }
+  return pos;
+}
+
+// Top bulb sand (Y: 0 to 2)
+const topSandGeo = new THREE.BufferGeometry();
+topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(0, 2, N_SAND), 3));
+const topSandMat = new THREE.ShaderMaterial({
+  uniforms: {
+    sandLevel: { value: 2.0 },
+    colorA:    { value: new THREE.Color(0xd4a030) },
+    colorB:    { value: new THREE.Color(0x9a6010) },
+    yMin:      { value: 0.0 },
+    yRange:    { value: 2.0 },
+  },
+  vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
+  transparent: true, depthWrite: false,
+});
+const topSandPoints = new THREE.Points(topSandGeo, topSandMat);
+hourglassGroup.add(topSandPoints);
+
+// Bottom bulb sand (Y: -2 to 0)
+const bottomSandGeo = new THREE.BufferGeometry();
+bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(-2, 0, N_SAND), 3));
+const bottomSandMat = new THREE.ShaderMaterial({
+  uniforms: {
+    sandLevel: { value: -2.0 },
+    colorA:    { value: new THREE.Color(0xc89428) },
+    colorB:    { value: new THREE.Color(0x7a4a08) },
+    yMin:      { value: -2.0 },
+    yRange:    { value: 2.0 },
+  },
+  vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
+  transparent: true, depthWrite: false,
+});
+const bottomSandPoints = new THREE.Points(bottomSandGeo, bottomSandMat);
+hourglassGroup.add(bottomSandPoints);
+
+// ============================================================
+// STREAM PARTICLES
+// ============================================================
+const streamPos = new Float32Array(N_STREAM * 3);
+const streamVel = new Float32Array(N_STREAM);
+for (let i = 0; i < N_STREAM; i++) {
+  const t = i / N_STREAM;
+  const th = Math.random() * Math.PI * 2;
+  const r  = Math.random() * 0.04;
+  streamPos[i*3]   = r * Math.cos(th);
+  streamPos[i*3+1] = -t * 0.55;
+  streamPos[i*3+2] = r * Math.sin(th);
+  streamVel[i] = 0.012 + Math.random() * 0.018;
+}
+const streamGeo = new THREE.BufferGeometry();
+streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos, 3));
+const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
+  color: 0xf0a020, size: 0.035, sizeAttenuation: true,
+  transparent: true, opacity: 0.92, depthWrite: false,
+}));
+hourglassGroup.add(streamPoints);
+
+// ============================================================
+// NEBULA WISPS
+// ============================================================
+function makeNebula(count, spread, colorHex, yOff) {
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const th = Math.random() * Math.PI * 2;
+    const r  = 3 + Math.random() * spread;
+    pos[i*3]   = r * Math.cos(th);
+    pos[i*3+1] = yOff + (Math.random() - 0.5) * 4;
+    pos[i*3+2] = r * Math.sin(th);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  return new THREE.Points(geo, new THREE.PointsMaterial({
+    color: colorHex, size: 0.08, sizeAttenuation: true,
+    transparent: true, opacity: 0.15, depthWrite: false,
+  }));
+}
+scene.add(makeNebula(800, 5, 0xf59e0b,  0));
+scene.add(makeNebula(600, 7, 0x22d3ee,  2));
+scene.add(makeNebula(400, 6, 0x6644bb, -2));
+
+// ============================================================
+// STATE
+// ============================================================
+let currentAge      = 0;
+let lifeProgress    = 0;
+let displayProgress = 0;
+let introStart      = null;
+
+function getLifeProgress() {
+  return clamp(currentAge / Math.max(1, parseFloat(lifespanInput.value) || LIFESPAN_DEF), 0, 1);
+}
+
+function updateStats() {
+  const dobStr   = dobInput.value;
+  const lifespan = Math.max(1, parseFloat(lifespanInput.value) || LIFESPAN_DEF);
+
+  if (dobStr) {
+    const dob      = new Date(dobStr + 'T00:00:00');
+    const now      = new Date();
+    const diffSecs = (now - dob) / 1000;
+    currentAge     = diffSecs / (365.25 * 24 * 3600);
+    const totalDays = Math.floor(diffSecs / 86400);
+    const yrs = Math.floor(totalDays / 365.25);
+    const mos = Math.floor((totalDays % 365.25) / 30.44);
+    const dys = Math.floor((totalDays % 365.25) % 30.44);
+    if (exactAgeEl) exactAgeEl.textContent = `${yrs}y ${mos}m ${dys}d`;
   }
 
-  const countryLifeExpectancy = {
-    Afghanistan: 66.54, Albania: 79.95, Algeria: 76.38, Angola: 61.64, Argentina: 77.69, Armenia: 76.01, Australia: 84.21, Austria: 82.29, Azerbaijan: 74.43, Bahamas: 74.55, Bahrain: 81.58, Bangladesh: 74.67, Barbados: 76.18, Belarus: 74.18, Belgium: 82.4, Belize: 73.57, Benin: 60.77, Bhutan: 72.97, Bolivia: 68.58, "Bosnia and Herzegovina": 77.85, Botswana: 69.16, Brazil: 75.85, Brunei: 75.33, Bulgaria: 75.71, Burundi: 63.65, Cambodia: 70.67, Cameroon: 63.7, Canada: 81.65, "Central African Republic": 57.41, Chad: 55.07, Chile: 81.17, China: 77.95, Colombia: 77.72, Comoros: 66.78, "Costa Rica": 80.8, Croatia: 78.47, Cuba: 78.08, Cyprus: 81.65, "Czech Republic": 79.88, Denmark: 81.85, "Dominican Republic": 73.72, Ecuador: 77.39, Egypt: 71.63, "El Salvador": 72.1, Estonia: 78.49, Eswatini: 64.12, Ethiopia: 67.32, Finland: 81.69, France: 82.93, Gabon: 68.34, Gambia: 65.86, Georgia: 74.5, Germany: 80.54, Ghana: 65.5, Greece: 81.54, Guatemala: 72.6, Guinea: 60.74, "Guinea-Bissau": 64.08, Haiti: 64.94, Honduras: 72.88, Hungary: 76.77, Iceland: 82.61, India: 72.0, Indonesia: 71.15, Iran: 77.65, Iraq: 72.32, Ireland: 82.86, Israel: 83.2, Italy: 83.7, Jamaica: 71.48, Japan: 84.04, Jordan: 77.81, Kazakhstan: 74.4, Kenya: 63.65, Kosovo: 78.03, Kuwait: 83.19, Kyrgyzstan: 72.25, Laos: 68.96, Latvia: 75.68, Lebanon: 77.82, Lesotho: 57.38, Liberia: 62.16, Libya: 69.34, Lithuania: 76.99, Luxembourg: 83.36, Macedonia: 75.32, Madagascar: 63.63, Malawi: 67.35, Malaysia: 76.66, Maldives: 81.04, Mali: 60.44, Malta: 83.51, Mauritania: 68.48, Mauritius: 73.41, Mexico: 75.07, Moldova: 71.2, Mongolia: 72.12, Montenegro: 77.59, Morocco: 75.31, Mozambique: 63.61, Myanmar: 66.89, Namibia: 67.39, Nepal: 70.35, Netherlands: 81.91, "New Zealand": 83.0, Nicaragua: 74.95, Niger: 61.18, Nigeria: 54.46, "North Korea": 73.64, Norway: 83.11, Oman: 80.03, Pakistan: 67.65, Panama: 79.59, "Papua New Guinea": 66.13, Paraguay: 73.84, Peru: 77.74, Philippines: 69.83, Poland: 78.51, Portugal: 82.28, Qatar: 82.37, Romania: 76.61, Russia: 73.25, Rwanda: 67.78, "Saudi Arabia": 78.73, Senegal: 68.68, Serbia: 76.22, Seychelles: 74.96, "Sierra Leone": 61.79, Singapore: 82.9, Slovakia: 78.02, Slovenia: 81.98, Somalia: 58.82, "South Africa": 66.14, "South Korea": 83.43, "South Sudan": 57.62, Spain: 83.88, "Sri Lanka": 77.48, Sudan: 66.33, Sweden: 83.31, Switzerland: 84.06, Syria: 72.12, Taiwan: 80.94, Tajikistan: 71.79, Tanzania: 67.0, Thailand: 76.41, Togo: 62.74, Tunisia: 76.51, Turkey: 77.16, Turkmenistan: 70.07, Uganda: 68.25, Ukraine: 73.42, "United Arab Emirates": 82.91, "United Kingdom": 81.24, "United States": 78.39, Uruguay: 78.14, Uzbekistan: 72.39, Venezuela: 72.51, Vietnam: 74.59, Yemen: 69.3, Zambia: 66.35, Zimbabwe: 62.78,
-  };
-  const countrySelect = document.getElementById("country");
-  if (countrySelect) {
-    for (const country in countryLifeExpectancy) {
-      const opt = document.createElement("option");
-      opt.value = countryLifeExpectancy[country];
-      opt.textContent = country;
-      countrySelect.appendChild(opt);
+  lifeProgress = getLifeProgress();
+  const yearsLeft = Math.max(0, (parseFloat(lifespanInput.value) || LIFESPAN_DEF) - currentAge);
+  if (yearsLivedEl)   yearsLivedEl.textContent   = currentAge.toFixed(1);
+  if (yearsLeftEl)    yearsLeftEl.textContent     = yearsLeft.toFixed(1);
+  if (progressTextEl) progressTextEl.textContent  = (lifeProgress * 100).toFixed(1) + '%';
+  if (meterFill)      meterFill.style.width       = (lifeProgress * 100).toFixed(2) + '%';
+  ageSlider.max   = parseFloat(lifespanInput.value) || LIFESPAN_DEF;
+  ageSlider.value = clamp(currentAge, 0, ageSlider.max);
+}
+
+function restartIntro() { displayProgress = 0; introStart = null; }
+
+// ============================================================
+// LIVE COUNTER
+// ============================================================
+function updateLiveCounter() {
+  const dob    = new Date((dobInput.value || DOB_DEFAULT) + 'T00:00:00');
+  const now    = new Date();
+  const diffMs = now - dob;
+  if (diffMs < 0) return;
+  const totalSec = Math.floor(diffMs / 1000);
+  const secs     = totalSec % 60;
+  const totalMin = Math.floor(totalSec / 60);
+  const mins     = totalMin % 60;
+  const totalHr  = Math.floor(totalMin / 60);
+  const hours    = totalHr % 24;
+  const totalDay = Math.floor(totalHr / 24);
+  const days     = totalDay % 30;
+  const totalMo  = Math.floor(totalDay / 30.44);
+  const months   = totalMo % 12;
+  const years    = Math.floor(totalMo / 12);
+  const pad = n => String(n).padStart(2, '0');
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('c-years',  years);  set('c-months', pad(months));
+  set('c-days',   pad(days)); set('c-hours', pad(hours));
+  set('c-mins',   pad(mins));  set('c-secs',  pad(secs));
+}
+setInterval(() => { updateLiveCounter(); updateStats(); }, 1000);
+updateLiveCounter();
+
+// ============================================================
+// SAND VISUAL UPDATE
+// ============================================================
+function updateSand(progress) {
+  topSandMat.uniforms.sandLevel.value    =  2.0 * (1.0 - progress);
+  bottomSandMat.uniforms.sandLevel.value = -2.0 + 2.0 * progress;
+  streamPoints.visible = progress > 0.005 && progress < 0.995;
+  warmLight.intensity  = 4 + progress * 14;
+}
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+let clock = 0;
+
+function animate(timestamp) {
+  requestAnimationFrame(animate);
+  clock = timestamp * 0.001;
+
+  if (introStart === null) introStart = timestamp;
+  const elapsed = timestamp - introStart;
+  if (elapsed < INTRO_MS) {
+    const t = elapsed / INTRO_MS;
+    const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    displayProgress = eased * lifeProgress;
+  } else {
+    displayProgress = lifeProgress;
+  }
+
+  updateSand(displayProgress);
+
+  if (streamPoints.visible) {
+    const attr = streamGeo.attributes.position;
+    const bottomLevel = -2.0 + 2.0 * displayProgress;
+    for (let i = 0; i < N_STREAM; i++) {
+      attr.array[i*3+1] -= streamVel[i];
+      if (attr.array[i*3+1] < bottomLevel + 0.05) {
+        const th = Math.random() * Math.PI * 2;
+        const r  = Math.random() * 0.045;
+        attr.array[i*3]   = r * Math.cos(th);
+        attr.array[i*3+1] = 0.05;
+        attr.array[i*3+2] = r * Math.sin(th);
+      }
     }
+    attr.needsUpdate = true;
   }
 
-  // ===== DOM & constants =====
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  const dobInput = document.getElementById("dob");
-  const lifespanInput = document.getElementById("lifespan");
-  const ageSlider = document.getElementById("age");
-  const useDOBBtn = document.getElementById("useDOB");
-  const yearsLived = document.getElementById("yearsLived");
-  const yearsLeft = document.getElementById("yearsLeft");
-  const progressText = document.getElementById("progressText");
-  const meterFill = document.getElementById("meterFill");
-  const muteBtn = document.getElementById("muteBtn");
+  stars.rotation.y = clock * 0.00006;
+  stars.rotation.x = Math.sin(clock * 0.00004) * 0.02;
 
-  const sandGradA = "#d4a74f", sandGradB = "#b67d2a", glassEdge = "rgba(255,255,255,0.65)", outline = "rgba(255,255,255,0.25)";
-  const MS_PER_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const lerp = (a, b, t) => a + (b - a) * t;
+  topGlow.material.opacity    = (0.03 + Math.sin(clock * 0.8) * 0.015) * (1 - displayProgress * 0.6);
+  bottomGlow.material.opacity = (0.03 + Math.sin(clock * 0.8) * 0.015) * displayProgress;
+  warmLight.intensity = (4 + displayProgress * 14) + Math.sin(clock * 0.7) * 0.8;
 
-  const W = canvas.width, H = canvas.height;
-  const rimTop = 160, neckY = H * 0.5, rimBottom = H - 160;
-  let rimLeft = W * 0.25, rimRight = W * 0.75;
-  const neckHalf = 12;
-  const ctrlTopY = H * 0.28, ctrlBottomY = H * 0.72;
+  controls.update();
+  renderer.render(scene, camera);
+}
 
-  canvas.addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const tilt = (x / rect.width - 0.5) * 15;
-    rimLeft = W * 0.25 + tilt;
-    rimRight = W * 0.75 + tilt;
+// ============================================================
+// INITIAL STATE
+// ============================================================
+dobInput.value      = DOB_DEFAULT;
+lifespanInput.value = LIFESPAN_DEF;
+livingBeingEl.value = 'Human';
+
+const saved = {
+  dob:    localStorage.getItem('lc_dob'),
+  ls:     localStorage.getItem('lc_lifespan'),
+  animal: localStorage.getItem('lc_animal'),
+};
+if (saved.dob)    dobInput.value      = saved.dob;
+if (saved.ls)     lifespanInput.value = saved.ls;
+if (saved.animal) {
+  livingBeingEl.value = saved.animal;
+  if (saved.animal !== 'Human') countrySelect.disabled = true;
+}
+
+updateStats();
+restartIntro();
+animate(0);
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function saveState() {
+  localStorage.setItem('lc_dob',      dobInput.value);
+  localStorage.setItem('lc_lifespan', lifespanInput.value);
+  localStorage.setItem('lc_animal',   livingBeingEl.value);
+}
+
+dobInput.addEventListener('input',   () => { updateStats(); restartIntro(); updateLiveCounter(); saveState(); });
+useDOBBtn.addEventListener('click',  () => { updateStats(); restartIntro(); saveState(); });
+lifespanInput.addEventListener('input', () => { updateStats(); restartIntro(); saveState(); });
+
+ageSlider.addEventListener('input', () => {
+  currentAge = parseFloat(ageSlider.value) || 0;
+  const synced = new Date(Date.now() - currentAge * 365.25 * 24 * 3600 * 1000);
+  dobInput.value = synced.toISOString().slice(0, 10);
+  lifeProgress = getLifeProgress();
+  restartIntro(); saveState(); updateStats();
+});
+
+countrySelect.addEventListener('change', () => {
+  if (countrySelect.value) { lifespanInput.value = countrySelect.value; updateStats(); restartIntro(); saveState(); }
+});
+
+livingBeingEl.addEventListener('change', () => {
+  const val = livingBeingEl.value;
+  if (livingBeingLifespan[val]) {
+    lifespanInput.value    = livingBeingLifespan[val];
+    countrySelect.disabled = val !== 'Human';
+    if (val !== 'Human') countrySelect.selectedIndex = 0;
+    updateStats(); restartIntro(); saveState();
+  }
+});
+
+// ============================================================
+// RESIZE
+// ============================================================
+window.addEventListener('resize', () => {
+  const w = hero.clientWidth, h = hero.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+
+// ============================================================
+// NAV: scroll effect + mobile menu
+// ============================================================
+const nav       = document.getElementById('nav');
+const menuBtn   = document.getElementById('nav-menu-btn');
+const mobileNav = document.getElementById('mobile-nav');
+
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 80));
+menuBtn?.addEventListener('click', () => mobileNav.classList.toggle('open'));
+document.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', () => mobileNav.classList.remove('open')));
+document.getElementById('scroll-indicator')?.addEventListener('click', () => {
+  document.getElementById('intro-section')?.scrollIntoView({ behavior: 'smooth' });
+});
+
+// ============================================================
+// SCROLL FADE-IN
+// ============================================================
+const observer = new IntersectionObserver(
+  (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.12 }
+);
+document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el));
+
+// ============================================================
+// WISDOM CAROUSEL
+// ============================================================
+fetch('wisdom-data.json')
+  .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+  .then(data => {
+    const quotes = data.quotes;
+    if (!quotes?.length) return;
+    let idx = parseInt(localStorage.getItem('lc_quoteIdx')) || 0;
+    let timer = null;
+    const qText    = document.getElementById('quoteText');
+    const qCounter = document.getElementById('quoteCounter');
+    const qBox     = document.getElementById('quoteBox');
+    const nextBtn  = document.getElementById('nextQuoteBtn');
+    const prevBtn  = document.getElementById('prevQuoteBtn');
+    const pauseBtn = document.getElementById('pauseQuoteBtn');
+    function showQuote(i) {
+      if (!qText) return;
+      qText.classList.remove('visible');
+      setTimeout(() => {
+        qText.innerHTML = `"${quotes[i]}"`;
+        qText.classList.add('visible');
+        if (qCounter) qCounter.textContent = `${i+1} of ${quotes.length}`;
+      }, 500);
+      localStorage.setItem('lc_quoteIdx', i);
+    }
+    function startCycle() {
+      if (timer) return;
+      if (pauseBtn) pauseBtn.textContent = 'Pause';
+      timer = setInterval(() => { idx = (idx+1) % quotes.length; showQuote(idx); }, 20000);
+    }
+    function stopCycle() {
+      clearInterval(timer); timer = null;
+      if (pauseBtn) pauseBtn.textContent = 'Play';
+    }
+    nextBtn?.addEventListener('click',  () => { stopCycle(); idx=(idx+1)%quotes.length; showQuote(idx); });
+    prevBtn?.addEventListener('click',  () => { stopCycle(); idx=(idx-1+quotes.length)%quotes.length; showQuote(idx); });
+    pauseBtn?.addEventListener('click', () => timer ? stopCycle() : startCycle());
+    if (qBox) qBox.classList.add('visible');
+    showQuote(idx);
+    startCycle();
+  })
+  .catch(() => {
+    const el = document.getElementById('quoteText');
+    if (el) { el.textContent = 'Could not load wisdom.'; el.classList.add('visible'); }
   });
 
-  const STAR_COUNT = 180;
-  const stars = Array.from({ length: STAR_COUNT }, () => ({ x: Math.random() * W, y: Math.random() * (H * 0.6), r: Math.random() * 1.6 + 0.4, tw: Math.random() * 2 * Math.PI, spd: 0.005 + Math.random() * 0.01, }));
-  function drawSky(t) {
-    for (const s of stars) { s.tw += s.spd; const a = 0.35 + Math.sin(s.tw) * 0.35; ctx.globalAlpha = clamp(a, 0, 1); ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fillStyle = "#ffffff"; ctx.fill(); }
-    ctx.globalAlpha = 1;
-    const now = new Date(); const dayProg = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) / 86400; const arcY = H * 0.12, arcR = W * 0.42; const theta = Math.PI * (1 + dayProg);
-    const sunX = W / 2 + arcR * Math.cos(theta); const sunY = arcY + arcR * Math.sin(theta); const moonX = W / 2 + arcR * Math.cos(theta + Math.PI); const moonY = arcY + arcR * Math.sin(theta + Math.PI);
-    const sunGrad = ctx.createRadialGradient(sunX, sunY, 4, sunX, sunY, 22); sunGrad.addColorStop(0, "rgba(255,215,130,1)"); sunGrad.addColorStop(1, "rgba(255,215,130,0)"); ctx.fillStyle = sunGrad; ctx.beginPath(); ctx.arc(sunX, sunY, 22, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "rgba(200,220,255,0.9)"; ctx.beginPath(); ctx.arc(moonX, moonY, 16, 0, Math.PI * 2); ctx.fill(); ctx.globalCompositeOperation = "destination-out"; ctx.beginPath(); ctx.arc(moonX + 6, moonY - 2, 16, 0, Math.PI * 2); ctx.fill(); ctx.globalCompositeOperation = "source-over";
-  }
-
-  function quadAt(p0, p1, p2, t) { return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2; }
-  function solveTForY(y, y0, y1, y2) { const A = y0 - 2 * y1 + y2, B = 2 * (y1 - y0), C = y0 - y; if (Math.abs(A) < 1e-6) return clamp(-C / B, 0, 1); const disc = B * B - 4 * A * C; const t1 = (-B + Math.sqrt(Math.max(0, disc))) / (2 * A); const t2 = (-B - Math.sqrt(Math.max(0, disc))) / (2 * A); const c = [t1, t2].filter((t) => t >= 0 && t <= 1); return c.length ? c[0] : clamp(t1, 0, 1); }
-  function leftWallX(y) { const t = y <= neckY ? solveTForY(y, rimTop, ctrlTopY, neckY) : solveTForY(y, neckY, ctrlBottomY, rimBottom); return y <= neckY ? quadAt(rimLeft, W * 0.35, W / 2 - neckHalf, t) : quadAt(W / 2 - neckHalf, W * 0.35, rimLeft, t); }
-  function rightWallX(y) { const t = y <= neckY ? solveTForY(y, rimTop, ctrlTopY, neckY) : solveTForY(y, neckY, ctrlBottomY, rimBottom); return y <= neckY ? quadAt(rimRight, W * 0.65, W / 2 + neckHalf, t) : quadAt(W / 2 + neckHalf, W * 0.65, rimRight, t); }
-  function drawEllipse(cx, cy, rx, ry, fillStyle, strokeStyle, lineWidth = 1) { ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); if (fillStyle) { ctx.fillStyle = fillStyle; ctx.fill(); } if (strokeStyle) { ctx.lineWidth = lineWidth; ctx.strokeStyle = strokeStyle; ctx.stroke(); } ctx.restore(); }
-
-  function drawFrame() {
-    ctx.save();
-    const glassGradient = ctx.createLinearGradient(0, rimTop, 0, rimBottom); glassGradient.addColorStop(0, "rgba(255,255,255,0.03)"); glassGradient.addColorStop(0.5, "rgba(255,255,255,0.07)"); glassGradient.addColorStop(1, "rgba(255,255,255,0.03)");
-    ctx.beginPath(); ctx.moveTo(rimLeft, rimTop); ctx.quadraticCurveTo(W * 0.35, ctrlTopY, W / 2 - neckHalf, neckY); ctx.quadraticCurveTo(W * 0.35, ctrlBottomY, rimLeft, rimBottom); ctx.lineTo(rimRight, rimBottom); ctx.quadraticCurveTo(W * 0.65, ctrlBottomY, W / 2 + neckHalf, neckY); ctx.quadraticCurveTo(W * 0.65, ctrlTopY, rimRight, rimTop); ctx.closePath(); ctx.fillStyle = glassGradient; ctx.fill();
-    ctx.lineWidth = 3; const edgeGrad = ctx.createLinearGradient(rimLeft, rimTop, rimRight, rimBottom); edgeGrad.addColorStop(0, glassEdge); edgeGrad.addColorStop(0.5, "rgba(255,255,255,0.35)"); edgeGrad.addColorStop(1, glassEdge); ctx.strokeStyle = edgeGrad; ctx.stroke();
-    const topRx = (rimRight - rimLeft) * 0.42; const bottomRx = topRx; const rimRy = 12; drawEllipse(W / 2, rimTop, topRx, rimRy, null, outline, 1.25); drawEllipse(W / 2, rimBottom, bottomRx, rimRy, null, outline, 1.25); drawEllipse(W / 2, neckY, neckHalf * 0.9, 5, null, "rgba(255,255,255,0.2)", 1);
-    const t = performance.now() * 0.0002; const streakX = lerp(rimLeft + 20, rimRight - 20, Math.sin(t) * 0.5 + 0.5); const streakGrad = ctx.createLinearGradient(streakX - 30, rimTop, streakX + 30, rimBottom); streakGrad.addColorStop(0, "rgba(255,255,255,0)"); streakGrad.addColorStop(0.5, "rgba(255,255,255,0.20)"); streakGrad.addColorStop(1, "rgba(255,255,255,0)"); ctx.strokeStyle = streakGrad; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(streakX, rimTop + 10); ctx.lineTo(streakX, rimBottom - 10); ctx.stroke();
-    const shadowGrad = ctx.createRadialGradient(W / 2, rimBottom + 40, 10, W / 2, rimBottom + 40, 180); shadowGrad.addColorStop(0, "rgba(0,0,0,0.35)"); shadowGrad.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = shadowGrad; ctx.beginPath(); ctx.ellipse(W / 2, rimBottom + 40, 120, 25, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-  }
-
-  function drawStand() { const baseGrad = ctx.createLinearGradient(0, 0, 0, 80); baseGrad.addColorStop(0, "#553311"); baseGrad.addColorStop(1, "#2a1508"); drawEllipse(W / 2, rimBottom + 40, 140, 25, baseGrad, "#111", 2); drawEllipse(W / 2, rimTop - 40, 140, 25, baseGrad, "#111", 2); }
-  function clipTopBulb() { ctx.beginPath(); ctx.moveTo(rimLeft, rimTop); ctx.quadraticCurveTo(W * 0.35, ctrlTopY, W / 2 - neckHalf, neckY); ctx.lineTo(W / 2 + neckHalf, neckY); ctx.quadraticCurveTo(W * 0.65, ctrlTopY, rimRight, rimTop); ctx.closePath(); ctx.clip(); }
-  function clipBottomBulb() { ctx.beginPath(); ctx.moveTo(rimLeft, rimBottom); ctx.quadraticCurveTo(W * 0.35, ctrlBottomY, W / 2 - neckHalf, neckY); ctx.lineTo(W / 2 + neckHalf, neckY); ctx.quadraticCurveTo(W * 0.65, ctrlBottomY, rimRight, rimBottom); ctx.closePath(); ctx.clip(); }
-
-  function drawTopSand(progress) {
-    const remaining = 1 - progress; if (remaining <= 0) return; const adjusted = Math.pow(remaining, 0.7); const levelY = lerp(neckY, rimTop, adjusted);
-    ctx.save(); clipTopBulb();
-    const left = leftWallX(levelY), right = rightWallX(levelY); const midX = (left + right) / 2; const rx = (right - left) * 0.48, ry = Math.max(5, rx * 0.15);
-    const verticalGrad = ctx.createLinearGradient(0, levelY, 0, rimTop); verticalGrad.addColorStop(0, sandGradA); verticalGrad.addColorStop(1, sandGradB);
-    ctx.fillStyle = verticalGrad; ctx.beginPath(); ctx.moveTo(left, levelY); ctx.lineTo(leftWallX(neckY), neckY); ctx.lineTo(rightWallX(neckY), neckY); ctx.lineTo(right, levelY); ctx.closePath(); ctx.fill();
-    const dip = lerp(4, 36, 1 - adjusted); const surfaceY = levelY + dip * 0.45; const surfaceGrad = ctx.createRadialGradient(midX, surfaceY, 2, midX, surfaceY, rx); surfaceGrad.addColorStop(0, "rgba(255,255,255,0.18)"); surfaceGrad.addColorStop(0.3, "rgba(255,255,255,0.10)"); surfaceGrad.addColorStop(1, "rgba(255,255,255,0.00)"); drawEllipse(midX, surfaceY, rx, ry, surfaceGrad, "rgba(0,0,0,0.08)", 0.8);
-    ctx.restore(); return levelY;
-  }
-
-  function drawBottomSand(progress) {
-    if (progress <= 0) return neckY;
-    const maxHeight = rimBottom - neckY; const pileHeight = maxHeight * progress; const levelY = rimBottom - pileHeight;
-    ctx.save(); clipBottomBulb();
-    const left = leftWallX(levelY), right = rightWallX(levelY); const baseLeft = leftWallX(rimBottom), baseRight = rightWallX(rimBottom); const midX = (left + right) / 2; const moundHeight = Math.min(60, pileHeight * 0.65); const peakY = levelY - moundHeight;
-    const bodyGrad = ctx.createLinearGradient(0, peakY, 0, rimBottom); bodyGrad.addColorStop(0, sandGradA); bodyGrad.addColorStop(1, sandGradB); ctx.fillStyle = bodyGrad; ctx.beginPath(); ctx.moveTo(left, levelY); ctx.quadraticCurveTo((left + midX) / 2, peakY, midX, peakY); ctx.quadraticCurveTo((right + midX) / 2, peakY, right, levelY); ctx.lineTo(baseRight, rimBottom); ctx.lineTo(baseLeft, rimBottom); ctx.closePath(); ctx.fill();
-    const baseRx = (baseRight - baseLeft) * 0.48; const baseRy = Math.max(6, baseRx * 0.16); const baseY = rimBottom - 2; const baseGlow = ctx.createRadialGradient(midX, baseY, 4, midX, baseY, baseRx); baseGlow.addColorStop(0, "rgba(255,255,255,0.12)"); baseGlow.addColorStop(1, "rgba(255,255,255,0)"); drawEllipse(midX, baseY, baseRx, baseRy, baseGlow, "rgba(0,0,0,0.08)", 0.8);
-    ctx.beginPath(); ctx.moveTo(midX - 25, peakY + 6); ctx.quadraticCurveTo(midX, peakY - 4, midX + 25, peakY + 6); ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.lineWidth = 2; ctx.stroke();
-    ctx.restore(); return levelY;
-  }
-
-  const particles = [];
-  function drawStream(topLevelY, bottomLevelY) {
-    if (!topLevelY || !bottomLevelY || bottomLevelY <= neckY + 2) return 0;
-    ctx.save();
-    const startY = neckY + 1.5, endY = bottomLevelY - 2; const topWidth = 10, bottomWidth = 3;
-    const streamGrad = ctx.createLinearGradient(W / 2, startY, W / 2, endY); streamGrad.addColorStop(0, sandGradA); streamGrad.addColorStop(1, sandGradB);
-    ctx.beginPath(); ctx.moveTo(W / 2 - topWidth / 2, startY); ctx.lineTo(W / 2 + topWidth / 2, startY); ctx.lineTo(W / 2 + bottomWidth / 2, endY); ctx.lineTo(W / 2 - bottomWidth / 2, endY); ctx.closePath(); ctx.fillStyle = streamGrad; ctx.shadowBlur = 6; ctx.shadowColor = "rgba(0,0,0,0.2)"; ctx.fill(); ctx.shadowBlur = 0; ctx.restore();
-    if (Math.random() < 0.7) { particles.push({ x: W / 2 + (Math.random() - 0.5) * 3, y: startY, vx: (Math.random() - 0.5) * 0.5, vy: 2 + Math.random() * 2, r: 1 + Math.random() * 1.5, life: 40, }); }
-    for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life--; ctx.fillStyle = sandGradA; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); if (p.life <= 0 || p.y > endY) particles.splice(i, 1); }
-    return clamp((endY - startY) / (rimBottom - rimTop), 0, 1);
-  }
-
-  const barSparkles = [], finalSparkles = []; let barSparklesActive = false, finalSparklesActive = false;
-  function drawBarSparkles(bottomLevelY) {
-    if (!meterFill) return; const barWidth = meterFill.offsetWidth, barHeight = meterFill.offsetHeight; if (!barSparklesActive && displayProgress >= 1) barSparklesActive = true; if (!barSparklesActive) return;
-    if (Math.random() < 0.3) { barSparkles.push({ x: Math.random() * barWidth, y: Math.random() * barHeight, r: 3 + Math.random() * 3, life: 60 + Math.random() * 30, vx: (Math.random() - 0.5) * 1, vy: -0.5 + Math.random() * 0.5, }); if (bottomLevelY) { finalSparkles.push({ x: W / 2 + (Math.random() - 0.5) * 80, y: bottomLevelY - 5 + (Math.random() - 0.5) * 20, r: 3 + Math.random() * 5, life: 50 + Math.random() * 50, vx: (Math.random() - 0.5) * 1, vy: -0.2 + Math.random() * 0.5, }); } }
-    barSparkles.forEach((s, i) => { s.life--; s.x += s.vx; s.y += s.vy; const sparkle = document.createElement("div"); sparkle.style.position = "absolute"; sparkle.style.width = `${s.r * 2}px`; sparkle.style.height = `${s.r * 2}px`; sparkle.style.left = `${meterFill.offsetLeft + s.x}px`; sparkle.style.top = `${meterFill.offsetTop + s.y}px`; sparkle.style.borderRadius = "50%"; sparkle.style.background = "white"; sparkle.style.opacity = Math.min(s.life / 50, 1); sparkle.style.pointerEvents = "none"; sparkle.style.zIndex = 1000; document.body.appendChild(sparkle); if (s.life <= 0) barSparkles.splice(i, 1); setTimeout(() => sparkle.remove(), 16); });
-  }
-  function drawFinalSparkles(bottomLevelY) {
-    if (!finalSparklesActive && displayProgress >= 1) finalSparklesActive = true; if (!finalSparklesActive) return;
-    if (Math.random() < 0.5) { finalSparkles.push({ x: W / 2 + (Math.random() - 0.5) * 80, y: bottomLevelY - 5 + (Math.random() - 0.5) * 20, r: 2 + Math.random() * 4, life: 40 + Math.random() * 30, vx: (Math.random() - 0.5) * 1, vy: -0.2 + Math.random() * 0.5, }); }
-    for (let i = finalSparkles.length - 1; i >= 0; i--) { const s = finalSparkles[i]; s.life--; s.x += s.vx; s.y += s.vy; ctx.fillStyle = `rgba(255,255,255,${Math.min(s.life / 50, 1)})`; ctx.shadowBlur = 8; ctx.shadowColor = "white"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; if (s.life <= 0) finalSparkles.splice(i, 1); }
-  }
-
-  let targetProgress = 0, displayProgress = 0; let introStart = null; const introDuration = 18000;
-  function computeProgress() {
-    const lifespan = Math.max(1, Number(lifespanInput.value) || 100);
-    ageSlider.max = lifespan;
-    ageSlider.value = clamp(currentAge, 0, lifespan);
-    targetProgress = clamp(currentAge / lifespan, 0, 1);
-    yearsLived.textContent = currentAge.toFixed(2) + " years";
-    yearsLeft.textContent = Math.max(0, lifespan - currentAge).toFixed(2) + " years";
-    progressText.textContent = (targetProgress * 100).toFixed(2) + `% of ${lifespan} years`;
-  }
-
-  let audioCtx = null, noiseGain = null, band = null;
-  function initAudio() {
-    if (audioCtx) return;
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const bufferSize = 2 * audioCtx.sampleRate; const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const output = noiseBuffer.getChannelData(0); let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-      for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.969 * b2 + white * 0.153852; b3 = 0.8665 * b3 + white * 0.3104856; b4 = 0.55 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.016898; output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; output[i] *= 0.11; b6 = white * 0.115926; }
-      const src = audioCtx.createBufferSource(); src.buffer = noiseBuffer; src.loop = true;
-      band = audioCtx.createBiquadFilter(); band.type = "bandpass"; band.frequency.value = 1400; band.Q.value = 0.8;
-      noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.0;
-      src.connect(band); band.connect(noiseGain); noiseGain.connect(audioCtx.destination); src.start();
-    } catch (e) { /* ignore */ }
-  }
-  function maybeStartAudio() { initAudio(); if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); }
-
-  let isMuted = localStorage.getItem("muted") === "true";
-  function applyMuteState() { if (muteBtn) muteBtn.textContent = isMuted ? "Unmute" : "Mute"; if (noiseGain) { noiseGain.gain.value = isMuted ? 0 : 0; } }
-  function updateSandSound(intensity) { if (!noiseGain) return; const g = Math.pow(clamp(intensity, 0, 1), 0.7) * 0; noiseGain.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 0.08); if (band) { band.frequency.value = 1200 + Math.sin(performance.now() * 0.001) * 300; } }
-
-  function draw(timestamp) {
-    if (introStart === null) introStart = timestamp;
-    computeProgress();
-    const elapsed = timestamp - introStart;
-    if (elapsed < introDuration) { const t = elapsed / introDuration; displayProgress = t * targetProgress; } else { displayProgress = targetProgress; }
-    meterFill.style.width = (displayProgress * 100).toFixed(2) + "%";
-    progressText.textContent = Math.floor(displayProgress * 100) + "%";
-    ctx.clearRect(0, 0, W, H); drawSky(timestamp);
-    const bottomLevelY = drawBottomSand(displayProgress); const topLevelY = drawTopSand(displayProgress); const streamIntensity = drawStream(topLevelY, bottomLevelY);
-    drawFinalSparkles(bottomLevelY); drawFrame(); drawStand();
-    drawBarSparkles(bottomLevelY);
-    updateSandSound(streamIntensity * (displayProgress < 1 ? 1 : 0));
-    requestAnimationFrame(draw);
-  }
-  function restartIntro() { displayProgress = 0; introStart = null; }
-
-  if (countrySelect) { countrySelect.addEventListener("change", () => { if (countrySelect.value) { lifespanInput.value = countrySelect.value; restartIntro(); } }); }
-  if (livingBeingInput) {
-    livingBeingInput.addEventListener("change", () => {
-      const chosen = livingBeingInput.value;
-      if (livingBeingLifespan[chosen]) {
-        localStorage.setItem("livingBeing", chosen);
-        if (chosen === "Human") { if (countrySelect) countrySelect.disabled = false; }
-        else { if (countrySelect) { countrySelect.disabled = true; countrySelect.selectedIndex = 0; } }
-        lifespanInput.value = livingBeingLifespan[chosen];
-        localStorage.setItem("lifespan", lifespanInput.value);
-        restartIntro();
-      }
-    });
-  }
-
-  ["click", "touchstart", "keydown", "input", "change"].forEach((evt) => { document.addEventListener(evt, maybeStartAudio, { once: true, passive: true }); });
-
-  ageSlider.addEventListener("input", () => { currentAge = parseFloat(ageSlider.value) || 0; if (dobInput) dobInput.value = ""; restartIntro(); saveState(); updateFromSlider(); });
-  dobInput.addEventListener("input", () => { if (!dobInput.value) return; const dob = new Date(dobInput.value + "T00:00:00"); currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR; restartIntro(); saveState(); updateFromDOB(); });
-  if (useDOBBtn) {
-    useDOBBtn.addEventListener("click", () => {
-      if (!dobInput.value) return;
-      const dob = new Date(dobInput.value + "T00:00:00");
-      currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR;
-      restartIntro();
-      canvas.scrollIntoView({ behavior: "smooth", block: "center" });
-      saveState();
-      updateFromDOB();
-    });
-  }
-  lifespanInput.addEventListener("input", () => { restartIntro(); saveState(); updateStats(); });
-
-  function saveState() {
-    localStorage.setItem("lifespan", lifespanInput.value);
-    localStorage.setItem("age", currentAge);
-    localStorage.setItem("dob", dobInput.value);
-    if (livingBeingInput) localStorage.setItem("livingBeing", livingBeingInput.value);
-    if (livingBeingInput && livingBeingInput.value === "Human" && countrySelect && countrySelect.value) { localStorage.setItem("country", countrySelect.value); }
-  }
-
-  const MS_YEAR = 365.2425 * 24 * 60 * 60 * 1000;
-  function updateFromSlider() { const ageYears = parseFloat(ageSlider.value) || 0; const now = new Date(); const dobDate = new Date(now.getTime() - ageYears * MS_YEAR); if (dobInput) dobInput.value = dobDate.toISOString().slice(0, 10); updateStats(); }
-  function updateFromDOB() { if (!dobInput.value) return; const dob = new Date(dobInput.value + "T00:00:00"); const ageYears = (Date.now() - dob.getTime()) / MS_YEAR; const lifespan = parseFloat(lifespanInput.value) || 100; ageSlider.max = lifespan; ageSlider.value = clamp(ageYears, 0, lifespan); updateStats(); }
-
-  computeProgress();
-  requestAnimationFrame(draw);
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const savedAnimal = localStorage.getItem("livingBeing"), savedLifespan = localStorage.getItem("lifespan"), savedAge = localStorage.getItem("age"), savedDob = localStorage.getItem("dob"), savedCountry = localStorage.getItem("country");
-    if (savedAnimal && livingBeingInput) {
-      livingBeingInput.value = savedAnimal;
-      lifespanInput.value = savedLifespan || livingBeingLifespan[savedAnimal];
-      if (savedAnimal === "Human") { if (countrySelect) { countrySelect.disabled = false; if (savedCountry) countrySelect.value = savedCountry; } }
-      else { if (countrySelect) countrySelect.disabled = true; }
-    } else {
-      if (livingBeingInput) livingBeingInput.value = "Human";
-      lifespanInput.value = livingBeingLifespan["Human"];
-      if (countrySelect) { countrySelect.disabled = false; if (savedCountry) countrySelect.value = savedCountry; }
-    }
-
-    if (savedDob) { const dob = new Date(savedDob + "T00:00:00"); dobInput.value = savedDob; currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR; }
-    else if (savedAge) { currentAge = parseFloat(savedAge) || 0; ageSlider.value = currentAge; }
-    ageSlider.max = Math.max(1, Number(lifespanInput.value) || 100);
-    ageSlider.value = currentAge;
-    updateStats();
+// ============================================================
+// YOUTUBE PLAYER
+// ============================================================
+window.onYouTubeIframeAPIReady = function () {
+  new YT.Player('youtube-player', {
+    videoId: 'vxQKqtlPvks',
+    playerVars: { controls: 1, autoplay: 0, loop: 1, playlist: 'vxQKqtlPvks', modestbranding: 1 },
   });
-
-  function startContinuousClock() {
-    const savedDob = localStorage.getItem("dob");
-    if (savedDob) {
-      const dob = new Date(savedDob + "T00:00:00");
-      if (window.clockInterval) clearInterval(window.clockInterval);
-      window.clockInterval = setInterval(() => { currentAge = (Date.now() - dob.getTime()) / MS_PER_YEAR; computeProgress(); }, 1000);
-    }
-  }
-
-  function updateStats() {
-    const dobStr = document.getElementById("dob").value, lifespan = parseFloat(document.getElementById("lifespan").value), ageSliderEl = document.getElementById("age");
-    let ageYears = parseFloat(ageSliderEl.value);
-    if (dobStr) {
-      const dob = new Date(dobStr), now = new Date(), diffMs = now - dob, diffSeconds = diffMs / 1000;
-      ageYears = diffSeconds / (365.25 * 24 * 60 * 60);
-      const days = Math.floor(diffSeconds / (24 * 60 * 60)), exactYears = Math.floor(days / 365.25), remainingDays = Math.floor(days % 365.25), months = Math.floor(remainingDays / 30.44), leftoverDays = Math.floor(remainingDays % 30.44);
-      const exactAgeEl = document.getElementById("exactAge");
-      if (exactAgeEl) exactAgeEl.textContent = `${exactYears} years, ${months} months, ${leftoverDays} days`;
-    }
-    document.getElementById("yearsLived").textContent = Math.floor(ageYears); const yearsLeftVal = lifespan - ageYears; document.getElementById("yearsLeft").textContent = yearsLeftVal > 0 ? yearsLeftVal.toFixed(2) : "0";
-    const progress = Math.min((ageYears / lifespan) * 100, 100); document.getElementById("progressText").textContent = progress.toFixed(2) + "%"; document.getElementById("meterFill").style.width = progress + "%";
-  }
-
-  // ===================================
-  // 🧠 UNIFIED WISDOM/QUOTES LOGIC
-  // ===================================
-  fetch('wisdom-data.json')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
-      }
-      return response.json();
-    })
-    .then(data => {
-      const allWisdom = data.quotes; // The big merged array from your JSON
-      if (!allWisdom || allWisdom.length === 0) {
-        console.error("No quotes found in wisdom-data.json or the array is empty.");
-        document.getElementById("quoteText").textContent = "Could not load wisdom.";
-        return;
-      }
-
-      let quoteIndex = parseInt(localStorage.getItem("quoteIndex")) || 0;
-      let quoteInterval = null;
-
-      const quoteText = document.getElementById("quoteText");
-      const nextQuoteBtn = document.getElementById("nextQuoteBtn");
-      const prevQuoteBtn = document.getElementById("prevQuoteBtn");
-      const pauseQuoteBtn = document.getElementById("pauseQuoteBtn");
-      const quoteCounter = document.getElementById("quoteCounter");
-      const quoteBox = document.getElementById("quoteBox");
-
-      function showQuote(index) {
-        if (!quoteText) return;
-
-        quoteText.classList.remove("visible");
-
-        setTimeout(() => {
-          quoteText.innerHTML = `"${allWisdom[index]}"`; // Use innerHTML to render line breaks if any
-          quoteText.classList.add("visible");
-          if (quoteCounter) {
-            quoteCounter.textContent = `Wisdom ${index + 1} of ${allWisdom.length}`;
-          }
-        }, 600); // Match CSS transition
-
-        localStorage.setItem("quoteIndex", index);
-      }
-
-      function startQuoteAutoCycle() {
-        if (quoteInterval) return;
-        if (pauseQuoteBtn) pauseQuoteBtn.textContent = "Pause";
-        quoteInterval = setInterval(() => {
-          quoteIndex = (quoteIndex + 1) % allWisdom.length;
-          showQuote(quoteIndex);
-        }, 20000); // 20-second interval
-      }
-
-      function stopQuoteAutoCycle() {
-        clearInterval(quoteInterval);
-        quoteInterval = null;
-        if (pauseQuoteBtn) pauseQuoteBtn.textContent = "Play";
-      }
-
-      if (nextQuoteBtn) {
-        nextQuoteBtn.addEventListener("click", () => {
-          stopQuoteAutoCycle();
-          quoteIndex = (quoteIndex + 1) % allWisdom.length;
-          showQuote(quoteIndex);
-        });
-      }
-
-      if (prevQuoteBtn) {
-        prevQuoteBtn.addEventListener("click", () => {
-          stopQuoteAutoCycle();
-          quoteIndex = (quoteIndex - 1 + allWisdom.length) % allWisdom.length;
-          showQuote(quoteIndex);
-        });
-      }
-
-      if (pauseQuoteBtn) {
-        pauseQuoteBtn.addEventListener("click", () => {
-          if (quoteInterval) {
-            stopQuoteAutoCycle();
-          } else {
-            startQuoteAutoCycle();
-          }
-        });
-      }
-
-      // Initial display and start auto-cycle
-      if (quoteBox) quoteBox.classList.add("visible");
-      showQuote(quoteIndex);
-      startQuoteAutoCycle();
-    })
-    .catch(error => {
-      console.error('Failed to load wisdom-data.json:', error);
-      const quoteText = document.getElementById("quoteText");
-      if(quoteText) quoteText.textContent = "Error: Could not fetch wisdom data.";
-    });
-
-  // =========================
-  // 🎵 YouTube Player Logic
-  // =========================
-  window.onYouTubeIframeAPIReady = function () {
-    let player;
-    player = new YT.Player("youtube-player", {
-      videoId: "vxQKqtlPvks",
-      playerVars: {
-        controls: 1,
-        autoplay: 1,
-        loop: 1,
-        playlist: "vxQKqtlPvks", // Required for looping
-      },
-    });
-  };
-
-})();
+};
