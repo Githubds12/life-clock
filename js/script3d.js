@@ -243,11 +243,11 @@ const topSandGeo = new THREE.BufferGeometry();
 topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(0,2,N_SAND),3));
 const topSandMat = new THREE.ShaderMaterial({
   uniforms: {
-    sandLevel:{value: 2.0},
-    colorTop: {value: new THREE.Color(0xf0b040)},
-    colorBot: {value: new THREE.Color(0xb07020)},
-    yMin:     {value: 0.0},
-    yRange:   {value: 2.0},
+    sandLevel: {value:  2.0},
+    colorTop:  {value: new THREE.Color(0xdca142)},  // Sand color
+    colorBot:  {value: new THREE.Color(0xdca142)},  // Same color (no gradient brown)
+    yMin:      {value:  0.0},
+    yRange:    {value:  2.0},
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -259,11 +259,11 @@ const bottomSandGeo = new THREE.BufferGeometry();
 bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(-2,0,N_SAND),3));
 const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
-    sandLevel:{value: -2.0},
-    colorTop: {value: new THREE.Color(0xf0b040)},
-    colorBot: {value: new THREE.Color(0xc08030)},
-    yMin:     {value: -2.0},
-    yRange:   {value:  2.0},
+    sandLevel: {value: -2.0},
+    colorTop:  {value: new THREE.Color(0xdca142)},  // Sand color
+    colorBot:  {value: new THREE.Color(0xdca142)},  // Same color (no gradient brown)
+    yMin:      {value: -2.0},
+    yRange:    {value:  2.0},
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -280,7 +280,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xf0b040, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0xdca142, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
