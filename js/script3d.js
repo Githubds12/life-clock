@@ -14,7 +14,6 @@ const N_SAND       = 22000;
 const N_STREAM     = 100;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-// ── Datasets ────────────────────────────────────────────────
 const livingBeingLifespan = {
   Human: 73, Dog: 13, Cat: 15, Elephant: 70, Horse: 30, Cow: 20, Rabbit: 9,
   Mouse: 2, Rat: 3, Pig: 15, Sheep: 12, Goat: 15, Kangaroo: 20, Giraffe: 25,
@@ -72,7 +71,7 @@ const countryLifeExpectancy = {
   Zambia: 66.35, Zimbabwe: 62.78,
 };
 
-// ── DOM ─────────────────────────────────────────────────────
+// DOM
 const threeCanvas    = document.getElementById('three-canvas');
 const hero           = document.getElementById('hero');
 const dobInput       = document.getElementById('dob');
@@ -95,7 +94,7 @@ Object.entries(countryLifeExpectancy).forEach(([country, exp]) => {
   const opt = document.createElement('option'); opt.value = exp; opt.textContent = country; countrySelect.appendChild(opt);
 });
 
-// ── Renderer ────────────────────────────────────────────────
+// Renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: threeCanvas, antialias: true, alpha: false, powerPreference: 'high-performance',
 });
@@ -123,7 +122,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 pmrem.compileEquirectangularShader();
 scene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
 
-// ── Lights ──────────────────────────────────────────────────
+// Lights
 scene.add(new THREE.AmbientLight(0x0d1a38, 4));
 scene.add(new THREE.HemisphereLight(0x1a2a50, 0x080808, 1.5));
 const warmLight = new THREE.PointLight(0xf59e0b, 12, 6, 1.5);
@@ -135,54 +134,42 @@ scene.add(coolLight);
 scene.add(Object.assign(new THREE.DirectionalLight(0x6688cc, 0.8), { position: new THREE.Vector3(-2, 1, -3) }));
 scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.4), { position: new THREE.Vector3(0, 2, 4) }));
 
-// ── Stars — ShaderMaterial with circle discard (guaranteed round dots) ──
+// ── Stars: ShaderMaterial, no custom attributes, guaranteed round dots ──
 const STAR_VERT = /* glsl */`
-  attribute vec3 aColor;
-  varying vec3 vCol;
   void main() {
-    vCol = aColor;
-    gl_PointSize = 2.5 + fract(position.x * 13.7) * 2.0;  // vary size 2.5–4.5px
+    gl_PointSize = 2.0 + fract(sin(position.x * 127.1 + position.y * 311.7) * 43758.5) * 2.5;
     gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 const STAR_FRAG = /* glsl */`
-  varying vec3 vCol;
   void main() {
     float d = length(gl_PointCoord - 0.5);
     if (d > 0.5) discard;
-    float alpha = 1.0 - smoothstep(0.25, 0.5, d);
-    gl_FragColor = vec4(vCol, alpha * 0.9);
+    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
+    gl_FragColor = vec4(0.95, 0.97, 1.0, alpha * 0.85);
   }
 `;
-
 const STAR_COUNT = 6000;
-const starPos    = new Float32Array(STAR_COUNT * 3);
-const starCol    = new Float32Array(STAR_COUNT * 3);
+const starPos = new Float32Array(STAR_COUNT * 3);
 for (let i = 0; i < STAR_COUNT; i++) {
-  const theta = Math.random() * Math.PI * 2, phi = Math.acos(2 * Math.random() - 1), r = 28 + Math.random() * 40;
-  starPos[i*3] = r*Math.sin(phi)*Math.cos(theta); starPos[i*3+1] = r*Math.sin(phi)*Math.sin(theta); starPos[i*3+2] = r*Math.cos(phi);
-  const t = Math.random();
-  if (t < 0.33)      { starCol[i*3]=1;    starCol[i*3+1]=0.95; starCol[i*3+2]=0.85; }
-  else if (t < 0.66) { starCol[i*3]=0.85; starCol[i*3+1]=0.90; starCol[i*3+2]=1;    }
-  else               { starCol[i*3]=1;    starCol[i*3+1]=1;    starCol[i*3+2]=1;    }
+  const theta = Math.random()*Math.PI*2, phi = Math.acos(2*Math.random()-1), r = 28+Math.random()*40;
+  starPos[i*3]=r*Math.sin(phi)*Math.cos(theta); starPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta); starPos[i*3+2]=r*Math.cos(phi);
 }
 const starGeo = new THREE.BufferGeometry();
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-starGeo.setAttribute('aColor',   new THREE.BufferAttribute(starCol, 3));
 const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
   vertexShader: STAR_VERT, fragmentShader: STAR_FRAG,
   transparent: true, depthWrite: false,
 }));
 scene.add(stars);
 
-// ── Hourglass ───────────────────────────────────────────────
-function glassRadius(y) { const n = Math.abs(clamp(y,-2,2))/2; return 0.09+0.91*Math.pow(n,0.5); }
+// Hourglass
+function glassRadius(y) { const n=Math.abs(clamp(y,-2,2))/2; return 0.09+0.91*Math.pow(n,0.5); }
 function buildGlassProfile(segs=52) {
   const pts=[];
   for(let i=0;i<=segs;i++){const t=i/segs,y=(t-0.5)*4.6;pts.push(new THREE.Vector2(glassRadius(y)*1.02,y));}
   return pts;
 }
-
 const hourglassGroup = new THREE.Group();
 hourglassGroup.scale.setScalar(0.60);
 scene.add(hourglassGroup);
@@ -190,9 +177,9 @@ scene.add(hourglassGroup);
 hourglassGroup.add(new THREE.Mesh(
   new THREE.LatheGeometry(buildGlassProfile(), 96),
   new THREE.MeshPhysicalMaterial({
-    color:0x99ccee,metalness:0.0,roughness:0.02,transmission:0.90,thickness:0.2,
-    transparent:true,opacity:0.72,side:THREE.DoubleSide,ior:1.48,
-    envMapIntensity:1.2,iridescence:0.06,iridescenceIOR:1.3,depthWrite:false,
+    color:0x99ccee, metalness:0.0, roughness:0.02, transmission:0.90, thickness:0.2,
+    transparent:true, opacity:0.72, side:THREE.DoubleSide, ior:1.48,
+    envMapIntensity:1.2, iridescence:0.06, iridescenceIOR:1.3, depthWrite:false,
   })
 ));
 
@@ -201,44 +188,35 @@ function addDisc(y) {
   const d = new THREE.Mesh(new THREE.CylinderGeometry(1.22,1.32,0.14,48,1), woodMat);
   d.position.y = y; hourglassGroup.add(d);
 }
-addDisc( 2.22); addDisc(-2.22);
+addDisc(2.22); addDisc(-2.22);
 
 const glowBase = new THREE.MeshBasicMaterial({color:0xf59e0b,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
-const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
+const topGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 topGlow.position.y = 1.0; hourglassGroup.add(topGlow);
 const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 bottomGlow.position.y = -1.0; hourglassGroup.add(bottomGlow);
 
-// ── Sand shaders (use OBJECT-SPACE Y — no world matrix scale confusion) ──
-//
-// KEY FIX: use `position.y` directly (object-space of the Points child).
-// Since Points is a child of hourglassGroup, its local space = group local space.
-// sandLevel is therefore in the same space: top bulb 0→2, bottom -2→0.
-// No HSCALE multiplication needed anywhere.
+// ── Sand shaders: object-space Y (position.y), no scale confusion ──
+// vY = position.y in object space (same range as sandLevel: top 0→2, bottom -2→0)
 const SAND_VERT = /* glsl */`
-  varying float vY;     // object-space Y — same space as sandLevel uniform
-  varying float vDist;  // radial distance from axis (for edge fade)
+  varying float vY;
   void main() {
-    vY    = position.y;
-    vDist = length(position.xz);
+    vY = position.y;
     gl_PointSize = 3.5;
     gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
-
 const SAND_FRAG = /* glsl */`
-  uniform float sandLevel;  // object-space Y cutoff
-  uniform vec3  colorTop;   // colour at the sand surface
-  uniform vec3  colorBot;   // colour at the deepest sand
-  uniform float yMin;       // bottom of this bulb (object space)
-  uniform float yRange;     // height of this bulb
+  uniform float sandLevel;
+  uniform vec3  colorTop;
+  uniform vec3  colorBot;
+  uniform float yMin;
+  uniform float yRange;
   varying float vY;
   void main() {
     if (vY > sandLevel) discard;
-    // circular particle
     float d = length(gl_PointCoord - 0.5);
     if (d > 0.5) discard;
-    // gradient: bright at surface, slightly darker at depth
     float t = clamp((vY - yMin) / yRange, 0.0, 1.0);
     vec3  col = mix(colorBot, colorTop, t * t);
     float alpha = 1.0 - smoothstep(0.35, 0.5, d);
@@ -255,44 +233,44 @@ function generateBulbPoints(yMin, yMax, count) {
   return pos;
 }
 
-// Top bulb: object Y 0 → 2, starts FULL (sandLevel=2.0), empties toward 0
+// Top bulb: Y 0→2, starts full, drains to 0
 const topSandGeo = new THREE.BufferGeometry();
 topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(0,2,N_SAND),3));
 const topSandMat = new THREE.ShaderMaterial({
   uniforms: {
-    sandLevel: {value:  2.0},
-    colorTop:  {value: new THREE.Color(0xf0b040)},  // bright amber at surface
-    colorBot:  {value: new THREE.Color(0xb07020)},  // mid-gold at depth
-    yMin:      {value:  0.0},
-    yRange:    {value:  2.0},
+    sandLevel:{value: 2.0},
+    colorTop: {value: new THREE.Color(0xf0b040)},
+    colorBot: {value: new THREE.Color(0xb07020)},
+    yMin:     {value: 0.0},
+    yRange:   {value: 2.0},
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
 });
 hourglassGroup.add(new THREE.Points(topSandGeo, topSandMat));
 
-// Bottom bulb: object Y -2 → 0, starts EMPTY (sandLevel=-2.0), fills toward 0
+// Bottom bulb: Y -2→0, starts empty, fills to 0
 const bottomSandGeo = new THREE.BufferGeometry();
 bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(-2,0,N_SAND),3));
 const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
-    sandLevel: {value: -2.0},
-    colorTop:  {value: new THREE.Color(0xf0b040)},  // bright amber at surface (fill level)
-    colorBot:  {value: new THREE.Color(0xc08030)},  // warm orange-gold at depth (not dark!)
-    yMin:      {value: -2.0},
-    yRange:    {value:  2.0},
+    sandLevel:{value: -2.0},
+    colorTop: {value: new THREE.Color(0xf0b040)},
+    colorBot: {value: new THREE.Color(0xc08030)},
+    yMin:     {value: -2.0},
+    yRange:   {value:  2.0},
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
 });
 hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 
-// ── Falling stream ──────────────────────────────────────────
+// Falling stream
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
   const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.04;
   streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
-  streamVel[i] = 0.012 + Math.random()*0.018;
+  streamVel[i]=0.012+Math.random()*0.018;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
@@ -301,92 +279,67 @@ const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
 }));
 hourglassGroup.add(streamPoints);
 
-// ── State ────────────────────────────────────────────────────
+// State
 let currentAge=0, lifeProgress=0, displayProgress=0, introStart=null;
-
-function getLifeProgress() {
-  return clamp(currentAge / Math.max(1, parseFloat(lifespanInput.value)||LIFESPAN_DEF), 0, 1);
-}
-function updateStats() {
-  const dobStr=dobInput.value, lifespan=Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF);
-  if(dobStr) {
-    const ds=(new Date()-new Date(dobStr+'T00:00:00'))/1000;
-    currentAge=ds/(365.25*24*3600);
-    const td=Math.floor(ds/86400),yrs=Math.floor(td/365.25),rem=Math.floor(td%365.25);
-    if(exactAgeEl) exactAgeEl.textContent=`${yrs}y ${Math.floor(rem/30.44)}m ${Math.floor(rem%30.44)}d`;
-  }
+function getLifeProgress(){return clamp(currentAge/Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF),0,1);}
+function updateStats(){
+  const dobStr=dobInput.value,lifespan=Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF);
+  if(dobStr){const ds=(new Date()-new Date(dobStr+'T00:00:00'))/1000;currentAge=ds/(365.25*24*3600);const td=Math.floor(ds/86400),yrs=Math.floor(td/365.25),rem=Math.floor(td%365.25);if(exactAgeEl)exactAgeEl.textContent=`${yrs}y ${Math.floor(rem/30.44)}m ${Math.floor(rem%30.44)}d`;}
   lifeProgress=getLifeProgress();
-  const left=Math.max(0,(parseFloat(lifespanInput.value)||LIFESPAN_DEF)-currentAge);
-  if(yearsLivedEl)   yearsLivedEl.textContent  =currentAge.toFixed(1);
-  if(yearsLeftEl)    yearsLeftEl.textContent    =left.toFixed(1);
-  if(progressTextEl) progressTextEl.textContent =(lifeProgress*100).toFixed(1)+'%';
-  if(meterFill)      meterFill.style.width      =(lifeProgress*100).toFixed(2)+'%';
-  ageSlider.max=parseFloat(lifespanInput.value)||LIFESPAN_DEF;
-  ageSlider.value=clamp(currentAge,0,ageSlider.max);
+  const left=Math.max(0,lifespan-currentAge);
+  if(yearsLivedEl)yearsLivedEl.textContent=currentAge.toFixed(1);
+  if(yearsLeftEl)yearsLeftEl.textContent=left.toFixed(1);
+  if(progressTextEl)progressTextEl.textContent=(lifeProgress*100).toFixed(1)+'%';
+  if(meterFill)meterFill.style.width=(lifeProgress*100).toFixed(2)+'%';
+  ageSlider.max=lifespan; ageSlider.value=clamp(currentAge,0,lifespan);
 }
 function restartIntro(){displayProgress=0;introStart=null;}
 
 function updateLiveCounter(){
   const dm=new Date()-new Date((dobInput.value||DOB_DEFAULT)+'T00:00:00');
   if(dm<0)return;
-  const ts=Math.floor(dm/1000),secs=ts%60,tm=Math.floor(ts/60),mins=tm%60,th=Math.floor(tm/60),
-        hours=th%24,td=Math.floor(th/24),days=td%30,tmo=Math.floor(td/30.44),months=tmo%12,years=Math.floor(tmo/12);
+  const ts=Math.floor(dm/1000),secs=ts%60,tm=Math.floor(ts/60),mins=tm%60,th=Math.floor(tm/60),hours=th%24,td=Math.floor(th/24),days=td%30,tmo=Math.floor(td/30.44),months=tmo%12,years=Math.floor(tmo/12);
   const pad=n=>String(n).padStart(2,'0'),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('c-years',years);set('c-months',pad(months));set('c-days',pad(days));
-  set('c-hours',pad(hours));set('c-mins',pad(mins));set('c-secs',pad(secs));
+  set('c-years',years);set('c-months',pad(months));set('c-days',pad(days));set('c-hours',pad(hours));set('c-mins',pad(mins));set('c-secs',pad(secs));
 }
 setInterval(()=>{updateLiveCounter();updateStats();},1000);
 updateLiveCounter();
 
-// ── Sand update — object-space Y, no HSCALE needed ──────────────────
+// Sand update — object-space Y, sandLevel in range -2..2
 function updateSand(p){
-  topSandMat.uniforms.sandLevel.value    =  2.0*(1.0-p);   // 2.0 → 0.0 (drains)
-  bottomSandMat.uniforms.sandLevel.value = -2.0+2.0*p;     // -2.0 → 0.0 (fills)
+  topSandMat.uniforms.sandLevel.value    =  2.0*(1.0-p);  // full→empty
+  bottomSandMat.uniforms.sandLevel.value = -2.0+2.0*p;    // empty→full
   streamPoints.visible = p>0.005 && p<0.995;
   bottomGlow.material.opacity = 0.04+p*0.12;
   warmLight.intensity = 4+p*12;
 }
 
-// ── Animation loop ───────────────────────────────────────────
 let clockT=0;
 function animate(ts){
   requestAnimationFrame(animate);
   clockT=ts*0.001;
   if(introStart===null)introStart=ts;
   const elapsed=ts-introStart;
-  if(elapsed<INTRO_MS){
-    const t=elapsed/INTRO_MS;
-    displayProgress=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2)*lifeProgress;
-  } else { displayProgress=lifeProgress; }
-
+  if(elapsed<INTRO_MS){const t=elapsed/INTRO_MS;displayProgress=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2)*lifeProgress;}
+  else{displayProgress=lifeProgress;}
   updateSand(displayProgress);
-
   if(streamPoints.visible){
-    const attr=streamGeo.attributes.position;
-    const bottomLevel=-2.0+2.0*displayProgress;  // object-space bottom fill Y
+    const attr=streamGeo.attributes.position,bl=-2.0+2.0*displayProgress;
     for(let i=0;i<N_STREAM;i++){
       attr.array[i*3+1]-=streamVel[i];
-      if(attr.array[i*3+1]<bottomLevel+0.05){
-        const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;
-        attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
-      }
+      if(attr.array[i*3+1]<bl+0.05){const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;attr.array[i*3]=r*Math.cos(theta);attr.array[i*3+1]=0.05;attr.array[i*3+2]=r*Math.sin(theta);}
     }
     attr.needsUpdate=true;
   }
-
-  stars.rotation.y=clockT*0.00006;
-  stars.rotation.x=Math.sin(clockT*0.00004)*0.02;
-
+  stars.rotation.y=clockT*0.00006; stars.rotation.x=Math.sin(clockT*0.00004)*0.02;
   const pulse=0.04+Math.sin(clockT*0.8)*0.02;
-  topGlow.material.opacity    = pulse*(1-displayProgress*0.7);
-  bottomGlow.material.opacity = 0.04+displayProgress*0.14+Math.sin(clockT*0.9)*0.01;
+  topGlow.material.opacity=pulse*(1-displayProgress*0.7);
+  bottomGlow.material.opacity=0.04+displayProgress*0.14;
   warmLight.intensity=(4+displayProgress*12)+Math.sin(clockT*0.7)*0.8;
-
-  controls.update();
-  renderer.render(scene,camera);
+  controls.update(); renderer.render(scene,camera);
 }
 
-// ── Init ─────────────────────────────────────────────────────
+// Init
 dobInput.value=DOB_DEFAULT; lifespanInput.value=LIFESPAN_DEF; livingBeingEl.value='Human';
 const saved={dob:localStorage.getItem('lc_dob'),ls:localStorage.getItem('lc_lifespan'),animal:localStorage.getItem('lc_animal')};
 if(saved.dob)dobInput.value=saved.dob;
@@ -394,34 +347,17 @@ if(saved.ls)lifespanInput.value=saved.ls;
 if(saved.animal){livingBeingEl.value=saved.animal;if(saved.animal!=='Human')countrySelect.disabled=true;}
 updateStats(); restartIntro(); animate(0);
 
-// ── Events ───────────────────────────────────────────────────
+// Events
 function saveState(){localStorage.setItem('lc_dob',dobInput.value);localStorage.setItem('lc_lifespan',lifespanInput.value);localStorage.setItem('lc_animal',livingBeingEl.value);}
 dobInput.addEventListener('input',()=>{updateStats();restartIntro();updateLiveCounter();saveState();});
 useDOBBtn.addEventListener('click',()=>{updateStats();restartIntro();saveState();});
 lifespanInput.addEventListener('input',()=>{updateStats();restartIntro();saveState();});
-ageSlider.addEventListener('input',()=>{
-  currentAge=parseFloat(ageSlider.value)||0;
-  dobInput.value=new Date(Date.now()-currentAge*365.25*24*3600*1000).toISOString().slice(0,10);
-  lifeProgress=getLifeProgress();restartIntro();saveState();updateStats();
-});
-countrySelect.addEventListener('change',()=>{
-  if(countrySelect.value){lifespanInput.value=countrySelect.value;updateStats();restartIntro();saveState();}
-});
-livingBeingEl.addEventListener('change',()=>{
-  const val=livingBeingEl.value;
-  if(livingBeingLifespan[val]){
-    lifespanInput.value=livingBeingLifespan[val];
-    countrySelect.disabled=val!=='Human';
-    if(val!=='Human')countrySelect.selectedIndex=0;
-    updateStats();restartIntro();saveState();
-  }
-});
-window.addEventListener('resize',()=>{
-  const w=hero.clientWidth,h=hero.clientHeight;
-  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);
-});
+ageSlider.addEventListener('input',()=>{currentAge=parseFloat(ageSlider.value)||0;dobInput.value=new Date(Date.now()-currentAge*365.25*24*3600*1000).toISOString().slice(0,10);lifeProgress=getLifeProgress();restartIntro();saveState();updateStats();});
+countrySelect.addEventListener('change',()=>{if(countrySelect.value){lifespanInput.value=countrySelect.value;updateStats();restartIntro();saveState();}});
+livingBeingEl.addEventListener('change',()=>{const val=livingBeingEl.value;if(livingBeingLifespan[val]){lifespanInput.value=livingBeingLifespan[val];countrySelect.disabled=val!=='Human';if(val!=='Human')countrySelect.selectedIndex=0;updateStats();restartIntro();saveState();}});
+window.addEventListener('resize',()=>{const w=hero.clientWidth,h=hero.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);});
 
-// ── Nav ──────────────────────────────────────────────────────
+// Nav
 const navEl=document.getElementById('nav'),menuBtn=document.getElementById('nav-menu-btn'),mobileNav=document.getElementById('mobile-nav');
 window.addEventListener('scroll',()=>navEl.classList.toggle('scrolled',window.scrollY>80));
 menuBtn?.addEventListener('click',()=>mobileNav.classList.toggle('open'));
@@ -430,13 +366,11 @@ document.getElementById('scroll-indicator')?.addEventListener('click',()=>docume
 const obsv=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.12});
 document.querySelectorAll('.fade-in-section').forEach(el=>obsv.observe(el));
 
-// ── Wisdom carousel ──────────────────────────────────────────
+// Wisdom
 fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
   const quotes=data.quotes;if(!quotes?.length)return;
   let idx=parseInt(localStorage.getItem('lc_quoteIdx'))||0,timer=null;
-  const qText=document.getElementById('quoteText'),qCounter=document.getElementById('quoteCounter'),
-        qBox=document.getElementById('quoteBox'),nextBtn=document.getElementById('nextQuoteBtn'),
-        prevBtn=document.getElementById('prevQuoteBtn'),pauseBtn=document.getElementById('pauseQuoteBtn');
+  const qText=document.getElementById('quoteText'),qCounter=document.getElementById('quoteCounter'),qBox=document.getElementById('quoteBox'),nextBtn=document.getElementById('nextQuoteBtn'),prevBtn=document.getElementById('prevQuoteBtn'),pauseBtn=document.getElementById('pauseQuoteBtn');
   function showQuote(i){if(!qText)return;qText.classList.remove('visible');setTimeout(()=>{qText.innerHTML=`"${quotes[i]}"`;qText.classList.add('visible');if(qCounter)qCounter.textContent=`${i+1} of ${quotes.length}`;},500);localStorage.setItem('lc_quoteIdx',i);}
   function startCycle(){if(timer)return;if(pauseBtn)pauseBtn.textContent='Pause';timer=setInterval(()=>{idx=(idx+1)%quotes.length;showQuote(idx);},20000);}
   function stopCycle(){clearInterval(timer);timer=null;if(pauseBtn)pauseBtn.textContent='Play';}
@@ -446,5 +380,5 @@ fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
   if(qBox)qBox.classList.add('visible');showQuote(idx);startCycle();
 }).catch(()=>{const el=document.getElementById('quoteText');if(el){el.textContent='Could not load wisdom.';el.classList.add('visible');}});
 
-// ── YouTube ───────────────────────────────────────────────────
+// YouTube
 window.onYouTubeIframeAPIReady=function(){new YT.Player('youtube-player',{videoId:'vxQKqtlPvks',playerVars:{controls:1,autoplay:0,loop:1,playlist:'vxQKqtlPvks',modestbranding:1}});};
