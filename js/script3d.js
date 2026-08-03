@@ -76,6 +76,8 @@ const threeCanvas    = document.getElementById('three-canvas');
 const hero           = document.getElementById('hero');
 const dobInput       = document.getElementById('dob');
 const lifespanInput  = document.getElementById('lifespan');
+const userNameInput  = document.getElementById('userName');
+const heroNameDisplay= document.getElementById('heroNameDisplay');
 const ageSlider      = document.getElementById('age');
 const useDOBBtn      = document.getElementById('useDOB');
 const countrySelect  = document.getElementById('country');
@@ -278,7 +280,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xffc040, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0xf0b040, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
@@ -342,16 +344,46 @@ function animate(ts){
   controls.update(); renderer.render(scene,camera);
 }
 
-// Init
+// ── Init ─────────────────────────────────────────────────────
 dobInput.value=DOB_DEFAULT; lifespanInput.value=LIFESPAN_DEF; livingBeingEl.value='Human';
-const saved={dob:localStorage.getItem('lc_dob'),ls:localStorage.getItem('lc_lifespan'),animal:localStorage.getItem('lc_animal')};
-if(saved.dob)dobInput.value=saved.dob;
-if(saved.ls)lifespanInput.value=saved.ls;
+const saved={
+  dob:localStorage.getItem('lc_dob'),
+  ls:localStorage.getItem('lc_lifespan'),
+  animal:localStorage.getItem('lc_animal'),
+  name:localStorage.getItem('lc_name')
+};
+
+if(saved.name) {
+  userNameInput.value = saved.name;
+  heroNameDisplay.innerHTML = saved.name.replace(' ', '<br>');
+}
+
+if(saved.dob) dobInput.value=saved.dob;
+if(saved.ls) {
+  lifespanInput.value=saved.ls;
+} else if (countryLifeExpectancy['India']) {
+  // First time visitor: Default to India
+  lifespanInput.value = countryLifeExpectancy['India'];
+  countrySelect.value = countryLifeExpectancy['India'];
+}
+
 if(saved.animal){livingBeingEl.value=saved.animal;if(saved.animal!=='Human')countrySelect.disabled=true;}
+
 updateStats(); restartIntro(); animate(0);
 
-// Events
-function saveState(){localStorage.setItem('lc_dob',dobInput.value);localStorage.setItem('lc_lifespan',lifespanInput.value);localStorage.setItem('lc_animal',livingBeingEl.value);}
+// ── Events ───────────────────────────────────────────────────
+function saveState(){
+  localStorage.setItem('lc_dob',dobInput.value);
+  localStorage.setItem('lc_lifespan',lifespanInput.value);
+  localStorage.setItem('lc_animal',livingBeingEl.value);
+  localStorage.setItem('lc_name',userNameInput.value);
+}
+
+userNameInput.addEventListener('input', () => {
+  const nm = userNameInput.value || 'Deepanshu Singh';
+  heroNameDisplay.innerHTML = nm.replace(' ', '<br>');
+  saveState();
+});
 dobInput.addEventListener('input',()=>{updateStats();restartIntro();updateLiveCounter();saveState();});
 useDOBBtn.addEventListener('click',()=>{updateStats();restartIntro();saveState();});
 lifespanInput.addEventListener('input',()=>{updateStats();restartIntro();saveState();});
