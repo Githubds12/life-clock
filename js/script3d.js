@@ -131,23 +131,39 @@ scene.add(warmLight);
 const coolLight = new THREE.PointLight(0x22d3ee, 6, 8, 1.5);
 coolLight.position.set(1.5, 2.0, 2);
 scene.add(coolLight);
-scene.add(Object.assign(new THREE.DirectionalLight(0x6688cc, 0.8), { position: new THREE.Vector3(-2, 1, -3) }));
-scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.4), { position: new THREE.Vector3(0, 2, 4) }));
+const dirLight1 = new THREE.DirectionalLight(0x6688cc, 0.8);
+dirLight1.position.set(-2, 1, -3);
+scene.add(dirLight1);
+const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+dirLight2.position.set(0, 2, 4);
+scene.add(dirLight2);
 
-// ── Stars — Fallback to standard PointsMaterial to guarantee rendering ──
-const STAR_COUNT = 4000;
+// ── Stars: ShaderMaterial, no custom attributes, guaranteed round dots ──
+const STAR_VERT = /* glsl */`
+  void main() {
+    gl_PointSize = 2.0 + fract(sin(position.x * 127.1 + position.y * 311.7) * 43758.5) * 2.5;
+    gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const STAR_FRAG = /* glsl */`
+  void main() {
+    float d = length(gl_PointCoord - 0.5);
+    if (d > 0.5) discard;
+    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
+    gl_FragColor = vec4(0.95, 0.97, 1.0, alpha * 0.85);
+  }
+`;
+const STAR_COUNT = 6000;
 const starPos = new Float32Array(STAR_COUNT * 3);
-const starCol = new Float32Array(STAR_COUNT * 3);
 for (let i = 0; i < STAR_COUNT; i++) {
   const theta = Math.random()*Math.PI*2, phi = Math.acos(2*Math.random()-1), r = 28+Math.random()*40;
   starPos[i*3]=r*Math.sin(phi)*Math.cos(theta); starPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta); starPos[i*3+2]=r*Math.cos(phi);
-  starCol[i*3]=0.9; starCol[i*3+1]=0.95; starCol[i*3+2]=1.0;
 }
 const starGeo = new THREE.BufferGeometry();
 starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
-const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
-  size: 0.6, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false, sizeAttenuation: true
+const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
+  vertexShader: STAR_VERT, fragmentShader: STAR_FRAG,
+  transparent: true, depthWrite: false,
 }));
 scene.add(stars);
 
@@ -184,7 +200,7 @@ topGlow.position.y = 1.0; hourglassGroup.add(topGlow);
 const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 bottomGlow.position.y = -1.0; hourglassGroup.add(bottomGlow);
 
-// ── Sand shaders: ultra simple fallback ──
+// ── Sand shaders: object-space Y (position.y), no scale confusion ──
 const SAND_VERT = /* glsl */`
   varying float vY;
   void main() {
@@ -201,10 +217,13 @@ const SAND_FRAG = /* glsl */`
   uniform float yRange;
   varying float vY;
   void main() {
-    // Debug: Just render everything, no discard based on gl_PointCoord
     if (vY > sandLevel) discard;
+    float d = length(gl_PointCoord - 0.5);
+    if (d > 0.5) discard;
     float t = clamp((vY - yMin) / yRange, 0.0, 1.0);
-    gl_FragColor = vec4(mix(colorBot, colorTop, t * t), 1.0);
+    vec3  col = mix(colorBot, colorTop, t * t);
+    float alpha = 1.0 - smoothstep(0.35, 0.5, d);
+    gl_FragColor = vec4(col, alpha);
   }
 `;
 
