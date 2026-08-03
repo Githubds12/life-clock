@@ -14,6 +14,7 @@ const N_SAND       = 22000;
 const N_STREAM     = 100;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+// ── Datasets ────────────────────────────────────────────────
 const livingBeingLifespan = {
   Human: 73, Dog: 13, Cat: 15, Elephant: 70, Horse: 30, Cow: 20, Rabbit: 9,
   Mouse: 2, Rat: 3, Pig: 15, Sheep: 12, Goat: 15, Kangaroo: 20, Giraffe: 25,
@@ -71,7 +72,7 @@ const countryLifeExpectancy = {
   Zambia: 66.35, Zimbabwe: 62.78,
 };
 
-// DOM
+// ── DOM ─────────────────────────────────────────────────────
 const threeCanvas    = document.getElementById('three-canvas');
 const hero           = document.getElementById('hero');
 const dobInput       = document.getElementById('dob');
@@ -96,7 +97,7 @@ Object.entries(countryLifeExpectancy).forEach(([country, exp]) => {
   const opt = document.createElement('option'); opt.value = exp; opt.textContent = country; countrySelect.appendChild(opt);
 });
 
-// Renderer
+// ── Renderer ────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({
   canvas: threeCanvas, antialias: true, alpha: false, powerPreference: 'high-performance',
 });
@@ -124,7 +125,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 pmrem.compileEquirectangularShader();
 scene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
 
-// Lights
+// ── Lights ──────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0x0d1a38, 4));
 scene.add(new THREE.HemisphereLight(0x1a2a50, 0x080808, 1.5));
 const warmLight = new THREE.PointLight(0xf59e0b, 12, 6, 1.5);
@@ -169,13 +170,14 @@ const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
 }));
 scene.add(stars);
 
-// Hourglass
-function glassRadius(y) { const n=Math.abs(clamp(y,-2,2))/2; return 0.09+0.91*Math.pow(n,0.5); }
+// ── Hourglass ───────────────────────────────────────────────
+function glassRadius(y) { const n = Math.abs(clamp(y,-2,2))/2; return 0.09+0.91*Math.pow(n,0.5); }
 function buildGlassProfile(segs=52) {
   const pts=[];
   for(let i=0;i<=segs;i++){const t=i/segs,y=(t-0.5)*4.6;pts.push(new THREE.Vector2(glassRadius(y)*1.02,y));}
   return pts;
 }
+
 const hourglassGroup = new THREE.Group();
 hourglassGroup.scale.setScalar(0.60);
 scene.add(hourglassGroup);
@@ -183,9 +185,9 @@ scene.add(hourglassGroup);
 hourglassGroup.add(new THREE.Mesh(
   new THREE.LatheGeometry(buildGlassProfile(), 96),
   new THREE.MeshPhysicalMaterial({
-    color:0x99ccee, metalness:0.0, roughness:0.02, transmission:0.90, thickness:0.2,
-    transparent:true, opacity:0.72, side:THREE.DoubleSide, ior:1.48,
-    envMapIntensity:1.2, iridescence:0.06, iridescenceIOR:1.3, depthWrite:false,
+    color:0x99ccee,metalness:0.0,roughness:0.02,transmission:0.90,thickness:0.2,
+    transparent:true,opacity:0.72,side:THREE.DoubleSide,ior:1.48,
+    envMapIntensity:1.2,iridescence:0.06,iridescenceIOR:1.3,depthWrite:false,
   })
 ));
 
@@ -194,10 +196,10 @@ function addDisc(y) {
   const d = new THREE.Mesh(new THREE.CylinderGeometry(1.22,1.32,0.14,48,1), woodMat);
   d.position.y = y; hourglassGroup.add(d);
 }
-addDisc(2.22); addDisc(-2.22);
+addDisc( 2.22); addDisc(-2.22);
 
 const glowBase = new THREE.MeshBasicMaterial({color:0xf59e0b,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
-const topGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
+const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 topGlow.position.y = 1.0; hourglassGroup.add(topGlow);
 const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 bottomGlow.position.y = -1.0; hourglassGroup.add(bottomGlow);
@@ -238,7 +240,7 @@ function generateBulbPoints(yMin, yMax, count) {
   return pos;
 }
 
-// Top bulb: Y 0→2, starts full, drains to 0
+// Top bulb: object Y 0 → 2, starts FULL (sandLevel=2.0), empties toward 0
 const topSandGeo = new THREE.BufferGeometry();
 topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(0,2,N_SAND),3));
 const topSandMat = new THREE.ShaderMaterial({
@@ -254,7 +256,7 @@ const topSandMat = new THREE.ShaderMaterial({
 });
 hourglassGroup.add(new THREE.Points(topSandGeo, topSandMat));
 
-// Bottom bulb: Y -2→0, starts empty, fills to 0
+// Bottom bulb: object Y -2 → 0, starts EMPTY (sandLevel=-2.0), fills toward 0
 const bottomSandGeo = new THREE.BufferGeometry();
 bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints(-2,0,N_SAND),3));
 const bottomSandMat = new THREE.ShaderMaterial({
@@ -270,12 +272,12 @@ const bottomSandMat = new THREE.ShaderMaterial({
 });
 hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 
-// Falling stream
+// ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
   const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.04;
   streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
-  streamVel[i]=0.012+Math.random()*0.018;
+  streamVel[i] = 0.012 + Math.random()*0.018;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
@@ -284,64 +286,89 @@ const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
 }));
 hourglassGroup.add(streamPoints);
 
-// State
+// ── State ────────────────────────────────────────────────────
 let currentAge=0, lifeProgress=0, displayProgress=0, introStart=null;
-function getLifeProgress(){return clamp(currentAge/Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF),0,1);}
-function updateStats(){
-  const dobStr=dobInput.value,lifespan=Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF);
-  if(dobStr){const ds=(new Date()-new Date(dobStr+'T00:00:00'))/1000;currentAge=ds/(365.25*24*3600);const td=Math.floor(ds/86400),yrs=Math.floor(td/365.25),rem=Math.floor(td%365.25);if(exactAgeEl)exactAgeEl.textContent=`${yrs}y ${Math.floor(rem/30.44)}m ${Math.floor(rem%30.44)}d`;}
+
+function getLifeProgress() {
+  return clamp(currentAge / Math.max(1, parseFloat(lifespanInput.value)||LIFESPAN_DEF), 0, 1);
+}
+function updateStats() {
+  const dobStr=dobInput.value, lifespan=Math.max(1,parseFloat(lifespanInput.value)||LIFESPAN_DEF);
+  if(dobStr) {
+    const ds=(new Date()-new Date(dobStr+'T00:00:00'))/1000;
+    currentAge=ds/(365.25*24*3600);
+    const td=Math.floor(ds/86400),yrs=Math.floor(td/365.25),rem=Math.floor(td%365.25);
+    if(exactAgeEl) exactAgeEl.textContent=`${yrs}y ${Math.floor(rem/30.44)}m ${Math.floor(rem%30.44)}d`;
+  }
   lifeProgress=getLifeProgress();
-  const left=Math.max(0,lifespan-currentAge);
-  if(yearsLivedEl)yearsLivedEl.textContent=currentAge.toFixed(1);
-  if(yearsLeftEl)yearsLeftEl.textContent=left.toFixed(1);
-  if(progressTextEl)progressTextEl.textContent=(lifeProgress*100).toFixed(1)+'%';
-  if(meterFill)meterFill.style.width=(lifeProgress*100).toFixed(2)+'%';
-  ageSlider.max=lifespan; ageSlider.value=clamp(currentAge,0,lifespan);
+  const left=Math.max(0,(parseFloat(lifespanInput.value)||LIFESPAN_DEF)-currentAge);
+  if(yearsLivedEl)   yearsLivedEl.textContent  =currentAge.toFixed(1);
+  if(yearsLeftEl)    yearsLeftEl.textContent    =left.toFixed(1);
+  if(progressTextEl) progressTextEl.textContent =(lifeProgress*100).toFixed(1)+'%';
+  if(meterFill)      meterFill.style.width      =(lifeProgress*100).toFixed(2)+'%';
+  ageSlider.max=parseFloat(lifespanInput.value)||LIFESPAN_DEF;
+  ageSlider.value=clamp(currentAge,0,ageSlider.max);
 }
 function restartIntro(){displayProgress=0;introStart=null;}
 
 function updateLiveCounter(){
   const dm=new Date()-new Date((dobInput.value||DOB_DEFAULT)+'T00:00:00');
   if(dm<0)return;
-  const ts=Math.floor(dm/1000),secs=ts%60,tm=Math.floor(ts/60),mins=tm%60,th=Math.floor(tm/60),hours=th%24,td=Math.floor(th/24),days=td%30,tmo=Math.floor(td/30.44),months=tmo%12,years=Math.floor(tmo/12);
+  const ts=Math.floor(dm/1000),secs=ts%60,tm=Math.floor(ts/60),mins=tm%60,th=Math.floor(tm/60),
+        hours=th%24,td=Math.floor(th/24),days=td%30,tmo=Math.floor(td/30.44),months=tmo%12,years=Math.floor(tmo/12);
   const pad=n=>String(n).padStart(2,'0'),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('c-years',years);set('c-months',pad(months));set('c-days',pad(days));set('c-hours',pad(hours));set('c-mins',pad(mins));set('c-secs',pad(secs));
+  set('c-years',years);set('c-months',pad(months));set('c-days',pad(days));
+  set('c-hours',pad(hours));set('c-mins',pad(mins));set('c-secs',pad(secs));
 }
 setInterval(()=>{updateLiveCounter();updateStats();},1000);
 updateLiveCounter();
 
-// Sand update — object-space Y, sandLevel in range -2..2
+// ── Sand update — object-space Y, no HSCALE needed ──────────────────
 function updateSand(p){
-  topSandMat.uniforms.sandLevel.value    =  2.0*(1.0-p);  // full→empty
-  bottomSandMat.uniforms.sandLevel.value = -2.0+2.0*p;    // empty→full
+  topSandMat.uniforms.sandLevel.value    =  2.0*(1.0-p);   // 2.0 → 0.0 (drains)
+  bottomSandMat.uniforms.sandLevel.value = -2.0+2.0*p;     // -2.0 → 0.0 (fills)
   streamPoints.visible = p>0.005 && p<0.995;
   bottomGlow.material.opacity = 0.04+p*0.12;
   warmLight.intensity = 4+p*12;
 }
 
+// ── Animation loop ───────────────────────────────────────────
 let clockT=0;
 function animate(ts){
   requestAnimationFrame(animate);
   clockT=ts*0.001;
   if(introStart===null)introStart=ts;
   const elapsed=ts-introStart;
-  if(elapsed<INTRO_MS){const t=elapsed/INTRO_MS;displayProgress=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2)*lifeProgress;}
-  else{displayProgress=lifeProgress;}
+  if(elapsed<INTRO_MS){
+    const t=elapsed/INTRO_MS;
+    displayProgress=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2)*lifeProgress;
+  } else { displayProgress=lifeProgress; }
+
   updateSand(displayProgress);
+
   if(streamPoints.visible){
-    const attr=streamGeo.attributes.position,bl=-2.0+2.0*displayProgress;
+    const attr=streamGeo.attributes.position;
+    const bottomLevel=-2.0+2.0*displayProgress;  // object-space bottom fill Y
     for(let i=0;i<N_STREAM;i++){
       attr.array[i*3+1]-=streamVel[i];
-      if(attr.array[i*3+1]<bl+0.05){const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;attr.array[i*3]=r*Math.cos(theta);attr.array[i*3+1]=0.05;attr.array[i*3+2]=r*Math.sin(theta);}
+      if(attr.array[i*3+1]<bottomLevel+0.05){
+        const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;
+        attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
+      }
     }
     attr.needsUpdate=true;
   }
-  stars.rotation.y=clockT*0.00006; stars.rotation.x=Math.sin(clockT*0.00004)*0.02;
+
+  stars.rotation.y=clockT*0.00006;
+  stars.rotation.x=Math.sin(clockT*0.00004)*0.02;
+
   const pulse=0.04+Math.sin(clockT*0.8)*0.02;
-  topGlow.material.opacity=pulse*(1-displayProgress*0.7);
-  bottomGlow.material.opacity=0.04+displayProgress*0.14;
+  topGlow.material.opacity    = pulse*(1-displayProgress*0.7);
+  bottomGlow.material.opacity = 0.04+displayProgress*0.14+Math.sin(clockT*0.9)*0.01;
   warmLight.intensity=(4+displayProgress*12)+Math.sin(clockT*0.7)*0.8;
-  controls.update(); renderer.render(scene,camera);
+
+  controls.update();
+  renderer.render(scene,camera);
 }
 
 // ── Init ─────────────────────────────────────────────────────
@@ -395,7 +422,7 @@ function loadState(data) {
     heroNameDisplay.innerHTML = data.name.replace(' ', '<br>');
   } else {
     userNameInput.value = '';
-    heroNameDisplay.innerHTML = 'Deepanshu<br>Singh';
+    heroNameDisplay.innerHTML = 'Life<br>Clock';
   }
   
   if (data.dob) dobInput.value = data.dob;
@@ -436,12 +463,44 @@ userNameInput.addEventListener('input', () => {
 dobInput.addEventListener('input',()=>{updateStats();restartIntro();updateLiveCounter();saveState();});
 useDOBBtn.addEventListener('click',()=>{updateStats();restartIntro();saveState();});
 lifespanInput.addEventListener('input',()=>{updateStats();restartIntro();saveState();});
-ageSlider.addEventListener('input',()=>{currentAge=parseFloat(ageSlider.value)||0;dobInput.value=new Date(Date.now()-currentAge*365.25*24*3600*1000).toISOString().slice(0,10);lifeProgress=getLifeProgress();restartIntro();saveState();updateStats();});
-countrySelect.addEventListener('change',()=>{if(countrySelect.value){lifespanInput.value=countrySelect.value;updateStats();restartIntro();saveState();}});
-livingBeingEl.addEventListener('change',()=>{const val=livingBeingEl.value;if(livingBeingLifespan[val]){lifespanInput.value=livingBeingLifespan[val];countrySelect.disabled=val!=='Human';if(val!=='Human')countrySelect.selectedIndex=0;updateStats();restartIntro();saveState();}});
-window.addEventListener('resize',()=>{const w=hero.clientWidth,h=hero.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);});
+ageSlider.addEventListener('input',()=>{
+  currentAge=parseFloat(ageSlider.value)||0;
+  dobInput.value=new Date(Date.now()-currentAge*365.25*24*3600*1000).toISOString().slice(0,10);
+  lifeProgress=getLifeProgress();restartIntro();saveState();updateStats();
+});
+countrySelect.addEventListener('change',()=>{
+  if(countrySelect.value){lifespanInput.value=countrySelect.value;updateStats();restartIntro();saveState();}
+});
+livingBeingEl.addEventListener('change',()=>{
+  const val=livingBeingEl.value;
+  if(livingBeingLifespan[val]){
+    lifespanInput.value=livingBeingLifespan[val];
+    countrySelect.disabled=val!=='Human';
+    if(val!=='Human')countrySelect.selectedIndex=0;
+    updateStats();restartIntro();saveState();
+  }
+});
+function updateLayoutForMobile() {
+  const isMobile = window.innerWidth <= 640;
+  if (isMobile) {
+    hourglassGroup.position.y = -1.5;
+    controls.target.set(0, -1.5, 0);
+  } else {
+    hourglassGroup.position.y = 0;
+    controls.target.set(0, 0, 0);
+  }
+}
 
-// Nav
+window.addEventListener('resize', () => {
+  const w = hero.clientWidth, h = hero.clientHeight;
+  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+  updateLayoutForMobile();
+});
+
+// Call once on init
+updateLayoutForMobile();
+
+// ── Nav ──────────────────────────────────────────────────────
 const navEl=document.getElementById('nav'),menuBtn=document.getElementById('nav-menu-btn'),mobileNav=document.getElementById('mobile-nav');
 window.addEventListener('scroll',()=>navEl.classList.toggle('scrolled',window.scrollY>80));
 menuBtn?.addEventListener('click',()=>mobileNav.classList.toggle('open'));
@@ -450,11 +509,13 @@ document.getElementById('scroll-indicator')?.addEventListener('click',()=>docume
 const obsv=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.12});
 document.querySelectorAll('.fade-in-section').forEach(el=>obsv.observe(el));
 
-// Wisdom
+// ── Wisdom carousel ──────────────────────────────────────────
 fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
   const quotes=data.quotes;if(!quotes?.length)return;
   let idx=parseInt(localStorage.getItem('lc_quoteIdx'))||0,timer=null;
-  const qText=document.getElementById('quoteText'),qCounter=document.getElementById('quoteCounter'),qBox=document.getElementById('quoteBox'),nextBtn=document.getElementById('nextQuoteBtn'),prevBtn=document.getElementById('prevQuoteBtn'),pauseBtn=document.getElementById('pauseQuoteBtn');
+  const qText=document.getElementById('quoteText'),qCounter=document.getElementById('quoteCounter'),
+        qBox=document.getElementById('quoteBox'),nextBtn=document.getElementById('nextQuoteBtn'),
+        prevBtn=document.getElementById('prevQuoteBtn'),pauseBtn=document.getElementById('pauseQuoteBtn');
   function showQuote(i){if(!qText)return;qText.classList.remove('visible');setTimeout(()=>{qText.innerHTML=`"${quotes[i]}"`;qText.classList.add('visible');if(qCounter)qCounter.textContent=`${i+1} of ${quotes.length}`;},500);localStorage.setItem('lc_quoteIdx',i);}
   function startCycle(){if(timer)return;if(pauseBtn)pauseBtn.textContent='Pause';timer=setInterval(()=>{idx=(idx+1)%quotes.length;showQuote(idx);},20000);}
   function stopCycle(){clearInterval(timer);timer=null;if(pauseBtn)pauseBtn.textContent='Play';}
@@ -464,5 +525,5 @@ fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
   if(qBox)qBox.classList.add('visible');showQuote(idx);startCycle();
 }).catch(()=>{const el=document.getElementById('quoteText');if(el){el.textContent='Could not load wisdom.';el.classList.add('visible');}});
 
-// YouTube
+// ── YouTube ───────────────────────────────────────────────────
 window.onYouTubeIframeAPIReady=function(){new YT.Player('youtube-player',{videoId:'vxQKqtlPvks',playerVars:{controls:1,autoplay:0,loop:1,playlist:'vxQKqtlPvks',modestbranding:1}});};
