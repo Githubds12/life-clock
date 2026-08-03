@@ -373,11 +373,60 @@ updateStats(); restartIntro(); animate(0);
 
 // ── Events ───────────────────────────────────────────────────
 function saveState(){
-  localStorage.setItem('lc_dob',dobInput.value);
-  localStorage.setItem('lc_lifespan',lifespanInput.value);
-  localStorage.setItem('lc_animal',livingBeingEl.value);
-  localStorage.setItem('lc_name',userNameInput.value);
+  const data = {
+    dob: dobInput.value,
+    lifespan: lifespanInput.value,
+    animal: livingBeingEl.value,
+    name: userNameInput.value
+  };
+  localStorage.setItem('lc_dob', data.dob);
+  localStorage.setItem('lc_lifespan', data.lifespan);
+  localStorage.setItem('lc_animal', data.animal);
+  localStorage.setItem('lc_name', data.name);
+  
+  if (window.saveToCloud) {
+    window.saveToCloud(data);
+  }
 }
+
+function loadState(data) {
+  if (data.name) {
+    userNameInput.value = data.name;
+    heroNameDisplay.innerHTML = data.name.replace(' ', '<br>');
+  } else {
+    userNameInput.value = '';
+    heroNameDisplay.innerHTML = 'Deepanshu<br>Singh';
+  }
+  
+  if (data.dob) dobInput.value = data.dob;
+  
+  if (data.animal) {
+    livingBeingEl.value = data.animal;
+    if (data.animal !== 'Human') countrySelect.disabled = true;
+  }
+  
+  if (data.lifespan) {
+    lifespanInput.value = data.lifespan;
+  }
+  
+  updateStats();
+  restartIntro();
+}
+
+window.addEventListener('lifeclock-cloud-load', (e) => {
+  console.log('Loaded from cloud:', e.detail);
+  loadState(e.detail);
+});
+
+window.addEventListener('lifeclock-cloud-logout', () => {
+  console.log('Logged out, reverting to local state');
+  loadState({
+    dob: localStorage.getItem('lc_dob') || DOB_DEFAULT,
+    lifespan: localStorage.getItem('lc_lifespan') || LIFESPAN_DEF,
+    animal: localStorage.getItem('lc_animal') || 'Human',
+    name: localStorage.getItem('lc_name') || ''
+  });
+});
 
 userNameInput.addEventListener('input', () => {
   const nm = userNameInput.value || 'Deepanshu Singh';
