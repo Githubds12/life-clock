@@ -201,7 +201,7 @@ addDisc( 2.22); addDisc(-2.22);
 const glowBase = new THREE.MeshBasicMaterial({color:0xf59e0b,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
 const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 topGlow.position.y = 1.0; hourglassGroup.add(topGlow);
-const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
+const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), new THREE.MeshBasicMaterial({color:0x00f0ff,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false}));
 bottomGlow.position.y = -1.0; hourglassGroup.add(bottomGlow);
 
 // ── Sand shaders: object-space Y (position.y), no scale confusion ──
@@ -262,8 +262,8 @@ bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoi
 const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value: -2.0},
-    colorTop:  {value: new THREE.Color(0xdca142)},  // Sand color
-    colorBot:  {value: new THREE.Color(0xdca142)},  // Same color (no gradient brown)
+    colorTop:  {value: new THREE.Color(0x00bfff)},  // Glowing blue top of bottom pile
+    colorBot:  {value: new THREE.Color(0x0055ff)},  // Deeper blue at bottom
     yMin:      {value: -2.0},
     yRange:    {value:  2.0},
   },
@@ -282,7 +282,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xdca142, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0x77ddff, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
@@ -413,6 +413,9 @@ function saveState(){
   
   if (window.saveToCloud) {
     window.saveToCloud(data);
+  }
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.WidgetSync) {
+    window.Capacitor.Plugins.WidgetSync.syncData(data).catch(console.error);
   }
 }
 
