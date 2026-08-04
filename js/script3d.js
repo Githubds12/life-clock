@@ -128,7 +128,7 @@ scene.environment = pmrem.fromScene(new RoomEnvironment()).texture;
 // ── Lights ──────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0x0d1a38, 4));
 scene.add(new THREE.HemisphereLight(0x1a2a50, 0x080808, 1.5));
-const warmLight = new THREE.PointLight(0xf59e0b, 12, 6, 1.5);
+const warmLight = new THREE.PointLight(0xffd166, 12, 6, 1.5);
 warmLight.position.set(0, -0.9, 0.3);
 scene.add(warmLight);
 const coolLight = new THREE.PointLight(0x22d3ee, 6, 8, 1.5);
@@ -198,7 +198,7 @@ function addDisc(y) {
 }
 addDisc( 2.22); addDisc(-2.22);
 
-const glowBase = new THREE.MeshBasicMaterial({color:0xf59e0b,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
+const glowBase = new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
 const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
 topGlow.position.y = 1.0; hourglassGroup.add(topGlow);
 const bottomGlow = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
@@ -246,8 +246,8 @@ topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints
 const topSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value:  2.0},
-    colorTop:  {value: new THREE.Color(0xdca142)},  // Sand color
-    colorBot:  {value: new THREE.Color(0xdca142)},  // Same color (no gradient brown)
+    colorTop:  {value: new THREE.Color(0xffe066)},  // Sand color
+    colorBot:  {value: new THREE.Color(0xffe066)},  // Same color (no gradient brown)
     yMin:      {value:  0.0},
     yRange:    {value:  2.0},
   },
@@ -262,8 +262,8 @@ bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoi
 const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value: -2.0},
-    colorTop:  {value: new THREE.Color(0xdca142)},
-    colorBot:  {value: new THREE.Color(0xdca142)},
+    colorTop:  {value: new THREE.Color(0xffe066)},
+    colorBot:  {value: new THREE.Color(0xffe066)},
     yMin:      {value: -2.0},
     yRange:    {value:  2.0},
   },
@@ -282,7 +282,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xdca142, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0xffe066, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
