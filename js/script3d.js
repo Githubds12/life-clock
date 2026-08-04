@@ -483,10 +483,12 @@ livingBeingEl.addEventListener('change',()=>{
 function updateLayoutForMobile() {
   const isMobile = window.innerWidth <= 640;
   if (isMobile) {
-    hourglassGroup.position.y = -1.5;
-    controls.target.set(0, -1.5, 0);
+    hourglassGroup.position.y = -1.8;
+    hourglassGroup.scale.setScalar(0.48);
+    controls.target.set(0, 0, 0);
   } else {
     hourglassGroup.position.y = 0;
+    hourglassGroup.scale.setScalar(0.60);
     controls.target.set(0, 0, 0);
   }
 }

@@ -14,30 +14,7 @@
 </head>
 
 <body>
-  <!-- ERROR LOGGER (for debugging since dev tools are unavailable) -->
-  <div id="error-log" style="position:fixed; top:0; left:0; width:100%; max-height:50%; overflow-y:auto; background:rgba(255,0,0,0.8); color:white; font-family:monospace; font-size:14px; z-index:999999; pointer-events:none; padding:10px; display:none;"></div>
-  <script>
-    window.onerror = function(msg, url, lineNo, columnNo, error) {
-      const el = document.getElementById('error-log');
-      el.style.display = 'block';
-      el.innerHTML += '<b>Error:</b> ' + msg + '<br>Line: ' + lineNo + '<br><br>';
-      return false;
-    };
-    const origError = console.error;
-    console.error = function(...args) {
-      const el = document.getElementById('error-log');
-      el.style.display = 'block';
-      el.innerHTML += '<b>Console Error:</b> ' + args.join(' ') + '<br><br>';
-      origError.apply(console, args);
-    };
-    const origWarn = console.warn;
-    console.warn = function(...args) {
-      const el = document.getElementById('error-log');
-      el.style.display = 'block';
-      el.innerHTML += '<b style="color:yellow;">Console Warn:</b> ' + args.join(' ') + '<br><br>';
-      origWarn.apply(console, args);
-    };
-  </script>
+
 
   <!-- NAV -->
   <nav class="nav" id="nav">
