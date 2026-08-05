@@ -42,52 +42,30 @@
     <!-- Three.js 3D canvas renders here -->
     <canvas id="three-canvas"></canvas>
 
-    <!-- LEFT PANEL: Personalized greeting + live counter -->
-    <div class="hero-left">
-      <p class="hero-greeting">Welcome back,</p>
-      <h1 class="hero-name" id="heroNameDisplay">Life<br>Clock</h1>
-      <p class="hero-dob" id="heroDobDisplay">Born · 1 February 1998</p>
+    <!-- RIGHT PANEL: Stats + Controls -->
+    <button id="sidebar-toggle" class="sidebar-toggle-btn" style="display: none;">⚙️ Customize & Stats</button>
+    <div class="hero-right">
+      <button id="sidebar-close" class="sidebar-close-btn" style="display: none;">✕</button>
 
-      <div class="live-counter" id="live-counter">
-        <div class="counter-row primary">
-          <div class="counter-unit">
-            <span class="counter-val" id="c-years">28</span>
-            <span class="counter-label">yrs</span>
+      <!-- Profile Card -->
+      <div class="glass-card" id="profile-card">
+        <h3 class="card-title">👤 Profile</h3>
+        <h1 class="hero-name" id="heroNameDisplay" style="font-size: 28px; line-height: 1.1; margin-bottom: 8px;">Life<br>Clock</h1>
+        <p class="hero-dob" id="heroDobDisplay" style="font-size: 13px; color: var(--dim); margin-bottom: 16px;">Born · 1 February 1998</p>
+        
+        <div class="live-counter" id="live-counter">
+          <div class="counter-row primary">
+            <div class="counter-unit"><span class="counter-val" id="c-years">28</span><span class="counter-label">yrs</span></div><span class="counter-sep">·</span>
+            <div class="counter-unit"><span class="counter-val" id="c-months">00</span><span class="counter-label">mo</span></div><span class="counter-sep">·</span>
+            <div class="counter-unit"><span class="counter-val" id="c-days">00</span><span class="counter-label">days</span></div>
           </div>
-          <span class="counter-sep">·</span>
-          <div class="counter-unit">
-            <span class="counter-val" id="c-months">00</span>
-            <span class="counter-label">mo</span>
-          </div>
-          <span class="counter-sep">·</span>
-          <div class="counter-unit">
-            <span class="counter-val" id="c-days">00</span>
-            <span class="counter-label">days</span>
-          </div>
-        </div>
-        <div class="counter-row secondary">
-          <div class="counter-unit">
-            <span class="counter-val" id="c-hours">00</span>
-            <span class="counter-label">hrs</span>
-          </div>
-          <span class="counter-sep">:</span>
-          <div class="counter-unit">
-            <span class="counter-val" id="c-mins">00</span>
-            <span class="counter-label">min</span>
-          </div>
-          <span class="counter-sep">:</span>
-          <div class="counter-unit">
-            <span class="counter-val" id="c-secs">00</span>
-            <span class="counter-label">sec</span>
+          <div class="counter-row secondary">
+            <div class="counter-unit"><span class="counter-val" id="c-hours">00</span><span class="counter-label">hrs</span></div><span class="counter-sep">:</span>
+            <div class="counter-unit"><span class="counter-val" id="c-mins">00</span><span class="counter-label">min</span></div><span class="counter-sep">:</span>
+            <div class="counter-unit"><span class="counter-val" id="c-secs">00</span><span class="counter-label">sec</span></div>
           </div>
         </div>
       </div>
-
-      <p class="hero-hint">Drag to rotate · Scroll to zoom</p>
-    </div>
-
-    <!-- RIGHT PANEL: Stats + Controls -->
-    <div class="hero-right">
 
       <!-- Stats Card -->
       <div class="glass-card" id="stats-card">
@@ -251,7 +229,7 @@
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script type="module-shim" src="js/firebase-auth.js"></script>
-  <script type="module-shim" src="js/script3d.js"></script>
+  <script type="module-shim" src="js/script3d.js?v=9"></script>
 
 </body>
 </html>
