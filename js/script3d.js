@@ -175,7 +175,8 @@ function glassRadius(y) {
   const absY = Math.abs(y);
   if (absY <= 1.2) {
     const u = absY / 1.2;
-    return 0.1 + 1.1 * Math.pow(Math.sin(u * Math.PI / 2), 1.5);
+    const s = (1 - Math.cos(u * Math.PI)) / 2;
+    return 0.1 + 1.1 * s;
   } else {
     const t = clamp((absY - 1.2) / 1.2, 0.0, 1.0);
     return 0.1 + 1.1 * Math.sqrt(1.0 - t * t);
