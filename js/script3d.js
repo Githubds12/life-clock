@@ -231,14 +231,14 @@ const SAND_FRAG = /* glsl */`
     
     if (isTop < 0.5) {
       // Bottom bulb: cone shape (higher in center)
-      localLevel = sandLevel + (0.35 - r) * 1.5;
+      localLevel = sandLevel + (0.35 - r) * 1.2;
       // Center is higher and gets more light. Edges get less light.
       shade = mix(0.6, 1.2, 1.0 - clamp(r / 0.8, 0.0, 1.0));
     } else {
       // Top bulb: funnel shape (lower in center)
-      localLevel = sandLevel - (0.45 - r) * 2.2;
+      localLevel = sandLevel - (0.45 - r) * 1.2;
       // Center is deeper and gets less light. Edges get more light.
-      shade = mix(0.3, 1.2, clamp(r / 0.8, 0.0, 1.0));
+      shade = mix(0.4, 1.2, clamp(r / 0.8, 0.0, 1.0));
     }
 
     if (vY > localLevel) discard;
@@ -350,8 +350,8 @@ updateLiveCounter();
 
 // ── Sand update — object-space Y, no HSCALE needed ──────────────────
 function updateSand(p){
-  topSandMat.uniforms.sandLevel.value    =  2.0*(1.0-p);   // 2.0 → 0.0 (drains)
-  bottomSandMat.uniforms.sandLevel.value = -2.0+2.0*p;     // -2.0 → 0.0 (fills)
+  topSandMat.uniforms.sandLevel.value    =  1.7*(1.0-p);   // 1.7 → 0.0 (drains, starts a bit empty)
+  bottomSandMat.uniforms.sandLevel.value = -2.0+1.7*p;     // -2.0 → -0.3 (fills, stops a bit empty)
   streamPoints.visible = p>0.005 && p<0.995;
   bottomGlow.material.opacity = 0.04+p*0.12;
   warmLight.intensity = 4+p*12;
@@ -378,7 +378,7 @@ function animate(ts){
 
   if(streamPoints.visible){
     const attr=streamGeo.attributes.position;
-    const bottomLevel=-2.0+2.0*displayProgress;  // object-space bottom fill Y
+    const bottomLevel=-2.0+1.7*displayProgress;  // object-space bottom fill Y
     for(let i=0;i<N_STREAM;i++){
       attr.array[i*3+1]-=streamVel[i];
       if(attr.array[i*3+1]<bottomLevel+0.05){
