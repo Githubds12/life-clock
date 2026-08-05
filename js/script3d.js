@@ -171,8 +171,12 @@ const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
 scene.add(stars);
 
 // ── Hourglass ───────────────────────────────────────────────
-function glassRadius(y) { const n = Math.abs(clamp(y,-2,2))/2; return 0.09+0.91*Math.pow(n,0.5); }
-function buildGlassProfile(segs=52) {
+function glassRadius(y) { 
+  const absY = Math.abs(y);
+  const t = clamp((absY - 1.2) / 1.2, -1.0, 1.0); 
+  return 0.1 + 1.1 * Math.sqrt(1.0 - t * t);
+}
+function buildGlassProfile(segs=72) {
   const pts=[];
   for(let i=0;i<=segs;i++){const t=i/segs,y=(t-0.5)*4.6;pts.push(new THREE.Vector2(glassRadius(y)*1.02,y));}
   return pts;
