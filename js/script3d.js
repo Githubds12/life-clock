@@ -234,15 +234,13 @@ const SAND_FRAG = /* glsl */`
     float shade = 1.0;
     
     if (isTop < 0.5) {
-      // Bottom bulb: cone shape (higher in center)
-      localLevel = sandLevel + (0.35 - r) * 1.2;
-      // Center is higher and gets more light. Edges get less light.
-      shade = mix(0.6, 1.2, 1.0 - clamp(r / 0.8, 0.0, 1.0));
+      // Bottom bulb: cone shape (shallow upright cone, higher in center)
+      localLevel = sandLevel - r * 0.25 + 0.1;
+      shade = mix(0.7, 1.1, 1.0 - clamp(r / 1.0, 0.0, 1.0));
     } else {
-      // Top bulb: funnel shape (lower in center)
-      localLevel = sandLevel - (0.45 - r) * 1.2;
-      // Center is deeper and gets less light. Edges get more light.
-      shade = mix(0.4, 1.2, clamp(r / 0.8, 0.0, 1.0));
+      // Top bulb: funnel shape (shallow inverted cone, lower in center)
+      localLevel = sandLevel + r * 0.25 - 0.1;
+      shade = mix(0.7, 1.1, clamp(r / 1.0, 0.0, 1.0));
     }
 
     if (vY > localLevel) discard;
