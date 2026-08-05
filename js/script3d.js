@@ -99,7 +99,7 @@ Object.entries(countryLifeExpectancy).forEach(([country, exp]) => {
 
 // ── Renderer ────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({
-  canvas: threeCanvas, antialias: true, alpha: false, powerPreference: 'high-performance',
+  canvas: threeCanvas, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: true,
 });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(hero.clientWidth, hero.clientHeight);
@@ -207,25 +207,48 @@ bottomGlow.position.y = -1.0; hourglassGroup.add(bottomGlow);
 // ── Sand shaders: object-space Y (position.y), no scale confusion ──
 const SAND_VERT = /* glsl */`
   varying float vY;
+  varying vec2 vXZ;
   void main() {
     vY = position.y;
+    vXZ = position.xz;
     gl_PointSize = 3.5;
     gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 const SAND_FRAG = /* glsl */`
   uniform float sandLevel;
+  uniform float isTop;
   uniform vec3  colorTop;
   uniform vec3  colorBot;
   uniform float yMin;
   uniform float yRange;
   varying float vY;
+  varying vec2 vXZ;
   void main() {
-    if (vY > sandLevel) discard;
+    float r = length(vXZ);
+    float localLevel = sandLevel;
+    float shade = 1.0;
+    
+    if (isTop < 0.5) {
+      // Bottom bulb: cone shape (higher in center)
+      localLevel = sandLevel + (0.35 - r) * 1.5;
+      // Center is higher and gets more light. Edges get less light.
+      shade = mix(0.6, 1.2, 1.0 - clamp(r / 0.8, 0.0, 1.0));
+    } else {
+      // Top bulb: funnel shape (lower in center)
+      localLevel = sandLevel - (0.45 - r) * 2.2;
+      // Center is deeper and gets less light. Edges get more light.
+      shade = mix(0.3, 1.2, clamp(r / 0.8, 0.0, 1.0));
+    }
+
+    if (vY > localLevel) discard;
     float d = length(gl_PointCoord - 0.5);
     if (d > 0.5) discard;
     float t = clamp((vY - yMin) / yRange, 0.0, 1.0);
     vec3  col = mix(colorBot, colorTop, t * t);
+    
+    col *= shade; // Apply depth shading
+    
     float alpha = 1.0 - smoothstep(0.35, 0.5, d);
     gl_FragColor = vec4(col, alpha);
   }
@@ -246,10 +269,11 @@ topSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoints
 const topSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value:  2.0},
+    isTop:     {value:  1.0},
     colorTop:  {value: new THREE.Color(0xffe066)},  // Sand color
     colorBot:  {value: new THREE.Color(0xffe066)},  // Same color (no gradient brown)
-    yMin:      {value:  0.0},
-    yRange:    {value:  2.0},
+    yMin:      {value: 0.0},
+    yRange:    {value: 2.0}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -262,10 +286,11 @@ bottomSandGeo.setAttribute('position', new THREE.BufferAttribute(generateBulbPoi
 const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value: -2.0},
+    isTop:     {value:  0.0},
     colorTop:  {value: new THREE.Color(0xffe066)},
     colorBot:  {value: new THREE.Color(0xffe066)},
     yMin:      {value: -2.0},
-    yRange:    {value:  2.0},
+    yRange:    {value: 2.0}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -334,7 +359,12 @@ function updateSand(p){
 
 // ── Animation loop ───────────────────────────────────────────
 let clockT=0;
+let isPaused = false;
+window.pauseAnimation = () => { isPaused = true; };
+window.resumeAnimation = () => { isPaused = false; requestAnimationFrame(animate); };
+
 function animate(ts){
+  if (isPaused) return;
   requestAnimationFrame(animate);
   clockT=ts*0.001;
   if(introStart===null)introStart=ts;
@@ -398,13 +428,39 @@ if(saved.animal){livingBeingEl.value=saved.animal;if(saved.animal!=='Human')coun
 
 updateStats(); restartIntro(); animate(0);
 
+window.activateWallpaperMode = () => {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    nav, #scroll-indicator, .content-section, footer, #auth-modal, .hero-greeting, .hero-name, .hero-dob, .hero-hint, .sidebar-toggle-btn, .sidebar-close-btn, #stats-card, .card-title { display: none !important; }
+    #hero { min-height: 100vh !important; }
+    body { overflow: hidden !important; background: transparent !important; }
+    #profile-card { background: transparent !important; border: none !important; margin: 0 auto !important; box-shadow: none !important; }
+    .hero-right {
+      position: absolute !important; right: 0 !important; left: 0 !important; bottom: 50px !important; top: auto !important;
+      width: 100vw !important; height: auto !important; background: transparent !important; backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important; border: none !important; padding: 0 !important; overflow: hidden !important;
+    }
+  `;
+  document.head.appendChild(style);
+};
+// Still keep the URL param check as a fallback
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('wallpaper') === 'true') {
+  window.activateWallpaperMode();
+}
+
 // ── Events ───────────────────────────────────────────────────
 function saveState(){
+  // Render current frame to ensure we capture the latest state
+  renderer.render(scene, camera);
+  const imageBase64 = threeCanvas.toDataURL('image/jpeg', 0.90);
+
   const data = {
     dob: dobInput.value,
     lifespan: lifespanInput.value,
     animal: livingBeingEl.value,
-    name: userNameInput.value
+    name: userNameInput.value,
+    imageBase64: imageBase64
   };
   localStorage.setItem('lc_dob', data.dob);
   localStorage.setItem('lc_lifespan', data.lifespan);
@@ -486,7 +542,7 @@ livingBeingEl.addEventListener('change',()=>{
 function updateLayoutForMobile() {
   const isMobile = window.innerWidth <= 640;
   if (isMobile) {
-    hourglassGroup.position.y = -1.8;
+    hourglassGroup.position.y = 0;
     hourglassGroup.scale.setScalar(0.48);
     controls.target.set(0, 0, 0);
   } else {
@@ -505,7 +561,7 @@ window.addEventListener('resize', () => {
 // Call once on init
 updateLayoutForMobile();
 
-// ── Nav ──────────────────────────────────────────────────────
+// ── Nav & Sidebar ──────────────────────────────────────────────────────
 const navEl=document.getElementById('nav'),menuBtn=document.getElementById('nav-menu-btn'),mobileNav=document.getElementById('mobile-nav');
 window.addEventListener('scroll',()=>navEl.classList.toggle('scrolled',window.scrollY>80));
 menuBtn?.addEventListener('click',()=>mobileNav.classList.toggle('open'));
@@ -513,6 +569,16 @@ document.querySelectorAll('.mobile-nav-link').forEach(l=>l.addEventListener('cli
 document.getElementById('scroll-indicator')?.addEventListener('click',()=>document.getElementById('intro-section')?.scrollIntoView({behavior:'smooth'}));
 const obsv=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.12});
 document.querySelectorAll('.fade-in-section').forEach(el=>obsv.observe(el));
+
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarClose = document.getElementById('sidebar-close');
+const heroRight = document.querySelector('.hero-right');
+if (sidebarToggle && heroRight) {
+  sidebarToggle.addEventListener('click', () => heroRight.classList.add('open'));
+}
+if (sidebarClose && heroRight) {
+  sidebarClose.addEventListener('click', () => heroRight.classList.remove('open'));
+}
 
 // ── Wisdom carousel ──────────────────────────────────────────
 fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
