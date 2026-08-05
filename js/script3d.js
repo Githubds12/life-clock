@@ -494,13 +494,14 @@ function loadState(data) {
   
   if (data.dob) dobInput.value = data.dob;
   
+  if (data.lifespan) {
+    lifespanInput.value = data.lifespan;
+    countrySelect.value = data.lifespan;
+  }
+  
   if (data.animal) {
     livingBeingEl.value = data.animal;
     if (data.animal !== 'Human') countrySelect.disabled = true;
-  }
-  
-  if (data.lifespan) {
-    lifespanInput.value = data.lifespan;
   }
   
   updateStats();
