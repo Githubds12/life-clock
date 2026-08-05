@@ -173,13 +173,13 @@ scene.add(stars);
 // ── Hourglass ───────────────────────────────────────────────
 function glassRadius(y) {
   const absY = Math.abs(y);
-  if (absY <= 1.2) {
-    const u = absY / 1.2;
-    const s = (1 - Math.cos(u * Math.PI)) / 2;
-    return 0.1 + 1.1 * s;
+  if (absY <= 1.5) {
+    const u = absY / 1.5;
+    const s = Math.pow((1 - Math.cos(u * Math.PI)) / 2, 1.2);
+    return 0.04 + 1.15 * s;
   } else {
-    const t = clamp((absY - 1.2) / 1.2, 0.0, 1.0);
-    return 0.1 + 1.1 * Math.sqrt(1.0 - t * t);
+    const t = clamp((absY - 1.5) / 0.9, 0.0, 1.0);
+    return 0.04 + 1.15 * Math.sqrt(1.0 - t * t);
   }
 }
 function buildGlassProfile(segs=72) {
@@ -195,18 +195,13 @@ scene.add(hourglassGroup);
 hourglassGroup.add(new THREE.Mesh(
   new THREE.LatheGeometry(buildGlassProfile(), 96),
   new THREE.MeshPhysicalMaterial({
-    color:0x99ccee,metalness:0.0,roughness:0.02,transmission:0.90,thickness:0.2,
-    transparent:true,opacity:0.72,side:THREE.DoubleSide,ior:1.48,
-    envMapIntensity:1.2,iridescence:0.06,iridescenceIOR:1.3,depthWrite:false,
+    color: 0xe0e8f0, metalness: 0.1, roughness: 0.05, transmission: 1.0, thickness: 0.8,
+    transparent: true, opacity: 1.0, side: THREE.DoubleSide, ior: 1.52,
+    envMapIntensity: 1.5, iridescence: 0.1, iridescenceIOR: 1.3, depthWrite: false,
   })
 ));
 
-const woodMat = new THREE.MeshStandardMaterial({ color:0x4a2007, metalness:0.05, roughness:0.85 });
-function addDisc(y) {
-  const d = new THREE.Mesh(new THREE.CylinderGeometry(1.22,1.32,0.14,48,1), woodMat);
-  d.position.y = y; hourglassGroup.add(d);
-}
-addDisc( 2.22); addDisc(-2.22);
+// Wood discs removed to match image reference
 
 const glowBase = new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:0.05,side:THREE.BackSide,depthWrite:false});
 const topGlow    = new THREE.Mesh(new THREE.SphereGeometry(0.75,16,16), glowBase.clone());
@@ -240,13 +235,13 @@ const SAND_FRAG = /* glsl */`
     float shade = 1.0;
     
     if (isTop < 0.5) {
-      // Bottom bulb: cone shape (shallow upright cone, higher in center)
-      localLevel = sandLevel - r * 0.25 + 0.1;
-      shade = mix(0.7, 1.1, 1.0 - clamp(r / 1.0, 0.0, 1.0));
+      // Bottom bulb: distinct cone shape
+      localLevel = sandLevel - r * 0.5 + 0.15;
+      shade = mix(0.6, 1.2, 1.0 - clamp(r / 1.0, 0.0, 1.0));
     } else {
-      // Top bulb: funnel shape (shallow inverted cone, lower in center)
-      localLevel = sandLevel + r * 0.25 - 0.1;
-      shade = mix(0.7, 1.1, clamp(r / 1.0, 0.0, 1.0));
+      // Top bulb: perfectly flat
+      localLevel = sandLevel;
+      shade = mix(0.8, 1.1, clamp(r / 1.0, 0.0, 1.0));
     }
 
     if (vY > localLevel) discard;
@@ -278,8 +273,8 @@ const topSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value:  2.0},
     isTop:     {value:  1.0},
-    colorTop:  {value: new THREE.Color(0xffe066)},  // Sand color
-    colorBot:  {value: new THREE.Color(0xffe066)},  // Same color (no gradient brown)
+    colorTop:  {value: new THREE.Color(0xc9d4de)},  // Silver sand
+    colorBot:  {value: new THREE.Color(0xc9d4de)},  // Silver sand
     yMin:      {value: 0.0},
     yRange:    {value: 2.0}
   },
@@ -295,8 +290,8 @@ const bottomSandMat = new THREE.ShaderMaterial({
   uniforms: {
     sandLevel: {value: -2.0},
     isTop:     {value:  0.0},
-    colorTop:  {value: new THREE.Color(0xffe066)},
-    colorBot:  {value: new THREE.Color(0xffe066)},
+    colorTop:  {value: new THREE.Color(0xc9d4de)},
+    colorBot:  {value: new THREE.Color(0xc9d4de)},
     yMin:      {value: -2.0},
     yRange:    {value: 2.0}
   },
@@ -308,14 +303,14 @@ hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 // ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
-  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.04;
+  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.015;
   streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
   streamVel[i] = 0.012 + Math.random()*0.018;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xffe066, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0xc9d4de, size:0.02, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
@@ -390,7 +385,7 @@ function animate(ts){
     for(let i=0;i<N_STREAM;i++){
       attr.array[i*3+1]-=streamVel[i];
       if(attr.array[i*3+1]<bottomLevel+0.05){
-        const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;
+        const theta=Math.random()*Math.PI*2,r=Math.random()*0.015;
         attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
       }
     }
