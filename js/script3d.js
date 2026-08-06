@@ -11,7 +11,7 @@ const DOB_DEFAULT  = '1998-02-01';
 const LIFESPAN_DEF = 72;
 const INTRO_MS     = 14000;
 const N_SAND       = 22000;
-const N_STREAM     = 2500;
+const N_STREAM     = 100;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ── Datasets ────────────────────────────────────────────────
@@ -151,11 +151,6 @@ const bgMat = new THREE.ShaderMaterial({
       float cycle = sin(time * 0.05) * 0.5 + 0.5;
       vec3 nebulaColor = mix(palette2, palette3, n1 * cycle);
       vec3 finalCol = mix(color1, nebulaColor, smoothstep(0.3, 0.8, n));
-      float starNoise = hash(dir.x * 123.45 + dir.y * 678.9 + dir.z * 135.7);
-      if (starNoise > 0.99) {
-        float starGlow = smoothstep(0.99, 1.0, starNoise);
-        finalCol += vec3(1.0, 0.9, 0.8) * starGlow * 2.0;
-      }
       float band = smoothstep(0.5, 1.0, fbm(dir * 3.0));
       band *= smoothstep(0.4, 0.0, abs(dir.y)); 
       finalCol += vec3(0.05, 0.1, 0.15) * band * (1.0 - cycle);
@@ -344,7 +339,7 @@ hourglassGroup.add(bottomSandMesh);
 // ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
-  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.04;
+  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.015;
   streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
   streamVel[i] = 0.012 + Math.random()*0.018;
 }
@@ -503,7 +498,7 @@ function animate(ts){
     for(let i=0;i<N_STREAM;i++){
       attr.array[i*3+1]-=streamVel[i];
       if(attr.array[i*3+1]<bottomLevel+0.05){
-        const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;
+        const theta=Math.random()*Math.PI*2,r=Math.random()*0.015;
         attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
       }
     }
