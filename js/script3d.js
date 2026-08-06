@@ -154,8 +154,7 @@ const bgMat = new THREE.ShaderMaterial({
       float starNoise = hash(dir.x * 123.45 + dir.y * 678.9 + dir.z * 135.7);
       if (starNoise > 0.99) {
         float starGlow = smoothstep(0.99, 1.0, starNoise);
-        float twinkle = sin(time * 2.0 + starNoise * 100.0) * 0.5 + 0.5;
-        finalCol += vec3(1.0, 0.9, 0.8) * starGlow * twinkle * 2.0;
+        finalCol += vec3(1.0, 0.9, 0.8) * starGlow * 2.0;
       }
       float band = smoothstep(0.5, 1.0, fbm(dir * 3.0));
       band *= smoothstep(0.4, 0.0, abs(dir.y)); 
