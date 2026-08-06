@@ -274,8 +274,8 @@ const SAND_VERT = /* glsl */`
     vXZ = position.xz;
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     gl_Position  = projectionMatrix * mvPosition;
-    // Massive point size to ensure overlap
-    gl_PointSize = 26.0 * (8.0 / -mvPosition.z);
+    // Smaller point size for spaces in between sand
+    gl_PointSize = 4.0 * (8.0 / -mvPosition.z);
   }
 `;
 const SAND_FRAG = /* glsl */`
@@ -378,7 +378,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:false, depthWrite:true,
+  color:0xc9d4de, size:0.015, sizeAttenuation:true, transparent:false, depthWrite:true,
 }));
 hourglassGroup.add(streamPoints);
 
