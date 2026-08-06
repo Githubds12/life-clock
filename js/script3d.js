@@ -363,13 +363,14 @@ hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
 const streamTheta = new Float32Array(N_STREAM), streamR = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
-  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random();
-  streamTheta[i] = theta;
-  streamR[i] = r;
-  let maxR = 0.01 + 0.06 * Math.exp((-t*0.6) * 4.0);
-  let currentRadius = maxR * r;
-  streamPos[i*3]=currentRadius*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=currentRadius*Math.sin(theta);
-  streamVel[i] = 0.012 + Math.random()*0.018;
+  const t=i/N_STREAM;
+  streamTheta[i] = Math.random()*Math.PI*2;
+  streamR[i] = Math.random();
+  let startRadius = 0.012 * Math.sqrt(streamR[i]);
+  streamPos[i*3]=startRadius*Math.cos(streamTheta[i]);
+  streamPos[i*3+1]= 0.05 - t*2.0;
+  streamPos[i*3+2]=startRadius*Math.sin(streamTheta[i]);
+  streamVel[i] = 0.002 + Math.random()*0.005;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
@@ -495,20 +496,24 @@ function animate(ts){
     const bottomLevel=-2.0+1.7*displayProgress;  // object-space bottom fill Y
     for(let i=0;i<N_STREAM;i++){
       streamVel[i] += 0.0005; // Gravity acceleration
-      attr.array[i*3+1]-=streamVel[i];
-      let y = attr.array[i*3+1];
       
-      // Funnel physics: narrows as it falls
-      let maxR = 0.008 + 0.07 * Math.exp(y * 4.0); 
-      let currentRadius = maxR * streamR[i];
-      attr.array[i*3] = currentRadius * Math.cos(streamTheta[i]);
-      attr.array[i*3+2] = currentRadius * Math.sin(streamTheta[i]);
+      // Fall in the direction of world gravity (-targetUp)
+      attr.array[i*3]   -= targetUp.x * streamVel[i];
+      attr.array[i*3+1] -= targetUp.y * streamVel[i];
+      attr.array[i*3+2] -= targetUp.z * streamVel[i];
+      
+      // Calculate height along the gravity vector to see if it hit the pile
+      let h = attr.array[i*3]*targetUp.x + attr.array[i*3+1]*targetUp.y + attr.array[i*3+2]*targetUp.z;
 
-      if(y<bottomLevel+0.05){
+      if(h < bottomLevel+0.05){
         streamTheta[i] = Math.random()*Math.PI*2;
         streamR[i] = Math.random();
-        streamVel[i] = 0.005 + Math.random()*0.01;
-        attr.array[i*3+1]=0.05;
+        streamVel[i] = 0.002 + Math.random()*0.005;
+        
+        let startRadius = 0.012 * Math.sqrt(streamR[i]);
+        attr.array[i*3]   = startRadius * Math.cos(streamTheta[i]);
+        attr.array[i*3+1] = 0.05;
+        attr.array[i*3+2] = startRadius * Math.sin(streamTheta[i]);
       }
     }
     attr.needsUpdate=true;
