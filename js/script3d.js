@@ -224,6 +224,7 @@ const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
   vertexShader: STAR_VERT, fragmentShader: STAR_FRAG,
   transparent: true, depthWrite: false,
 }));
+stars.renderOrder = 1;
 scene.add(stars);
 
 // ── Hourglass ───────────────────────────────────────────────
@@ -248,14 +249,16 @@ const hourglassGroup = new THREE.Group();
 hourglassGroup.scale.setScalar(0.60);
 scene.add(hourglassGroup);
 
-hourglassGroup.add(new THREE.Mesh(
+const hourglassMesh = new THREE.Mesh(
   new THREE.LatheGeometry(buildGlassProfile(), 96),
   new THREE.MeshPhysicalMaterial({
     color: 0xe0e8f0, metalness: 0.1, roughness: 0.05, transmission: 1.0, thickness: 0.2,
     transparent: true, opacity: 1.0, side: THREE.FrontSide, ior: 1.52,
     envMapIntensity: 1.5, iridescence: 0.1, iridescenceIOR: 1.3, depthWrite: false,
   })
-));
+);
+hourglassMesh.renderOrder = 3;
+hourglassGroup.add(hourglassMesh);
 
 // Wood discs removed to match image reference
 
@@ -313,7 +316,8 @@ const SAND_FRAG = /* glsl */`
     
     col *= shade; // Apply depth shading
     
-    gl_FragColor = vec4(col, 1.0);
+    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
+    gl_FragColor = vec4(col, alpha);
   }
 `;
 
@@ -340,9 +344,11 @@ const topSandMat = new THREE.ShaderMaterial({
     localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
-  transparent: false, depthWrite: true,
+  transparent: true, depthWrite: false,
 });
-hourglassGroup.add(new THREE.Points(topSandGeo, topSandMat));
+const topSandMesh = new THREE.Points(topSandGeo, topSandMat);
+topSandMesh.renderOrder = 2;
+hourglassGroup.add(topSandMesh);
 
 // Bottom bulb: object Y -2 → 0, starts EMPTY (sandLevel=-2.0), fills toward 0
 const bottomSandGeo = new THREE.BufferGeometry();
@@ -358,9 +364,11 @@ const bottomSandMat = new THREE.ShaderMaterial({
     localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
-  transparent: false, depthWrite: true,
+  transparent: true, depthWrite: false,
 });
-hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
+const bottomSandMesh = new THREE.Points(bottomSandGeo, bottomSandMat);
+bottomSandMesh.renderOrder = 2;
+hourglassGroup.add(bottomSandMesh);
 
 // ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
@@ -378,8 +386,9 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xc9d4de, size:0.015, sizeAttenuation:true, transparent:false, depthWrite:true,
+  color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
+streamPoints.renderOrder = 2;
 hourglassGroup.add(streamPoints);
 
 // ── State ────────────────────────────────────────────────────
