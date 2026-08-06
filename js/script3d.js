@@ -227,6 +227,7 @@ const SAND_FRAG = /* glsl */`
   uniform vec3  colorBot;
   uniform float yMin;
   uniform float yRange;
+  uniform vec3  localUp;
   varying float vY;
   varying vec2 vXZ;
   void main() {
@@ -244,7 +245,9 @@ const SAND_FRAG = /* glsl */`
       shade = mix(0.8, 1.1, clamp(r / 1.0, 0.0, 1.0));
     }
 
-    if (vY > localLevel) discard;
+    float h = dot(vec3(vXZ.x, vY, vXZ.y), localUp);
+    if (h > localLevel) discard;
+    
     float d = length(gl_PointCoord - 0.5);
     if (d > 0.5) discard;
     float t = clamp((vY - yMin) / yRange, 0.0, 1.0);
@@ -276,7 +279,8 @@ const topSandMat = new THREE.ShaderMaterial({
     colorTop:  {value: new THREE.Color(0xc9d4de)},  // Silver sand
     colorBot:  {value: new THREE.Color(0xc9d4de)},  // Silver sand
     yMin:      {value: 0.0},
-    yRange:    {value: 2.0}
+    yRange:    {value: 2.0},
+    localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -293,7 +297,8 @@ const bottomSandMat = new THREE.ShaderMaterial({
     colorTop:  {value: new THREE.Color(0xc9d4de)},
     colorBot:  {value: new THREE.Color(0xc9d4de)},
     yMin:      {value: -2.0},
-    yRange:    {value: 2.0}
+    yRange:    {value: 2.0},
+    localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
   transparent: true, depthWrite: false,
@@ -366,6 +371,29 @@ let isPaused = false;
 window.pauseAnimation = () => { isPaused = true; };
 window.resumeAnimation = () => { isPaused = false; requestAnimationFrame(animate); };
 
+let targetTiltX = 0;
+let targetTiltZ = 0;
+let currentTiltX = 0;
+let currentTiltZ = 0;
+const MAX_TILT = 0.25;
+let sandInertiaUp = new THREE.Vector3(0, 1, 0);
+
+window.addEventListener('mousemove', (e) => {
+  const mx = (e.clientX / window.innerWidth) * 2 - 1;
+  const my = -(e.clientY / window.innerHeight) * 2 + 1;
+  targetTiltZ = mx * MAX_TILT;
+  targetTiltX = -my * MAX_TILT;
+});
+
+window.addEventListener('deviceorientation', (e) => {
+  if (e.beta !== null && e.gamma !== null) {
+    let g = clamp(e.gamma, -45, 45) / 45; 
+    let b = clamp(e.beta - 45, -45, 45) / 45; 
+    targetTiltZ = g * MAX_TILT;
+    targetTiltX = b * MAX_TILT;
+  }
+});
+
 function animate(ts){
   if (isPaused) return;
   requestAnimationFrame(animate);
@@ -378,6 +406,29 @@ function animate(ts){
   } else { displayProgress=lifeProgress; }
 
   updateSand(displayProgress);
+
+  // Physics Parallax and Sloshing
+  currentTiltX += (targetTiltX - currentTiltX) * 0.08;
+  currentTiltZ += (targetTiltZ - currentTiltZ) * 0.08;
+  
+  // Calculate tilt relative to the rotating camera so the glass always tilts matching the screen!
+  const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+  const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+  camRight.y = 0; camRight.normalize();
+  const camForward = new THREE.Vector3().crossVectors(camRight, new THREE.Vector3(0, 1, 0)).normalize();
+  
+  const rotRight = new THREE.Quaternion().setFromAxisAngle(camRight, currentTiltX);
+  const rotForward = new THREE.Quaternion().setFromAxisAngle(camForward, currentTiltZ);
+  hourglassGroup.quaternion.copy(new THREE.Quaternion().multiplyQuaternions(rotRight, rotForward));
+
+  const invRot = hourglassGroup.quaternion.clone().invert();
+  const targetUp = new THREE.Vector3(0, 1, 0).applyQuaternion(invRot);
+  
+  sandInertiaUp.lerp(targetUp, 0.06);
+  sandInertiaUp.normalize();
+  
+  topSandMat.uniforms.localUp.value.copy(sandInertiaUp);
+  bottomSandMat.uniforms.localUp.value.copy(sandInertiaUp);
 
   if(streamPoints.visible){
     const attr=streamGeo.attributes.position;
