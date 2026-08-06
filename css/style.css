@@ -294,6 +294,22 @@ body {
   flex-direction: column;
   gap: 14px;
   width: min(280px, 28vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  scrollbar-width: thin;
+}
+
+.hero-right::-webkit-scrollbar {
+  width: 4px;
+}
+.hero-right::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hero-right::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 4px;
 }
 
 /* =============================================
@@ -799,56 +815,46 @@ body {
     width: 100%;
     margin-bottom: 16px;
   }
+  
   .sidebar-toggle-btn {
     display: block !important;
     position: absolute;
     bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(2, 8, 23, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 30px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 1000;
-    font-family: var(--font-body);
-    font-size: 15px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    right: 20px;
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--amber);
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-family: var(--font-h);
   }
+  
   .sidebar-close-btn {
     display: block !important;
     position: absolute;
-    top: 15px;
+    top: 16px;
     right: 20px;
-    background: none;
+    background: transparent;
     border: none;
-    color: white;
+    color: var(--text);
     font-size: 24px;
     cursor: pointer;
-    z-index: 10000;
   }
-
-  .hero-name { font-size: 32px; }
-  .counter-row.primary .counter-val { font-size: 24px; }
-
-  .section-inner { padding: 0 20px; }
-  .quote-box { padding: 28px 24px; }
-  .content-section { padding: 70px 0 60px; }
+  
+  #stats-card {
+    margin-bottom: 100px;
+  }
 }
 
 /* =============================================
-   SMALL MOBILE (<420px)
+   MODAL (Auth)
    ============================================= */
-@media (max-width: 420px) {
-  .glass-card { min-width: 200px; }
-}
-/* --- Auth Modal --- */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(2, 8, 23, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -858,100 +864,142 @@ body {
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--t);
 }
 
-.modal-overlay.active {
+.modal-overlay.open {
   opacity: 1;
   pointer-events: auto;
 }
 
 .modal-content {
+  position: relative;
   width: 90%;
   max-width: 400px;
-  position: relative;
-  padding: 2.5rem;
+  padding: 40px 32px;
+  text-align: center;
   transform: translateY(20px);
-  transition: transform 0.3s ease;
-  box-sizing: border-box;
+  transition: transform var(--t);
+  
+  /* Mirror .glass-card styling for consistency */
+  background: rgba(8, 16, 40, 0.72);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
-.modal-overlay.active .modal-content {
+.modal-overlay.open .modal-content {
   transform: translateY(0);
 }
 
 .modal-close {
   position: absolute;
-  top: 15px; right: 20px;
-  background: transparent;
+  top: 16px; right: 20px;
+  background: none;
   border: none;
-  color: #94a3b8;
-  font-size: 1.5rem;
+  color: var(--muted);
+  font-size: 24px;
   cursor: pointer;
+  transition: color var(--t);
 }
 
 .modal-close:hover {
-  color: #fff;
+  color: var(--text);
+}
+
+#auth-title {
+  font-family: var(--font-h);
+  font-size: 24px;
+  color: var(--text);
+  margin-bottom: 8px;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 1.5rem;
+  gap: 16px;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .auth-form input {
+  width: 100%;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 8px;
-  color: #f8fafc;
-  font-size: 1rem;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--font-b);
+  outline: none;
+  transition: border-color var(--t), box-shadow var(--t);
 }
 
 .auth-form input:focus {
-  outline: none;
-  border-color: #38bdf8;
-  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber-glow);
 }
 
 .auth-error {
   color: #ef4444;
-  font-size: 0.85rem;
-  margin: 0;
+  font-size: 13px;
   min-height: 20px;
 }
 
 .auth-switch {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #94a3b8;
-}
-
-.auth-btn {
-  background: transparent;
-  border: 1px solid #38bdf8;
-  color: #38bdf8;
-  padding: 6px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.auth-btn:hover {
-  background: rgba(56, 189, 248, 0.1);
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .btn-link {
   background: none;
   border: none;
-  color: #38bdf8;
+  color: var(--cyan);
   cursor: pointer;
-  font-weight: 600;
-}
-.btn-link:hover {
+  font-family: var(--font-b);
+  font-size: 14px;
   text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: var(--text);
+}
+
+.auth-btn {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font-b);
+  cursor: pointer;
+  transition: all var(--t);
+}
+
+.auth-btn:hover {
+  background: var(--amber);
+  color: #000;
+  border-color: var(--amber);
+}
+
+/* Fix missing nav-link class */
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: color var(--t), background var(--t);
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--glass);
 }
