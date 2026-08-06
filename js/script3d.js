@@ -10,7 +10,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 const DOB_DEFAULT  = '1998-02-01';
 const LIFESPAN_DEF = 72;
 const INTRO_MS     = 14000;
-const N_SAND       = 50000;
+const N_SAND       = 22000;
 const N_STREAM     = 2500;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -196,35 +196,7 @@ const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
 dirLight2.position.set(0, 2, 4);
 scene.add(dirLight2);
 
-// ── Stars: ShaderMaterial, no custom attributes, guaranteed round dots ──
-const STAR_VERT = /* glsl */`
-  void main() {
-    gl_PointSize = 2.0 + fract(sin(position.x * 127.1 + position.y * 311.7) * 43758.5) * 2.5;
-    gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-const STAR_FRAG = /* glsl */`
-  void main() {
-    float d = length(gl_PointCoord - 0.5);
-    if (d > 0.5) discard;
-    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
-    gl_FragColor = vec4(0.95, 0.97, 1.0, alpha * 0.85);
-  }
-`;
-const STAR_COUNT = 6000;
-const starPos = new Float32Array(STAR_COUNT * 3);
-for (let i = 0; i < STAR_COUNT; i++) {
-  const theta = Math.random()*Math.PI*2, phi = Math.acos(2*Math.random()-1), r = 28+Math.random()*40;
-  starPos[i*3]=r*Math.sin(phi)*Math.cos(theta); starPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta); starPos[i*3+2]=r*Math.cos(phi);
-}
-const starGeo = new THREE.BufferGeometry();
-starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-const stars = new THREE.Points(starGeo, new THREE.ShaderMaterial({
-  vertexShader: STAR_VERT, fragmentShader: STAR_FRAG,
-  transparent: true, depthWrite: false,
-}));
-stars.renderOrder = 1;
-scene.add(stars);
+// Stars removed to prevent flashing and redundancy with background shader
 
 // ── Hourglass ───────────────────────────────────────────────
 function glassRadius(y) {
@@ -277,7 +249,7 @@ const SAND_VERT = /* glsl */`
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     gl_Position  = projectionMatrix * mvPosition;
     // Smaller point size for spaces in between sand
-    gl_PointSize = 4.0 * (8.0 / -mvPosition.z);
+    gl_PointSize = 3.5;
   }
 `;
 const SAND_FRAG = /* glsl */`
@@ -559,8 +531,7 @@ function animate(ts){
     attr.needsUpdate=true;
   }
 
-  stars.rotation.y=clockT*0.00006;
-  stars.rotation.x=Math.sin(clockT*0.00004)*0.02;
+
 
   const pulse=0.04+Math.sin(clockT*0.8)*0.02;
   topGlow.material.opacity    = pulse*(1-displayProgress*0.7);
