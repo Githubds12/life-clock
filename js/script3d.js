@@ -113,7 +113,11 @@ const bgGeo = new THREE.SphereGeometry(100, 32, 32);
 const bgMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   depthWrite: false,
-  uniforms: { time: { value: 0.0 } },
+  uniforms: { 
+    time: { value: 0.0 },
+    palette2: { value: new THREE.Color(0x1a6699) },
+    palette3: { value: new THREE.Color(0x804c26) }
+  },
   vertexShader: `
     varying vec3 vPos;
     void main() {
@@ -123,6 +127,8 @@ const bgMat = new THREE.ShaderMaterial({
   `,
   fragmentShader: `
     uniform float time;
+    uniform vec3 palette2;
+    uniform vec3 palette3;
     varying vec3 vPos;
     float hash(float n) { return fract(sin(n)*43758.5453); }
     float noise(vec3 x) {
@@ -142,10 +148,8 @@ const bgMat = new THREE.ShaderMaterial({
       float n2 = fbm(dir * 4.0 - time * 0.015);
       float n = fbm(dir * 1.5 + vec3(n1, n2, n1) * 2.0);
       vec3 color1 = vec3(0.01, 0.03, 0.08);   
-      vec3 color2 = vec3(0.1, 0.4, 0.6);      
-      vec3 color3 = vec3(0.5, 0.3, 0.15);     
       float cycle = sin(time * 0.05) * 0.5 + 0.5;
-      vec3 nebulaColor = mix(color2, color3, n1 * cycle);
+      vec3 nebulaColor = mix(palette2, palette3, n1 * cycle);
       vec3 finalCol = mix(color1, nebulaColor, smoothstep(0.3, 0.8, n));
       float starNoise = hash(dir.x * 123.45 + dir.y * 678.9 + dir.z * 135.7);
       if (starNoise > 0.99) {
@@ -457,7 +461,36 @@ function animate(ts){
   if (isPaused) return;
   requestAnimationFrame(animate);
   clockT=ts*0.001;
-  if(typeof bgMat !== 'undefined') bgMat.uniforms.time.value = clockT;
+  
+  if(typeof bgMat !== 'undefined') {
+    bgMat.uniforms.time.value = clockT;
+    
+    // Cycle through 8 universe color palettes over time (e.g., 20 seconds per theme)
+    const cycleTime = 20.0;
+    const themeIdx = Math.floor(clockT / cycleTime) % 8;
+    const nextThemeIdx = (themeIdx + 1) % 8;
+    const mixFactor = (clockT % cycleTime) / cycleTime;
+    
+    // 8 procedural universe palettes mimicking the requested images
+    const palettes = [
+      [new THREE.Color(0x1a6699), new THREE.Color(0x804c26)], // Universe 1: Blue/Brown (Standard)
+      [new THREE.Color(0x991a1a), new THREE.Color(0xcc6600)], // Universe 2: Red/Orange (Fiery)
+      [new THREE.Color(0x4c1a99), new THREE.Color(0x1a9980)], // Universe 3: Purple/Teal
+      [new THREE.Color(0x1a991a), new THREE.Color(0x99991a)], // Universe 4: Green/Yellow
+      [new THREE.Color(0x991a99), new THREE.Color(0x1a1a99)], // Universe 5: Magenta/Deep Blue
+      [new THREE.Color(0x1a9999), new THREE.Color(0x991a4c)], // Universe 6: Cyan/Pink
+      [new THREE.Color(0x99661a), new THREE.Color(0x4c991a)], // Universe 7: Gold/Forest
+      [new THREE.Color(0x333333), new THREE.Color(0x999999)]  // Universe 8: Monochromatic Silver
+    ];
+    
+    const currP2 = palettes[themeIdx][0];
+    const currP3 = palettes[themeIdx][1];
+    const nextP2 = palettes[nextThemeIdx][0];
+    const nextP3 = palettes[nextThemeIdx][1];
+    
+    bgMat.uniforms.palette2.value.lerpColors(currP2, nextP2, mixFactor);
+    bgMat.uniforms.palette3.value.lerpColors(currP3, nextP3, mixFactor);
+  }
   if(introStart===null)introStart=ts;
   const elapsed=ts-introStart;
   if(elapsed<INTRO_MS){
@@ -537,7 +570,7 @@ const saved={
   ls:localStorage.getItem('lc_lifespan'),
   animal:localStorage.getItem('lc_animal'),
   name:localStorage.getItem('lc_name')
-}
+};
 
 if(saved.name) {
   userNameInput.value = saved.name;
