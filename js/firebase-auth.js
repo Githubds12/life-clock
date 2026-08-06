@@ -62,12 +62,12 @@ if (authSwitchBtn) {
     isLoginMode = !isLoginMode;
     if (isLoginMode) {
       authTitle.textContent = 'Sign In';
-      authSubmitBtn.textContent = 'Sign In';
+      authSubmitBtn.innerHTML = '<span class="btn-auth-text">Sign In</span><span class="btn-auth-glow"></span>';
       authSwitchText.textContent = "Don't have an account?";
       authSwitchBtn.textContent = 'Register';
     } else {
       authTitle.textContent = 'Register';
-      authSubmitBtn.textContent = 'Create Account';
+      authSubmitBtn.innerHTML = '<span class="btn-auth-text">Create Account</span><span class="btn-auth-glow"></span>';
       authSwitchText.textContent = "Already have an account?";
       authSwitchBtn.textContent = 'Sign In';
     }

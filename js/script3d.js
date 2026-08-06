@@ -10,8 +10,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 const DOB_DEFAULT  = '1998-02-01';
 const LIFESPAN_DEF = 72;
 const INTRO_MS     = 14000;
-const N_SAND       = 22000;
-const N_STREAM     = 100;
+const N_SAND       = 50000;
+const N_STREAM     = 2500;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ── Datasets ────────────────────────────────────────────────
@@ -108,8 +108,60 @@ renderer.toneMappingExposure = 1.2;
 renderer.localClippingEnabled = true;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x020817);
-scene.fog = new THREE.FogExp2(0x020817, 0.018);
+// Procedural Universe Background (shifts between nebula and starry lake sky styles)
+const bgGeo = new THREE.SphereGeometry(100, 32, 32);
+const bgMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  depthWrite: false,
+  uniforms: { time: { value: 0.0 } },
+  vertexShader: `
+    varying vec3 vPos;
+    void main() {
+      vPos = position;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform float time;
+    varying vec3 vPos;
+    float hash(float n) { return fract(sin(n)*43758.5453); }
+    float noise(vec3 x) {
+      vec3 p = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
+      float n = p.x + p.y*57.0 + 113.0*p.z;
+      return mix(mix(mix(hash(n+0.0),hash(n+1.0),f.x), mix(hash(n+57.0),hash(n+58.0),f.x),f.y),
+                 mix(mix(hash(n+113.0),hash(n+114.0),f.x), mix(hash(n+170.0),hash(n+171.0),f.x),f.y),f.z);
+    }
+    float fbm(vec3 p) {
+      float f=0.0; float w=0.5;
+      for (int i=0; i<5; i++) { f+=w*noise(p); p*=2.0; w*=0.5; }
+      return f;
+    }
+    void main() {
+      vec3 dir = normalize(vPos);
+      float n1 = fbm(dir * 2.0 + time * 0.02);
+      float n2 = fbm(dir * 4.0 - time * 0.015);
+      float n = fbm(dir * 1.5 + vec3(n1, n2, n1) * 2.0);
+      vec3 color1 = vec3(0.01, 0.03, 0.08);   
+      vec3 color2 = vec3(0.1, 0.4, 0.6);      
+      vec3 color3 = vec3(0.5, 0.3, 0.15);     
+      float cycle = sin(time * 0.05) * 0.5 + 0.5;
+      vec3 nebulaColor = mix(color2, color3, n1 * cycle);
+      vec3 finalCol = mix(color1, nebulaColor, smoothstep(0.3, 0.8, n));
+      float starNoise = hash(dir.x * 123.45 + dir.y * 678.9 + dir.z * 135.7);
+      if (starNoise > 0.99) {
+        float starGlow = smoothstep(0.99, 1.0, starNoise);
+        float twinkle = sin(time * 2.0 + starNoise * 100.0) * 0.5 + 0.5;
+        finalCol += vec3(1.0, 0.9, 0.8) * starGlow * twinkle * 2.0;
+      }
+      float band = smoothstep(0.5, 1.0, fbm(dir * 3.0));
+      band *= smoothstep(0.4, 0.0, abs(dir.y)); 
+      finalCol += vec3(0.05, 0.1, 0.15) * band * (1.0 - cycle);
+      gl_FragColor = vec4(finalCol, 1.0);
+    }
+  `
+});
+const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+scene.add(bgMesh);
 
 const camera = new THREE.PerspectiveCamera(44, hero.clientWidth / hero.clientHeight, 0.1, 120);
 camera.position.set(0, 0, 10);
@@ -216,8 +268,10 @@ const SAND_VERT = /* glsl */`
   void main() {
     vY = position.y;
     vXZ = position.xz;
-    gl_PointSize = 3.5;
-    gl_Position  = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_Position  = projectionMatrix * mvPosition;
+    // Massive point size to ensure overlap
+    gl_PointSize = 26.0 * (8.0 / -mvPosition.z);
   }
 `;
 const SAND_FRAG = /* glsl */`
@@ -236,12 +290,12 @@ const SAND_FRAG = /* glsl */`
     float shade = 1.0;
     
     if (isTop < 0.5) {
-      // Bottom bulb: distinct cone shape
+      // Bottom bulb: distinct cone shape pointing UP
       localLevel = sandLevel - r * 0.5 + 0.15;
       shade = mix(0.6, 1.2, 1.0 - clamp(r / 1.0, 0.0, 1.0));
     } else {
-      // Top bulb: perfectly flat
-      localLevel = sandLevel;
+      // Top bulb: inverted cone pointing DOWN towards the drain
+      localLevel = sandLevel + r * 0.45;
       shade = mix(0.8, 1.1, clamp(r / 1.0, 0.0, 1.0));
     }
 
@@ -255,7 +309,7 @@ const SAND_FRAG = /* glsl */`
     
     col *= shade; // Apply depth shading
     
-    float alpha = 1.0 - smoothstep(0.35, 0.5, d);
+    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -307,15 +361,20 @@ hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 
 // ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
+const streamTheta = new Float32Array(N_STREAM), streamR = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
-  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.015;
-  streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
+  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random();
+  streamTheta[i] = theta;
+  streamR[i] = r;
+  let maxR = 0.01 + 0.06 * Math.exp((-t*0.6) * 4.0);
+  let currentRadius = maxR * r;
+  streamPos[i*3]=currentRadius*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=currentRadius*Math.sin(theta);
   streamVel[i] = 0.012 + Math.random()*0.018;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xc9d4de, size:0.02, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
+  color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.8, depthWrite:false,
 }));
 hourglassGroup.add(streamPoints);
 
@@ -398,6 +457,7 @@ function animate(ts){
   if (isPaused) return;
   requestAnimationFrame(animate);
   clockT=ts*0.001;
+  if(typeof bgMat !== 'undefined') bgMat.uniforms.time.value = clockT;
   if(introStart===null)introStart=ts;
   const elapsed=ts-introStart;
   if(elapsed<INTRO_MS){
@@ -434,10 +494,21 @@ function animate(ts){
     const attr=streamGeo.attributes.position;
     const bottomLevel=-2.0+1.7*displayProgress;  // object-space bottom fill Y
     for(let i=0;i<N_STREAM;i++){
+      streamVel[i] += 0.0005; // Gravity acceleration
       attr.array[i*3+1]-=streamVel[i];
-      if(attr.array[i*3+1]<bottomLevel+0.05){
-        const theta=Math.random()*Math.PI*2,r=Math.random()*0.015;
-        attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
+      let y = attr.array[i*3+1];
+      
+      // Funnel physics: narrows as it falls
+      let maxR = 0.008 + 0.07 * Math.exp(y * 4.0); 
+      let currentRadius = maxR * streamR[i];
+      attr.array[i*3] = currentRadius * Math.cos(streamTheta[i]);
+      attr.array[i*3+2] = currentRadius * Math.sin(streamTheta[i]);
+
+      if(y<bottomLevel+0.05){
+        streamTheta[i] = Math.random()*Math.PI*2;
+        streamR[i] = Math.random();
+        streamVel[i] = 0.005 + Math.random()*0.01;
+        attr.array[i*3+1]=0.05;
       }
     }
     attr.needsUpdate=true;
