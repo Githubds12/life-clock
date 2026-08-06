@@ -338,28 +338,22 @@ const bottomSandMat = new THREE.ShaderMaterial({
   transparent: true, depthWrite: false,
 });
 const bottomSandMesh = new THREE.Points(bottomSandGeo, bottomSandMat);
-bottomSandMesh.renderOrder = 2;
+bottomSandMesh.renderOrder = 1;
 hourglassGroup.add(bottomSandMesh);
 
 // ── Falling stream ──────────────────────────────────────────
 const streamPos = new Float32Array(N_STREAM*3), streamVel = new Float32Array(N_STREAM);
-const streamTheta = new Float32Array(N_STREAM), streamR = new Float32Array(N_STREAM);
 for(let i=0;i<N_STREAM;i++) {
-  const t=i/N_STREAM;
-  streamTheta[i] = Math.random()*Math.PI*2;
-  streamR[i] = Math.random();
-  let startRadius = 0.012 * Math.sqrt(streamR[i]);
-  streamPos[i*3]=startRadius*Math.cos(streamTheta[i]);
-  streamPos[i*3+1]= 0.05 - t*2.0;
-  streamPos[i*3+2]=startRadius*Math.sin(streamTheta[i]);
-  streamVel[i] = 0.002 + Math.random()*0.005;
+  const t=i/N_STREAM, theta=Math.random()*Math.PI*2, r=Math.random()*0.04;
+  streamPos[i*3]=r*Math.cos(theta); streamPos[i*3+1]=-t*0.6; streamPos[i*3+2]=r*Math.sin(theta);
+  streamVel[i] = 0.012 + Math.random()*0.018;
 }
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
   color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.95, depthWrite:false,
 }));
-streamPoints.renderOrder = 2;
+streamPoints.renderOrder = 3;
 hourglassGroup.add(streamPoints);
 
 // ── State ────────────────────────────────────────────────────
@@ -507,25 +501,10 @@ function animate(ts){
     const attr=streamGeo.attributes.position;
     const bottomLevel=-2.0+1.7*displayProgress;  // object-space bottom fill Y
     for(let i=0;i<N_STREAM;i++){
-      streamVel[i] += 0.0005; // Gravity acceleration
-      
-      // Fall in the direction of world gravity (-targetUp)
-      attr.array[i*3]   -= targetUp.x * streamVel[i];
-      attr.array[i*3+1] -= targetUp.y * streamVel[i];
-      attr.array[i*3+2] -= targetUp.z * streamVel[i];
-      
-      // Calculate height along the gravity vector to see if it hit the pile
-      let h = attr.array[i*3]*targetUp.x + attr.array[i*3+1]*targetUp.y + attr.array[i*3+2]*targetUp.z;
-
-      if(h < bottomLevel+0.05){
-        streamTheta[i] = Math.random()*Math.PI*2;
-        streamR[i] = Math.random();
-        streamVel[i] = 0.002 + Math.random()*0.005;
-        
-        let startRadius = 0.012 * Math.sqrt(streamR[i]);
-        attr.array[i*3]   = startRadius * Math.cos(streamTheta[i]);
-        attr.array[i*3+1] = 0.05;
-        attr.array[i*3+2] = startRadius * Math.sin(streamTheta[i]);
+      attr.array[i*3+1]-=streamVel[i];
+      if(attr.array[i*3+1]<bottomLevel+0.05){
+        const theta=Math.random()*Math.PI*2,r=Math.random()*0.045;
+        attr.array[i*3]=r*Math.cos(theta); attr.array[i*3+1]=0.05; attr.array[i*3+2]=r*Math.sin(theta);
       }
     }
     attr.needsUpdate=true;
