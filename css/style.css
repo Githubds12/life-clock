@@ -90,18 +90,26 @@ body {
 }
 
 .nav-link {
-  color: var(--muted);
+  color: var(--text);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: color var(--t), background var(--t);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--t);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .nav-link:hover {
-  color: var(--text);
-  background: var(--glass);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
+  transform: translateY(-2px);
+  color: var(--cyan);
 }
 
 .nav-menu-btn {
@@ -287,21 +295,17 @@ body {
 .hero-right {
   position: absolute;
   right: 3.5%;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  height: -webkit-fit-content;
-  height: -moz-fit-content;
-  height: fit-content;
+  top: 80px;
+  bottom: 20px;
   z-index: 10;
   display: flex;
   flex-direction: column;
   gap: 14px;
   width: min(280px, 28vw);
-  max-height: 90vh;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 8px;
+  padding-bottom: 20px;
   scrollbar-width: thin;
 }
 
