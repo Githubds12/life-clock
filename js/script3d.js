@@ -247,8 +247,8 @@ scene.add(hourglassGroup);
 hourglassGroup.add(new THREE.Mesh(
   new THREE.LatheGeometry(buildGlassProfile(), 96),
   new THREE.MeshPhysicalMaterial({
-    color: 0xe0e8f0, metalness: 0.1, roughness: 0.05, transmission: 1.0, thickness: 0.8,
-    transparent: true, opacity: 1.0, side: THREE.DoubleSide, ior: 1.52,
+    color: 0xe0e8f0, metalness: 0.1, roughness: 0.05, transmission: 1.0, thickness: 0.2,
+    transparent: true, opacity: 1.0, side: THREE.FrontSide, ior: 1.52,
     envMapIntensity: 1.5, iridescence: 0.1, iridescenceIOR: 1.3, depthWrite: false,
   })
 ));
@@ -309,8 +309,7 @@ const SAND_FRAG = /* glsl */`
     
     col *= shade; // Apply depth shading
     
-    float alpha = 1.0 - smoothstep(0.2, 0.5, d);
-    gl_FragColor = vec4(col, alpha);
+    gl_FragColor = vec4(col, 1.0);
   }
 `;
 
@@ -337,7 +336,7 @@ const topSandMat = new THREE.ShaderMaterial({
     localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
-  transparent: true, depthWrite: false,
+  transparent: false, depthWrite: true,
 });
 hourglassGroup.add(new THREE.Points(topSandGeo, topSandMat));
 
@@ -355,7 +354,7 @@ const bottomSandMat = new THREE.ShaderMaterial({
     localUp:   {value: new THREE.Vector3(0, 1, 0)}
   },
   vertexShader: SAND_VERT, fragmentShader: SAND_FRAG,
-  transparent: true, depthWrite: false,
+  transparent: false, depthWrite: true,
 });
 hourglassGroup.add(new THREE.Points(bottomSandGeo, bottomSandMat));
 
@@ -375,7 +374,7 @@ for(let i=0;i<N_STREAM;i++) {
 const streamGeo = new THREE.BufferGeometry();
 streamGeo.setAttribute('position', new THREE.BufferAttribute(streamPos,3));
 const streamPoints = new THREE.Points(streamGeo, new THREE.PointsMaterial({
-  color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:true, opacity:0.8, depthWrite:false,
+  color:0xc9d4de, size:0.04, sizeAttenuation:true, transparent:false, depthWrite:true,
 }));
 hourglassGroup.add(streamPoints);
 
@@ -538,7 +537,7 @@ const saved={
   ls:localStorage.getItem('lc_lifespan'),
   animal:localStorage.getItem('lc_animal'),
   name:localStorage.getItem('lc_name')
-};
+}
 
 if(saved.name) {
   userNameInput.value = saved.name;
