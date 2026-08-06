@@ -711,6 +711,3 @@ fetch('wisdom-data.json').then(r=>r.ok?r.json():Promise.reject()).then(data=>{
   pauseBtn?.addEventListener('click',()=>timer?stopCycle():startCycle());
   if(qBox)qBox.classList.add('visible');showQuote(idx);startCycle();
 }).catch(()=>{const el=document.getElementById('quoteText');if(el){el.textContent='Could not load wisdom.';el.classList.add('visible');}});
-
-// ── YouTube ───────────────────────────────────────────────────
-window.onYouTubeIframeAPIReady=function(){new YT.Player('youtube-player',{videoId:'vxQKqtlPvks',playerVars:{controls:1,autoplay:0,loop:1,playlist:'vxQKqtlPvks',modestbranding:1}});};
